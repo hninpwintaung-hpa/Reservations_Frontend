@@ -1,0 +1,99 @@
+.container{
+  background-color: #e6dcdc;
+	border-radius: 10px;
+  margin: 0 auto;
+  margin-top: 30px;
+	position: relative;
+	overflow: hidden;
+	width: 768px;
+	max-width: 100%;
+	min-height: 480px;
+  // border: 1px solid #bcb6b6;
+  box-sizing: border-box;
+  border-radius: 2px solid #c0c0c0;
+  box-shadow: 4px 4px 5px solid #c0c0c0;
+    .form-container{
+      position: absolute;
+	    top: 0;
+	    height: 100%;
+      width: 50%;
+      z-index: 2;
+      left: 0;
+      .txt-login{
+          font-weight: bolder;
+          text-transform: capitalize;
+          letter-spacing:0.5px;
+        }
+      form{
+        background-color: #e6dcdc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        padding: 0 50px;
+        height: 100%;
+        text-align: center;
+        
+        input{
+          background-color: #eee;
+          border: none;
+          padding: 12px 15px;
+          margin: 8px 0;
+          width: 100%;
+        }
+        button{
+          border-radius: 20px;
+          border: 1px solid #FFae2B;
+          background-color: #FFae2B;
+          color: #FFFFFF;
+          font-size: 12px;
+          font-weight: bold;
+          padding: 12px 45px;
+          margin-bottom: 10px;
+          letter-spacing: 1px;
+          text-transform: uppercase;
+          transition: transform 80ms ease-in;
+          }
+          .text a{
+            color: #0e4bf1;
+            text-decoration: none;
+          }
+        }
+      }
+      .overlay-container{
+        position: absolute;
+        margin: 0 auto;
+        left: 50%;
+        width: 50%;
+        height: 100%;
+        background-color: orange;
+        border-top-left-radius: 45%;
+        border-bottom-left-radius: 90%;
+          .overlay-right {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 10px;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            width: 50%;
+          }
+          h1{
+            font-weight: bold;
+            margin: 0;
+            text-transform: capitalize;
+            letter-spacing: 0.5px;
+          }
+          p{
+            font-size: 14px;
+            font-weight: 100;
+            line-height: 20px;
+            letter-spacing: 0.5px;
+            margin: 20px 0 30px;
+          }
+        
+      }
+
+    }

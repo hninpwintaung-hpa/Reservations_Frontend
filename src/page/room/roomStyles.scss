@@ -1,0 +1,31 @@
+.date {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 20px;
+  &__dateFilter {
+    display: flex;
+    align-items: center;
+  }
+  &__dateFilter input {
+    border: 1px solid gray;
+    width: 150px;
+    height: 30px;
+  }
+  &__reservationBtn {
+    padding: 15px 20px;
+    margin: 0;
+    text-decoration: none;
+    // border: 1px solid rgb(241, 160, 20);
+    // border: 1px solid rgb(79, 78, 78);
+    // background-color: gray;
+    border-radius: 10px;
+    font-weight: bold;
+
+    .link-style {
+      text-decoration: none;
+      font-weight: normal;
+      color: rgb(241, 160, 20);
+    }
+  }
+}

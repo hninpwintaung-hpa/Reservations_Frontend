@@ -1,0 +1,15 @@
+.card{
+  background-color: #ffa500;
+  display: inline-flex;
+  padding: 30px;
+  width: calc(100% / 4 - 5px);
+  margin-left: 5px;
+
+}
+
+.card:first-child {
+  margin-left: 0;
+}
+.cardTitle{
+  text-align: center;
+}
