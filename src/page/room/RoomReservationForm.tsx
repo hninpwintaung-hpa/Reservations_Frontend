@@ -31,17 +31,6 @@ const RoomReservationForm: React.FC = () => {
   const [roomData, setRoomData] = useState<RoomData[]>([]);
   const authUser = authRedux.user.id;
 
-  // const [inputValue, setInputValue] = useState<InputValue>({
-  //   title: "",
-  //   description: "",
-  //   date: "",
-  //   team_id: 1,
-  //   start_time: "",
-  //   end_time: "",
-  //   room_id: 1,
-  //   user_id: 1,
-  // });
-
   const initialInputValue: InputValue = {
     title: "",
     description: "",
