@@ -8,6 +8,7 @@ import { useAppSelector } from "../../redux/features/Hook";
 import { Link } from "react-router-dom";
 import { Button, Card, Dialog, DialogContent } from "@mui/material";
 import DataTable, { TableColumn } from "react-data-table-component";
+import RoomReservationChart from "./RoomBarChart";
 
 export interface ReservationData {
   date: string;
@@ -35,30 +36,6 @@ export interface UserData {
   email: string;
   team_id: number;
 }
-interface Column {
-  id:
-    | "id"
-    | "title"
-    | "description"
-    | "start_time"
-    | "end_time"
-    | "date"
-    | "room_id"
-    | "user_id";
-  label: string;
-  minWidth?: number;
-  align?: "center";
-  format?: (value: string | number | boolean | Date) => JSX.Element | string;
-}
-interface InputValue {
-  start_time: string;
-  end_time: string;
-  room_id: number;
-  title: string;
-  description: string;
-  date: string;
-  user_id: number;
-}
 
 export const Room: React.FC = () => {
   const authRedux = useAppSelector((state) => state.auth);
@@ -67,6 +44,27 @@ export const Room: React.FC = () => {
   const [roomData, setRoomData] = useState<RoomData[]>([]);
   const [teamData, setTeamData] = useState<TeamData[]>([]);
   const [open, setOpen] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    // Update the current time every second
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
+
+  const getTimeFormat = (date: string) => {
+    const [hours, minutes, seconds] = date.split(":");
+    const time = new Date();
+    time.setHours(Number(hours));
+    time.setMinutes(Number(minutes));
+    time.setSeconds(Number(seconds));
+    return time;
+  };
   const [userReservationData, setUserReservationData] = useState<
     ReservationData[]
   >([]);
@@ -74,6 +72,7 @@ export const Room: React.FC = () => {
   const [searchDate, setSearchDate] = useState(
     new Date().toISOString().slice(0, 10)
   );
+
   const [SearchByDateData, setSearchByDateData] = useState<ReservationData[]>(
     []
   );
@@ -103,10 +102,10 @@ export const Room: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    handleSearchByDate();
+    getDataSearchByDate();
   }, [searchDate]);
 
-  const handleSearchByDate = async () => {
+  const getDataSearchByDate = async () => {
     try {
       const requestBody = {
         date: searchDate,
@@ -114,7 +113,12 @@ export const Room: React.FC = () => {
 
       const response = await axios.post(
         "http://localhost:8000/api/room_reservation/searchByDate",
-        requestBody
+        requestBody,
+        {
+          headers: {
+            Authorization: `Bearer ${authRedux.token}`,
+          },
+        }
       );
       if (Array.isArray(response.data.data)) {
         const data: ReservationData[] = response.data.data.map((item: any) => ({
@@ -136,7 +140,11 @@ export const Room: React.FC = () => {
   };
   const getRoomData = async () => {
     try {
-      const response = await axios.get("http://localhost:8000/api/rooms");
+      const response = await axios.get("http://localhost:8000/api/rooms", {
+        headers: {
+          Authorization: `Bearer ${authRedux.token}`,
+        },
+      });
       setRoomData(response.data.data);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -145,10 +153,14 @@ export const Room: React.FC = () => {
   const getTeamData = () => {
     return new Promise((resolve, reject) => {
       axios
-        .get("http://localhost:8000/api/teams")
+        .get("http://localhost:8000/api/teams", {
+          headers: {
+            Authorization: `Bearer ${authRedux.token}`,
+          },
+        })
         .then((response) => {
           resolve(response.data);
-          //console.log(response.data);
+          console.log(response.data);
         })
         .catch((reason) => {
           reject(reason);
@@ -180,59 +192,20 @@ export const Room: React.FC = () => {
 
   const getUserReservationData = async () => {
     try {
-      const url = `http://localhost:8000/api/room_reservation/searchByUserAndDate/${authUser.id}`;
-      const response = await axios.get(url);
+      // const url = `http://localhost:8000/api/room_reservation/searchByUserAndDate/${authUser.id}`;
+      const response = await axios.get(
+        `http://localhost:8000/api/room_reservation/searchByUserAndDate/${authUser.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${authRedux.token}`,
+          },
+        }
+      );
       setUserReservationData(response.data.data);
-      //console.log(response.data.data);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
-
-  const rows: ReservationData[] = userReservationData.map((item) =>
-    createData(
-      item.id,
-      item.title,
-      item.description,
-      item.date,
-      item.start_time,
-      item.end_time,
-      roomData.map((rm) => {
-        if (item.room_id == rm.id) {
-          return rm.name;
-        }
-      }),
-
-      userData.map((usr) => {
-        if (item.user_id == usr.id) {
-          return usr.name;
-        }
-      })
-    )
-  );
-  //console.log(user);
-
-  function createData(
-    id: number,
-    title: string,
-    description: string,
-    date: string,
-    start_time: number,
-    end_time: number,
-    room_id: any,
-    user_id: any
-  ): ReservationData {
-    return {
-      id,
-      title,
-      description,
-      date,
-      start_time,
-      end_time,
-      room_id,
-      user_id,
-    };
-  }
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -277,6 +250,7 @@ export const Room: React.FC = () => {
         console.error("Error:", error);
       });
   };
+
   const columns: TableColumn<ReservationData>[] = [
     {
       name: "Date",
@@ -312,6 +286,7 @@ export const Room: React.FC = () => {
                 e.preventDefault();
                 handleEdit(row);
               }}
+              disabled={getTimeFormat(row.start_time.toString()) < currentTime}
             >
               Edit
             </Button>
@@ -324,6 +299,7 @@ export const Room: React.FC = () => {
                 e.preventDefault();
                 handleDelete(row.id);
               }}
+              disabled={getTimeFormat(row.start_time.toString()) < currentTime}
             >
               Delete
             </Button>
@@ -357,9 +333,8 @@ export const Room: React.FC = () => {
       <div className="homeContainer">
         <Navbar />
 
-        {/* <RoomReservationList /> */}
         <div className="reservation-container">
-          <h1>Meeting Rooms Schedule</h1>
+          <h1 className="padding">Meeting Rooms Schedule</h1>
 
           <div className="date">
             <div className="date__reservationBtn">
@@ -379,116 +354,120 @@ export const Room: React.FC = () => {
             </div>
           </div>
 
-          <ReservationsDataTable
-            rooms={roomData}
-            reservationData={SearchByDateData}
-            teamData={teamData}
-            userData={userData}
-          />
-          <div>
-            <h1>Your Reservation for Today</h1>
-            <DataTable
-              columns={columns}
-              //className={darkMode ? "darkTable" : ""}
-              data={userReservationData}
-              theme="solarized"
-              pagination
-              customStyles={{
-                table: {
-                  style: {
-                    backgroundColor: "#000",
-                  },
-                },
-              }}
+          <div className="reservation-table">
+            <ReservationsDataTable
+              rooms={roomData}
+              reservationData={SearchByDateData}
+              teamData={teamData}
+              userData={userData}
             />
-            <Dialog open={open} onClose={() => setOpen(false)}>
-              <DialogContent>
-                <form onSubmit={handleFormSubmit}>
-                  <div>
-                    <div className="elem-group">
-                      <label htmlFor="room">Room</label>
-                      <select
-                        name="room_id"
-                        value={inputValues.room_id}
-                        onChange={handleSelectChange}
-                      >
-                        {roomData.map((roomData) => (
-                          <option key={roomData.id} value={roomData.id}>
-                            {roomData.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="elem-group">
-                      <label htmlFor="title">Title</label>
-                      <input
-                        type="text"
-                        name="title"
-                        value={inputValues.title}
-                        onChange={handleInputChange}
-                        placeholder="To meet with the client"
-                      />
-                    </div>
+          </div>
+          <div className="userData">
+            <h1 className="padding">Your Reservation for Today</h1>
+            <div className="userData__table">
+              <DataTable
+                columns={columns}
+                //className={darkMode ? "darkTable" : ""}
+                data={userReservationData}
+                theme="solarized"
+                pagination
+                customStyles={{
+                  table: {
+                    style: {
+                      backgroundColor: "#000",
+                    },
+                  },
+                }}
+              />
+              <Dialog open={open} onClose={() => setOpen(false)}>
+                <DialogContent>
+                  <form onSubmit={handleFormSubmit}>
+                    <div>
+                      <div className="elem-group">
+                        <label htmlFor="room">Room</label>
+                        <select
+                          name="room_id"
+                          value={inputValues.room_id}
+                          onChange={handleSelectChange}
+                        >
+                          {roomData.map((roomData) => (
+                            <option key={roomData.id} value={roomData.id}>
+                              {roomData.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="elem-group">
+                        <label htmlFor="title">Title</label>
+                        <input
+                          type="text"
+                          name="title"
+                          value={inputValues.title}
+                          onChange={handleInputChange}
+                          placeholder="To meet with the client"
+                        />
+                      </div>
 
-                    <div className="elem-group">
-                      <label htmlFor="description">Description</label>
-                      <input
-                        type="text"
-                        name="description"
-                        value={inputValues.description}
-                        onChange={handleInputChange}
-                        placeholder="Agenda"
-                        required
-                      />
-                    </div>
+                      <div className="elem-group">
+                        <label htmlFor="description">Description</label>
+                        <input
+                          type="text"
+                          name="description"
+                          value={inputValues.description}
+                          onChange={handleInputChange}
+                          placeholder="Agenda"
+                          required
+                        />
+                      </div>
 
-                    <div className="elem-group inlined">
-                      <select
-                        name="start_time"
-                        value={inputValues.start_time}
-                        onChange={handleSelectChange}
-                      >
-                        <option value="9:00:00">09:00am</option>
-                        <option value="10:00:00">10:00am</option>
-                        <option value="11:00:00">11:00am</option>
-                        <option value="12:00:00">12:00pm</option>
-                        <option value="13:00:00">01:00pm</option>
-                        <option value="14:00:00">02:00pm</option>
-                        <option value="15:00:00">03:00pm</option>
-                        <option value="16:00:00">04:00pm</option>
-                      </select>
+                      <div className="elem-group inlined">
+                        <select
+                          name="start_time"
+                          value={inputValues.start_time}
+                          onChange={handleSelectChange}
+                        >
+                          <option value="9:00:00">09:00am</option>
+                          <option value="10:00:00">10:00am</option>
+                          <option value="11:00:00">11:00am</option>
+                          <option value="12:00:00">12:00pm</option>
+                          <option value="13:00:00">01:00pm</option>
+                          <option value="14:00:00">02:00pm</option>
+                          <option value="15:00:00">03:00pm</option>
+                          <option value="16:00:00">04:00pm</option>
+                        </select>
+                      </div>
+                      <div className="elem-group inlined">
+                        <select
+                          name="end_time"
+                          value={inputValues.end_time}
+                          onChange={handleSelectChange}
+                        >
+                          <option value="10:00:00">10:00am</option>
+                          <option value="11:00:00">11:00am</option>
+                          <option value="12:00:00">12:00pm</option>
+                          <option value="13:00:00">01:00pm</option>
+                          <option value="14:00:00">02:00pm</option>
+                          <option value="15:00:00">03:00pm</option>
+                          <option value="16:00:00">04:00pm</option>
+                          <option value="17:00:00">05:00pm</option>
+                        </select>
+                      </div>
+                      <div className="elem-group">
+                        <label htmlFor="date">Date</label>
+                        <input
+                          type="date"
+                          name="date"
+                          value={inputValues.date}
+                          onChange={handleInputChange}
+                          required
+                        />
+                      </div>
+                      <button type="submit">Update</button>
                     </div>
-                    <div className="elem-group inlined">
-                      <select
-                        name="end_time"
-                        value={inputValues.end_time}
-                        onChange={handleSelectChange}
-                      >
-                        <option value="10:00:00">10:00am</option>
-                        <option value="11:00:00">11:00am</option>
-                        <option value="12:00:00">12:00pm</option>
-                        <option value="13:00:00">01:00pm</option>
-                        <option value="14:00:00">02:00pm</option>
-                        <option value="15:00:00">03:00pm</option>
-                        <option value="16:00:00">04:00pm</option>
-                        <option value="17:00:00">05:00pm</option>
-                      </select>
-                    </div>
-                    <div className="elem-group">
-                      <label htmlFor="date">Date</label>
-                      <input
-                        type="date"
-                        name="date"
-                        value={inputValues.date}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                    <button type="submit">Update</button>
-                  </div>
-                </form>
-              </DialogContent>
-            </Dialog>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
         </div>
       </div>

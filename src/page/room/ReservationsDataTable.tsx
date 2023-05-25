@@ -23,48 +23,60 @@ const ReservationsDataTable: React.FC<DataTableProps> = ({
       const room = rooms[i].id;
       const room_name = rooms[i].name;
       const data = reservationData.filter((data) => data.room_id === room);
-      const cells = Array(8).fill(null);
+      const cells = [];
 
-      for (let j = 0; j < data.length; j++) {
-        const cell = data[j];
-        const start = cell.start_time - 9;
-        const end = cell.end_time - 9;
-        const user = userData.find((user) => user.id === cell.user_id);
-        const team = teamData.find((team) => team.id === user?.team_id);
-        const teamName = team ? team.name : "";
+      for (let j = 9; j <= 16; j++) {
+        const cell = data.find(
+          (data) => data.start_time <= j && data.end_time > j
+        );
 
-        for (let k = start; k < end; k++) {
-          cells[k] = (
+        const isCellInRange = cell && cell.start_time <= j && cell.end_time > j;
+
+        if (isCellInRange) {
+          const user = userData.find((user) => user.id === cell.user_id);
+          const team = teamData.find((team) => team.id === user?.team_id);
+          const teamName = team ? team.name : "";
+          const span = cell.end_time - cell.start_time;
+
+          cells.push(
             <td
-              key={`${cell.id}-${k}`}
+              key={j}
               style={{ backgroundColor: "rgb(251, 177, 74)" }}
-              className="tooltip yellow"
+              colSpan={span}
+              className="tooltip"
             >
-              <span>{k === start ? cell.title : ""}</span>
-              <span className="tooltiptext">
+              <span>{teamName}</span>
+              <div className="tooltiptext">
                 <ul style={{ listStyleType: "none" }}>
                   <li>
-                    <span>Team :</span> {teamName}
+                    <span>Team </span>:{teamName}
                   </li>
                   <li>
-                    <span>Title :</span> {cell.title}
+                    <span>Title </span>: {cell.title}
                   </li>
                   <li>
-                    <span>Agenda:</span> {cell.description}
+                    <span>Agenda</span>:{cell.description}
                   </li>
                 </ul>
-              </span>
+              </div>
             </td>
           );
+
+          for (let k = 1; k < span; k++) {
+            // Skip cells that are part of the current reservation span
+            cells.push(<td key={`${j + k}`} style={{ display: "none" }} />);
+          }
+
+          j += span - 1;
+        } else {
+          cells.push(<td key={j} style={{ backgroundColor: "white" }} />);
         }
       }
 
       tableData.push(
         <tr key={room}>
-          <td>{room_name}</td>
-          {cells.map((cell, index) => (
-            <td key={index}>{cell}</td>
-          ))}
+          <td className="room">{room_name}</td>
+          {cells}
         </tr>
       );
     }

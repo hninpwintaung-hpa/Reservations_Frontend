@@ -9,7 +9,7 @@ import Login from "./page/login/login";
 import AuthProvider from "./redux/authProvider";
 import { useAppSelector } from "./redux/features/Hook";
 import { AuthRole } from "./redux/features/type/authType";
-import { Car } from "./page/car/car";
+import { Car } from "./page/Car/car";
 // import TableUser from "./components/User/normaluser";
 // import MyComponent from "./components/User/normaluser";
 // import NormalUser from "./components/User/normaluser";
@@ -19,6 +19,11 @@ import Register from "./page/register/register";
 import { Dashboard } from "./page/dashboard/dashboard";
 import Room from "./page/room/room";
 import RoomReservationForm from "./page/room/RoomReservationForm";
+import RoomBarChart from "./page/room/RoomBarChart";
+import RoomPieChart from "./page/room/RoomPieChart";
+import CarPieChart from "./page/Car/CarPieChart";
+import CarBarChart from "./page/Car/CarBarChart";
+import Charts from "./components/Chart/Charts";
 
 function App() {
   const { darkMode } = useContext(DarkModeContext);
@@ -53,9 +58,12 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/" element={<Navigate to="/login" replace={true} />} />
           <Route path="/login" element={<Login />} />
-
+          <Route path="/room-barChart" Component={RoomBarChart} />
+          <Route path="/car-barchart" Component={CarBarChart} />
           <Route path="/another-page" Component={RoomReservationForm} />
-
+          <Route path="/room-pieChart" Component={RoomPieChart} />
+          <Route path="/car-pieChart" Component={CarPieChart} />
+          <Route path="/Chart" Component={Charts} />
           {authRedux.role === (AuthRole.Admin || AuthRole.staff) && (
             <Route path="/rooms" element={<Room />} />
           )}

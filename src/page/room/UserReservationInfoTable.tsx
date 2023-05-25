@@ -85,7 +85,7 @@ const CustomTableCell = withStyles(styles)(
                   key={index}
                   label={`Cell ${index + 1} Data`}
                   value={value}
-                  onChange={(event) => handleInputChange(event, index)}
+                  onChange={(event: any) => handleInputChange(event, index)}
                   fullWidth
                   required
                 />
