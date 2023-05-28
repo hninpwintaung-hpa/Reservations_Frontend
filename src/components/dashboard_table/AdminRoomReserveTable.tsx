@@ -7,7 +7,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
-import { roomReservationData } from "../../page/dashboard/dashboard";
+import { roomReservationData } from "../../page/dashboard/admin-dashboard";
 import { useEffect } from "react";
 import axios from "axios";
 

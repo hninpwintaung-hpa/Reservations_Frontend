@@ -1,24 +1,18 @@
-// import './teamCard.css';
+import { toUnitless } from '@mui/material/styles/cssUtils';
 
-export const TeamCard = () => {
+interface CardProps {
+  teamName: string;
+  count: number;
+}
+
+export const TeamCard:React.FC<CardProps>= ({teamName, count}) => {
   return(
     <>
       <div className="teamCard">
         <div className="teamCardTitle">
-          <h1>Team A : </h1>
-        </div>
-
-        <div className="teamCardBody">
-          <span>Room Reservation time : </span>
-          <span>4</span>
-        </div>
-
-        <div className="teamCardBody">
-          <span>Car Reservation time : </span>
-          <span>3</span>
+          <h1>{teamName} : {count}</h1>
         </div>
       </div>
-
     </>
   )
 }

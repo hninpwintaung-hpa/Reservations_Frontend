@@ -1,7 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Chart, registerables } from "chart.js/auto";
-import axios from "axios";
-import { useAppSelector } from "../../redux/features/Hook";
 
 export interface ReservationCountData {
   month: string;
@@ -13,7 +11,6 @@ interface ChartDataProp {
 }
 Chart.register(...registerables);
 const RoomChart: React.FC<ChartDataProp> = ({ chartData, monthLabels }) => {
-  const authRedux = useAppSelector((state) => state.auth);
   const chartRef = useRef<HTMLCanvasElement | null>(null);
   const chartInstance = useRef<Chart | null>(null);
 

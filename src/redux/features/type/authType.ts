@@ -21,7 +21,9 @@ export interface AuthInterface {
   };
   
   export const AuthRole = {
+    Superadmin: "SuperAdmin",
     Admin: "Admin",
-    staff: "staff",
+    staff: "Staff",
+
   };
   

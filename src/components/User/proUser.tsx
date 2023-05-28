@@ -1,86 +1,310 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Button, Switch, Dialog, DialogContent } from "@mui/material";
-import DataTable from "react-data-table-component";
-import { useNavigate } from "react-router-dom";
+import DataTable, { TableColumn } from "react-data-table-component";
+import { redirect, useNavigate } from "react-router-dom";
 import { DarkModeContext } from "../../context/darkModeContext";
-
+import axios from "axios";
+import { useAppSelector } from "../../redux/features/Hook";
+// import { AuthRole } from "./redux/features/type/authType";
+import { data } from "../card/card";
+import { Email } from "@mui/icons-material";
+import { userData } from "../dashboard_table/AdminCarReserveTable";
 interface DataRow {
-  emp_id: string;
+  team: { id: number; name: string }[];
+  employee_id: string;
   name: string;
+  password: string;
   email: string;
-  role: string;
-  phone_no: string;
-  status: boolean ;
+  roles: { id: number; name: string }[];
+  phone: string;
+  id: string;
+  role_id: string;
+  status: boolean;
 }
 
 function ProUser(): JSX.Element {
   const { darkMode } = useContext(DarkModeContext);
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const [userData, setUserData] = useState<DataRow[]>([]);
+  const [role, setRole] = useState<string>("");
+  const [user, setUser] = useState<DataRow[]>([]);
+  const [roleList, setRoleList] = useState<{ id: number; name: string }[]>([]);
+  const [teamName, setTeamName] = useState("");
+  const [teamList, setTeamList] = useState<{ id: number; name: string }[]>([]);
+  const [isUpdated, setIsUpdated] = useState(false);
+  // const [roleNames, setRoleNames] = useState<{ [key: number]: string }>({});
   const [formValues, setFormValues] = useState<DataRow>({
-    emp_id: "",
+    employee_id: "",
     name: "",
     email: "",
-    role: "",
-    phone_no: "",
+    team: [],
+    roles: [],
+    role_id: "",
+    password: "",
+    phone: "",
     status: true,
+    id: "",
+    // phone_no: "",
   });
-  const [data, setData] = useState<DataRow[]>([
-    {
-      emp_id: "ACE-234",
-      name: "admin",
-      email: "admin@gmail.com",
-      role: "Admin",
-      phone_no: "09777888666",
-      status: true,
-    },
-  ]);
+  const authRedux = useAppSelector((state) => state.auth);
+  useEffect(() => {
+    getUserData().then((response: any) => {
+      setIsUpdated(false);
+      setUser(response.data);
+    });
+  }, [isUpdated]);
+  useEffect(() => {
+    getTeamData().then((response: any) => {
+      setTeamList(response.data);
+    });
+  }, [authRedux.token]);
+  const getTeamData = () => {
+    return new Promise((resolve, reject) => {
+      axios
+        .get("http://127.0.0.1:8000/api/teams", {
+          headers: {
+            Authorization: `Bearer ${authRedux.token}`,
+          },
+        })
+        .then((response) => {
+          // setTeamList(response.data.team);
+          // console.log(response.data);
+          resolve(response.data);
+        })
+        .catch((reason) => {
+          reject(reason);
+        });
+    });
+  };
+  useEffect(() => {
+    getRoleData().then((response: any) => {
+      // console.log(response.data);
+      setRoleList(response.data);
+    });
+  }, [authRedux.token]);
+  const getRoleData = () => {
+    return new Promise((resolve, reject) => {
+      axios
+        .get("http://127.0.0.1:8000/api/roles", {
+          headers: {
+            Authorization: `Bearer ${authRedux.token}`,
+          },
+        })
+        .then((response) => {
+          // setTeamList(response.data.team);
+          // console.log(response.data);
+          resolve(response.data);
+        })
+        .catch((reason) => {
+          reject(reason);
+        });
+    });
+  };
 
+  const getUserData = () => {
+    return new Promise((resolve, reject) => {
+      axios
+        .get("http://127.0.0.1:8000/api/pro_user", {
+          headers: {
+            Authorization: `Bearer ${authRedux.token}`,
+          },
+        })
+        .then((response) => {
+          console.log(response.data);
+          setUserData(response.data);
+          // setTeamList(response.data.team);
+          resolve(response.data);
+        })
+        .catch((reason) => {
+          reject(reason);
+        });
+    });
+  };
   const handleEdit = (row: DataRow) => {
-    setFormValues(row);
+    setFormValues({ ...row });
     setOpen(true);
   };
+  const handleUpdate = () => {
+    const updatedUser: DataRow = {
+      ...formValues,
+      roles: [
+        {
+          id: parseInt(role, 10),
+          name: roleList.find((r) => r.id === parseInt(role, 10))?.name || "",
+        },
+      ],
+      team: [
+        {
+          id: parseInt(teamName, 10),
+          name:
+            teamList.find((t) => t.id === parseInt(teamName, 10))?.name || "",
+        },
+      ],
+    };
 
-  const handleDelete = (row: DataRow) => {
-    const updatedData = data.filter((item) => item.emp_id !== row.emp_id);
-    setData(updatedData);
-  };
-
-  const handleUpdate = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    e.preventDefault();
-    const updatedData: DataRow[] = data.map((row) => {
-      if (row.emp_id === formValues.emp_id) {
-        return {
-          ...row,
-          emp_id: formValues.emp_id,
-          name: formValues.name,
-          email: formValues.email,
-          role: formValues.role,
-          phone_no: formValues.phone_no,
-          status: formValues.status
-          
-        };
-      }
-      return row;
+    return new Promise<void>((resolve, reject) => {
+      axios
+        .patch(
+          `http://127.0.0.1:8000/api/users/${formValues.id}`,
+          {
+            name: updatedUser.name,
+            email: updatedUser.email,
+            password: updatedUser.password,
+            status: updatedUser.status,
+            team_id: updatedUser.team[0].id,
+            phone: updatedUser.phone,
+            employee_id: updatedUser.employee_id,
+            role_id: updatedUser.team[0].id,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${authRedux.token}`,
+            },
+          }
+        )
+        .then(() => {
+          const updatedUsers = user.map((item) =>
+            item.id === formValues.id ? updatedUser : item
+          );
+          // setUser(updatedUsers);
+          setUser(updatedUsers);
+          setOpen(false);
+          setIsUpdated(true);
+          resolve();
+        })
+        .catch((error) => {
+          reject(error);
+        });
     });
-    setData(updatedData);
-    console.log(setData);
-    setOpen(false);
-    navigate("/user/pro-user");
   };
 
-  const handleFormChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setFormValues((prevValues) => ({
-      ...prevValues,
-      [name]: value,
-    }));
+  const handleDelete = (row: number) => {
+    return new Promise<void>((resolve, reject) => {
+      axios
+        .delete(`http://127.0.0.1:8000/api/users/admin_delete/${row}`, {
+          headers: {
+            Authorization: `Bearer ${authRedux.token}`,
+          },
+        })
+        .then(() => {
+          setUser((prevUser) => prevUser.filter((item) => item.id !== row));
+          resolve();
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
   };
 
-  const columns = [
+  // const handleUpdate = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+  //   e.preventDefault();
+  //   const updatedData: DataRow[] = data.map((row) => {
+  //     if (row.emp_id === formValues.emp_id) {
+  //       return {
+  //         ...row,
+  //         emp_id: formValues.emp_id,
+  //         name: formValues.name,
+  //         email: formValues.email,
+  //         role: formValues.role,
+  //         phone_no: formValues.phone_no,
+  //         status: formValues.status
+
+  //       };
+  //     }
+  //     return row;
+  //   });
+  // setData(updatedData);
+  // console.log(setData);
+  //   setOpen(false);
+  //   navigate("/user/pro-user");
+  // };
+  const handleStatusChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    row: DataRow
+  ) => {
+    const { checked } = event.target;
+
+    const updatedUser: DataRow = {
+      ...row,
+      status: checked,
+    };
+    axios
+      .patch(
+        `http://127.0.0.1:8000/api/status_change/${row.id}`,
+        {
+          name: updatedUser.name,
+          email: updatedUser.email,
+          password: updatedUser.password,
+          status: checked,
+          team_id: updatedUser.team?.id,
+          phone: updatedUser.phone,
+          employee_id: updatedUser.employee_id,
+          role_id: updatedUser.roles[0]?.id,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${authRedux.token}`,
+          },
+        }
+      )
+      .then(() => {
+        const updatedUsers = user.map((item) =>
+          item.id === row.id ? updatedUser : item
+        );
+        setUser(updatedUsers);
+      })
+      .catch((error) => {
+        // console.log(updatedUser.team[0].id.valueOf());
+        console.error("Error updating user status:", error);
+      });
+  };
+
+  const handleFormChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    row: DataRow
+  ) => {
+    const { name, value, type, checked } = event.target;
+    const newValue = type === "checkbox" ? checked : value;
+
+    if (name === "roles") {
+      const updatedRoles = [
+        {
+          id: formValues.roles[0].id,
+          name: newValue.toString(),
+        },
+      ];
+
+      setFormValues((prevValues) => ({
+        ...prevValues,
+        roles: updatedRoles,
+      }));
+    }
+    // console.log(formValues.roles[0].id);
+    if (name === "team") {
+      const updatedTeam = [
+        {
+          id: formValues.team[0].id,
+          name: newValue.toString(),
+        },
+      ];
+
+      setFormValues((prevValues) => ({
+        ...prevValues,
+        team: updatedTeam,
+      }));
+    } else {
+      setFormValues((prevValues) => ({
+        ...prevValues,
+        [name]: newValue,
+      }));
+    }
+  };
+
+  const columns: TableColumn<DataRow>[] = [
     {
       name: "Emp_id",
-      selector: (row: DataRow) => row.emp_id,
+      selector: (row: DataRow) => row.employee_id,
     },
     {
       name: "Name",
@@ -92,15 +316,29 @@ function ProUser(): JSX.Element {
     },
     {
       name: "Role",
-      selector: (row: DataRow) => row.role,
+      selector: (row: DataRow) => row.roles[0].name,
+      cell: (row: DataRow) => {
+        // const roleNames = row.roles.map((role) => role.name).join(", ");
+        return <span>{row.roles[0].name}</span>;
+      },
     },
     {
       name: "Phone_no",
-      selector: (row: DataRow) => row.phone_no,
+      selector: (row: DataRow) => row.phone,
+    },
+    {
+      name: "Team_Name",
+      // selector: (row: DataRow) => row.team,
+      cell: (row: DataRow) => <span>{row.team.name}</span>,
     },
     {
       name: "Status",
-      cell: (row: DataRow) => <Switch checked={row.status} />,
+      cell: (row: DataRow) => (
+        <Switch
+          checked={Boolean(row.status)}
+          onChange={(event) => handleStatusChange(event, row)}
+        />
+      ),
     },
     {
       name: "Actions",
@@ -108,19 +346,25 @@ function ProUser(): JSX.Element {
         <>
           <div style={{ display: "flex" }}>
             <Button
-              onClick={() => handleEdit(row)}
               variant="contained"
               color="success"
               size="small"
+              onClick={(e: any) => {
+                e.preventDefault();
+                handleEdit(row);
+              }}
             >
               Edit
             </Button>
             <Button
-              onClick={() => handleDelete(row)}
               variant="contained"
               color="error"
               size="small"
               sx={{ marginLeft: "5px" }}
+              onClick={(e: any) => {
+                e.preventDefault();
+                handleDelete(row.id);
+              }}
             >
               Delete
             </Button>
@@ -129,13 +373,13 @@ function ProUser(): JSX.Element {
       ),
     },
   ];
-
+  // console.log();
   return (
     <>
       <DataTable
         columns={columns}
         className={darkMode ? "darkTable" : ""}
-        data={data}
+        data={user}
         theme="solarized"
         pagination
         customStyles={{
@@ -148,13 +392,13 @@ function ProUser(): JSX.Element {
       />
       <Dialog open={open} onClose={() => setOpen(false)}>
         <DialogContent>
-          <label htmlFor="emp_id">Emp_id:</label>
+          {/* <label htmlFor="employee_id">Emp_id:</label>
           <input
             type="text"
-            name="emp_id"
-            value={formValues.emp_id}
+            name="employee_id"
+            value={formValues.employee_id}
             onChange={handleFormChange}
-          />
+          disabled/> */}
           <label htmlFor="name">Name:</label>
           <input
             type="text"
@@ -169,20 +413,62 @@ function ProUser(): JSX.Element {
             value={formValues.email}
             onChange={handleFormChange}
           />
-          <label htmlFor="role">Role:</label>
+          {/* <label htmlFor="roles">Role:</label>
           <input
             type="text"
-            name="role"
-            value={formValues.role}
+            name="roles"
+            // key={formValues.roles[0].id}
+            value={
+              formValues.roles.length > 0
+                ? formValues.roles[0].name || formValues.roles[0].id
+                : ""
+            }
+            // value="hello"
             onChange={handleFormChange}
-          />
-          <label htmlFor="phone_no">Phone_no:</label>
+          /> */}
+          <div className="role">
+            <select
+              className="option"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+            >
+              {roleList.map((role) => (
+                <option key={role.id} value={role.id}>
+                  {role.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <label htmlFor="phone">Phone_no:</label>
           <input
             type="number"
-            name="phone_no"
-            value={formValues.phone_no}
+            name="phone"
+            value={formValues.phone}
             onChange={handleFormChange}
           />
+          {/* <label htmlFor="team">TeamName:</label>
+          <input
+            type="text"
+            name="team"
+            value={formValues.team.name}
+            // value={formValues.team[0].name}
+            onChange={handleFormChange}
+          /> */}
+          <div className="team">
+            <select
+              className="option"
+              value={teamName}
+              onChange={(e) => setTeamName(e.target.value)}
+            >
+              {teamList &&
+                teamList.map((team) => (
+                  <option key={team.id} value={team.id}>
+                    {team.name}
+                  </option>
+                ))}
+            </select>
+          </div>
           <label htmlFor="status">Status:</label>
           <input
             type="checkbox"

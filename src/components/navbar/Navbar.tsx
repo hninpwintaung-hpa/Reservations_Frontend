@@ -1,12 +1,7 @@
-import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
-import LanguageOutlinedIcon from "@mui/icons-material/LanguageOutlined";
-import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
-import FullscreenExitOutlinedIcon from "@mui/icons-material/FullscreenExitOutlined";
-import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
-import ChatBubbleOutlineOutlinedIcon from "@mui/icons-material/ChatBubbleOutlineOutlined";
-import ListOutlinedIcon from "@mui/icons-material/ListOutlined";
+import DarkModeIcon from '@mui/icons-material/DarkMode';
 import { DarkModeContext } from "../../context/darkModeContext";
 import { useContext } from "react";
+import AccountMenu from '../avatar/avatar';
 
 const Navbar = () => {
   const { dispatch } = useContext(DarkModeContext);
@@ -14,6 +9,15 @@ const Navbar = () => {
   return (
     <div className="navbar">
       <div className="wrapper">
+      
+        <AccountMenu/>
+        <div className="item">
+            <DarkModeIcon
+              className="icon"
+              fontSize='large'
+              onClick={() => dispatch({ type: "TOGGLE" })}
+            />
+        </div>
         {/* <div className="items">
           <div className="item">
             <LanguageOutlinedIcon className="icon" />

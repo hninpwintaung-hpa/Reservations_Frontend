@@ -4,6 +4,11 @@ import "react-phone-input-2/lib/style.css";
 import { Link } from "react-router-dom";
 import 'react-phone-input-2/lib/style.css'
 import axios from "axios";
+import AcePlus from "../../components/img/ACEPlus.png";
+// import { Alert } from "@mui/material";
+// import { useAppSelector } from "../../redux/features/Hook";
+// import { AuthRole } from "./redux/features/type/authType";
+import HowToRegIcon from '@mui/icons-material/HowToReg';
 const Register: React.FC= () => {
   const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
@@ -15,6 +20,8 @@ const Register: React.FC= () => {
   const [role, setRole] = useState(3);
   const [message,setMessage] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [alert, setAlert] = useState(false);
+  
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -33,7 +40,8 @@ const Register: React.FC= () => {
       )
       .then(function (response) {
         setMessage(response.data.message);
-        alert(response.data.message);
+        setAlert(true)
+        // alert(response.data.message);
       })
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .catch((error) => {
@@ -54,10 +62,14 @@ const Register: React.FC= () => {
 
 
   return (
+    <div className="register">
+    {/* <div style={{ display:"flex" , justifyContent:""}}>
+    {alert && <Alert severity="success" >{message}</Alert>}
+    </div> */}
     <div className="register_wrapper">
       <div className="form-wrapper">
         <form onSubmit={handleSubmit}>
-          <h1 className="txt-register">Register</h1>
+          <div className="txt-register">              <span style={{ marginTop:"3px" }}>Register Form</span> <HowToRegIcon fontSize="medium"/></div>
           <div className="username">
             <input
               type="text"
@@ -132,6 +144,7 @@ const Register: React.FC= () => {
               required
             />
           </div>
+          {alert && <p style={{ color:"green" , marginTop:"10px", marginBottom:"10px", fontSize:"15px" }}>{message}</p>}
           <div className="submit">
             <button type="submit">Register Me</button>
           </div>
@@ -139,7 +152,7 @@ const Register: React.FC= () => {
             <span className="text">
               Already have an account?{" "}
               <Link to="/login" className="login-link">
-                Login Now
+                Login
               </Link>
             </span>
           </div>
@@ -147,10 +160,23 @@ const Register: React.FC= () => {
       </div>
       <div className="inner-wrapper">
         <div className="inner-right">
-          <h1>Register Form</h1>
-          <p>ACE plus Solutions Company Limited</p>
+        <div style={{ marginTop: "0" }}>
+              <img src={AcePlus} alt="" width={180} />
+            </div>
+            <div className="waviy">
+              <span style={{ "--i": 1 } as React.CSSProperties}>OFFICE </span>
+              <span style={{ "--i": 2 } as React.CSSProperties}>MEETING</span>
+              <span style={{ "--i": 3 } as React.CSSProperties}>ROOM</span>
+              <span style={{ "--i": 4 } as React.CSSProperties}>&</span>
+              <span style={{ "--i": 5 } as React.CSSProperties}>CAR</span>
+              <span style={{ "--i": 6 } as React.CSSProperties}>
+                RESERVATION
+              </span>
+              <span style={{ "--i": 7 } as React.CSSProperties}>SYSTEM</span>
+            </div>
         </div>
       </div>
+    </div>
     </div>
   );
 };

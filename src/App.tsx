@@ -1,78 +1,105 @@
+// import { Routes, Route, Navigate } from "react-router-dom";
+// import { Home } from "./page/home/home";
+// import { DarkModeContext } from "./context/darkModeContext";
+// import { useContext } from "react";
+// import Login from "./page/login/login";
+// import AuthProvider from "./redux/authProvider";
+// import { useAppSelector } from "./redux/features/Hook";
+// import { AuthRole } from "./redux/features/type/authType";
+// import { Car } from "./page/Car/car";
+// import { UserPro } from "./page/user/proUser";
+// import Register from "./page/register/register";
+// import { Dashboard } from "./page/dashboard/dashboard";
+// import Room from "./page/room/room";
+// import RoomReservationForm from "./page/room/RoomReservationForm";
+// import RoomBarChart from "./page/room/RoomBarChart";
+// import RoomPieChart from "./page/room/RoomPieChart";
+// import CarPieChart from "./page/Car/CarPieChart";
+// import CarBarChart from "./page/Car/CarBarChart";
+// import Charts from "./components/Chart/Charts";
+
+// function App() {
+//   const { darkMode } = useContext(DarkModeContext);
+//   const authRedux = useAppSelector((state) => state.auth);
+
+//   return (
+//     <div className={darkMode ? "app dark" : "app"}>
+//       <AuthProvider>
+//         <Routes>
+//           {authRedux.role === AuthRole.Admin && (
+//             <Route
+//               path="admin-dashboard/reservation/dashboard"
+//               element={<Dashboard />}
+//             />
+//           )}
+//           {authRedux.role === AuthRole.Admin && (
+//             <Route
+//               path="/Admin-dashboard/user/pro-user"
+//               element={<UserPro />}
+//             />
+//           )}
+//           {authRedux.role === AuthRole.Admin && (
+//             <Route path="/Admin-dashboard/car" element={<Car />} />
+//           )}
+//           <Route path="/register" element={<Register />} />
+//           <Route path="/" element={<Navigate to="/login" replace={true} />} />
+//           <Route path="/login" element={<Login />} />
+//           <Route path="/room-barChart" Component={RoomBarChart} />
+//           <Route path="/car-barchart" Component={CarBarChart} />
+//           <Route path="/another-page" Component={RoomReservationForm} />
+//           <Route path="/room-pieChart" Component={RoomPieChart} />
+//           <Route path="/car-pieChart" Component={CarPieChart} />
+//           <Route path="/Chart" Component={Charts} />
+//           {authRedux.role === (AuthRole.Admin || AuthRole.staff) && (
+//             <Route path="/rooms" element={<Room />} />
+//           )}
+
+//           {authRedux.role === AuthRole.Admin && (
+//             <Route path="/Admin-dashboard/" element={<Home />} />
+//           )}
+
+//           {/* <Route path="/Admin-dashboard" element={<div>hello</div>} /> */}
+//         </Routes>
+//       </AuthProvider>
+//     </div>
+//   );
+// }
+
+// export default App;
+
 import { Routes, Route, Navigate } from "react-router-dom";
-import { Home } from "./page/home/home";
-// import { Register } from "./page/register/register";
-// import { Room } from "./page/room/room";
-// import { Car } from "./page/car/car";
 import { DarkModeContext } from "./context/darkModeContext";
 import { useContext } from "react";
-import Login from "./page/login/login";
 import AuthProvider from "./redux/authProvider";
 import { useAppSelector } from "./redux/features/Hook";
 import { AuthRole } from "./redux/features/type/authType";
-import { Car } from "./page/Car/car";
-// import TableUser from "./components/User/normaluser";
-// import MyComponent from "./components/User/normaluser";
-// import NormalUser from "./components/User/normaluser";
-// import { UserNormal } from "./page/user/normalUser";
-import { UserPro } from "./page/user/proUser";
 import Register from "./page/register/register";
-import { Dashboard } from "./page/dashboard/dashboard";
-import Room from "./page/room/room";
-import RoomReservationForm from "./page/room/RoomReservationForm";
-import RoomBarChart from "./page/room/RoomBarChart";
-import RoomPieChart from "./page/room/RoomPieChart";
-import CarPieChart from "./page/Car/CarPieChart";
-import CarBarChart from "./page/Car/CarBarChart";
-import Charts from "./components/Chart/Charts";
+import Error404 from "./page/error/Error404";
+import AdminView from "./page/admin/AdminView";
+import UserView from "./page/user/UserView";
+import Login from "./page/login/login";
+import { SuccessMessageProvider } from "./components/SuccessMessageContext/SuccessMessageContext";
 
 function App() {
   const { darkMode } = useContext(DarkModeContext);
   const authRedux = useAppSelector((state) => state.auth);
-  // const handleRegister = (username: string, email: string, team_name: string, password: string, confirmPassword: string) => {
-  //   // Make an API call to register the user
-  //   console.log(`Registering with username: ${username},email: ${email}, password: ${password}, confirmpassword: ${confirmPassword},team_name: ${team_name}`);
-  // };
   return (
     <div className={darkMode ? "app dark" : "app"}>
       <AuthProvider>
         <Routes>
-          {authRedux.role === AuthRole.Admin && (
-            <Route
-              path="admin-dashboard/reservation/dashboard"
-              element={<Dashboard />}
-            />
-          )}
-          {authRedux.role === AuthRole.Admin && (
-            <Route
-              path="/Admin-dashboard/user/pro-user"
-              element={<UserPro />}
-            />
-          )}
-          {/* <Route path="/user/pro-user" element={<UserPro/>}/> */}
-          {/* <Route path="/user/normal-user" element={<UserNormal/>}/> */}
-          {authRedux.role === AuthRole.Admin && (
-            <Route path="/Admin-dashboard/car" element={<Car />} />
-          )}
-          {/* <Route path="/car" element={ <Car/>}/> */}
-          {/* <Route path="/Admin-dashboard/" element={<Home />} /> */}
+          {/* <SuccessMessageProvider> */}
           <Route path="/register" element={<Register />} />
           <Route path="/" element={<Navigate to="/login" replace={true} />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/room-barChart" Component={RoomBarChart} />
-          <Route path="/car-barchart" Component={CarBarChart} />
-          <Route path="/another-page" Component={RoomReservationForm} />
-          <Route path="/room-pieChart" Component={RoomPieChart} />
-          <Route path="/car-pieChart" Component={CarPieChart} />
-          <Route path="/Chart" Component={Charts} />
-          {authRedux.role === (AuthRole.Admin || AuthRole.staff) && (
-            <Route path="/rooms" element={<Room />} />
-          )}
+          <Route path="*" element={<Error404 />} />
 
-          {authRedux.role === AuthRole.Admin && (
-            <Route path="/Admin-dashboard/" element={<Home />} />
+          {authRedux.role === AuthRole.Superadmin && (
+            <Route path="SuperAdmin-dashboard/*" element={<AdminView />} />
           )}
-
-          {/* <Route path="/Admin-dashboard" element={<div>hello</div>} /> */}
+          {authRedux.role === AuthRole.staff && (
+            <Route path="Staff-dashboard/*" element={<UserView />} />
+          )}
+          {/* </SuccessMessageProvider> */}
         </Routes>
       </AuthProvider>
     </div>

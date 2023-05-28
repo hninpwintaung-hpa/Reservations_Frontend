@@ -1,7 +1,12 @@
 import React from "react";
 import "./DataTable.css";
 
-import { ReservationData, RoomData, TeamData, UserData } from "./room";
+import {
+  ReservationData,
+  RoomData,
+  TeamData,
+  UserData,
+} from "./RoomReservation";
 
 interface DataTableProps {
   rooms: RoomData[];

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import ReservationsDataTable from "./ReservationsDataTable";
-import { Sidebar } from "../../components/sidebar/Sidebar";
-import Navbar from "../../components/navbar/Navbar";
+import Navbar from "../navbar/navbar";
+import { Sidebar } from "../sidebar/UserSidbar";
+
 import axios from "axios";
 import "./roomStyles.scss";
 import { useAppSelector } from "../../redux/features/Hook";
@@ -9,6 +10,7 @@ import { Link } from "react-router-dom";
 import { Button, Card, Dialog, DialogContent } from "@mui/material";
 import DataTable, { TableColumn } from "react-data-table-component";
 import RoomReservationChart from "./RoomBarChart";
+import { useSuccessMessage } from "../SuccessMessageContext/SuccessMessageContext";
 
 export interface ReservationData {
   date: string;
@@ -37,7 +39,7 @@ export interface UserData {
   team_id: number;
 }
 
-export const Room: React.FC = () => {
+export const RoomReservation: React.FC = () => {
   const authRedux = useAppSelector((state) => state.auth);
   const authUser = authRedux.user;
   const [userData, setUserData] = useState<UserData[]>([]);
@@ -89,6 +91,16 @@ export const Room: React.FC = () => {
   };
 
   const [inputValues, setInputValues] = useState(initialInputValue);
+  //const queryParams = new URLSearchParams(location.search);
+  //const successMessage = queryParams.get("success");
+  const { successMessage, setSuccessMessage } = useSuccessMessage();
+
+  useEffect(() => {
+    if (successMessage) {
+      alert(successMessage);
+      setSuccessMessage(null);
+    }
+  }, [successMessage, setSuccessMessage]);
 
   useEffect(() => {
     getRoomData();
@@ -251,6 +263,18 @@ export const Room: React.FC = () => {
       });
   };
 
+  const TimeFormatConverter = (time: number) => {
+    const [hour, minutes] = time.toString().split(":");
+    const date = new Date(0, 0, 0, Number(hour), Number(minutes));
+
+    const twelveHourFormat = new Intl.DateTimeFormat("en-US", {
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+    });
+    return twelveHourFormat.format(date);
+  };
+
   const columns: TableColumn<ReservationData>[] = [
     {
       name: "Date",
@@ -265,12 +289,12 @@ export const Room: React.FC = () => {
       selector: (row: ReservationData) => row.description,
     },
     {
-      name: "Start_time",
-      selector: (row: ReservationData) => row.start_time,
+      name: "Start time",
+      selector: (row: ReservationData) => TimeFormatConverter(row.start_time),
     },
     {
-      name: "Phone_no",
-      selector: (row: ReservationData) => row.end_time,
+      name: "End time",
+      selector: (row: ReservationData) => TimeFormatConverter(row.end_time),
     },
 
     {
@@ -329,145 +353,149 @@ export const Room: React.FC = () => {
   };
   return (
     <div className="home">
-      <Sidebar />{" "}
-      <div className="homeContainer">
-        <Navbar />
+      {/* {successMessage && (
+        <div>
+          <p>{successMessage}</p>
+        </div>
+      )} */}
 
-        <div className="reservation-container">
-          <h1 className="padding">Meeting Rooms Schedule</h1>
+      <div className="reservation-container">
+        <h1 className="padding">Meeting Rooms Schedule</h1>
 
-          <div className="date">
-            <div className="date__reservationBtn">
-              <Link to="/another-page" className="link-style">
-                Reserve Room
-              </Link>
-            </div>
-            {/* <h3>Sunday 21 May 2023</h3> */}
-            {/* <div>My Reservations</div> */}
-            <div className="date__dateFilter">
-              <label>Data Show By Date : &nbsp;</label>
-              <input
-                type="date"
-                value={searchDate}
-                onChange={(e) => setSearchDate(e.target.value)}
-              />
-            </div>
+        <div className="date">
+          <div className="date__reservationBtn">
+            <Link
+              to={`/${authRedux.role}-dashboard/reserve-room`}
+              className="link-style"
+            >
+              Reserve Room
+            </Link>
           </div>
-
-          <div className="reservation-table">
-            <ReservationsDataTable
-              rooms={roomData}
-              reservationData={SearchByDateData}
-              teamData={teamData}
-              userData={userData}
+          {/* <h3>Sunday 21 May 2023</h3> */}
+          {/* <div>My Reservations</div> */}
+          <div className="date__dateFilter">
+            <label>Data Show By Date : &nbsp;</label>
+            <input
+              type="date"
+              value={searchDate}
+              onChange={(e) => setSearchDate(e.target.value)}
             />
           </div>
-          <div className="userData">
-            <h1 className="padding">Your Reservation for Today</h1>
-            <div className="userData__table">
-              <DataTable
-                columns={columns}
-                //className={darkMode ? "darkTable" : ""}
-                data={userReservationData}
-                theme="solarized"
-                pagination
-                customStyles={{
-                  table: {
-                    style: {
-                      backgroundColor: "#000",
-                    },
+        </div>
+
+        <div className="reservation-table">
+          <ReservationsDataTable
+            rooms={roomData}
+            reservationData={SearchByDateData}
+            teamData={teamData}
+            userData={userData}
+          />
+        </div>
+        <div className="userData">
+          <h1 className="padding">Your Reservation for Today</h1>
+          <div className="userData__table">
+            <DataTable
+              columns={columns}
+              //className={darkMode ? "darkTable" : ""}
+              data={userReservationData}
+              theme="solarized"
+              pagination
+              customStyles={{
+                table: {
+                  style: {
+                    backgroundColor: "#000",
                   },
-                }}
-              />
-              <Dialog open={open} onClose={() => setOpen(false)}>
-                <DialogContent>
-                  <form onSubmit={handleFormSubmit}>
-                    <div>
-                      <div className="elem-group">
-                        <label htmlFor="room">Room</label>
-                        <select
-                          name="room_id"
-                          value={inputValues.room_id}
-                          onChange={handleSelectChange}
-                        >
-                          {roomData.map((roomData) => (
-                            <option key={roomData.id} value={roomData.id}>
-                              {roomData.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <div className="elem-group">
-                        <label htmlFor="title">Title</label>
-                        <input
-                          type="text"
-                          name="title"
-                          value={inputValues.title}
-                          onChange={handleInputChange}
-                          placeholder="To meet with the client"
-                        />
-                      </div>
-
-                      <div className="elem-group">
-                        <label htmlFor="description">Description</label>
-                        <input
-                          type="text"
-                          name="description"
-                          value={inputValues.description}
-                          onChange={handleInputChange}
-                          placeholder="Agenda"
-                          required
-                        />
-                      </div>
-
-                      <div className="elem-group inlined">
-                        <select
-                          name="start_time"
-                          value={inputValues.start_time}
-                          onChange={handleSelectChange}
-                        >
-                          <option value="9:00:00">09:00am</option>
-                          <option value="10:00:00">10:00am</option>
-                          <option value="11:00:00">11:00am</option>
-                          <option value="12:00:00">12:00pm</option>
-                          <option value="13:00:00">01:00pm</option>
-                          <option value="14:00:00">02:00pm</option>
-                          <option value="15:00:00">03:00pm</option>
-                          <option value="16:00:00">04:00pm</option>
-                        </select>
-                      </div>
-                      <div className="elem-group inlined">
-                        <select
-                          name="end_time"
-                          value={inputValues.end_time}
-                          onChange={handleSelectChange}
-                        >
-                          <option value="10:00:00">10:00am</option>
-                          <option value="11:00:00">11:00am</option>
-                          <option value="12:00:00">12:00pm</option>
-                          <option value="13:00:00">01:00pm</option>
-                          <option value="14:00:00">02:00pm</option>
-                          <option value="15:00:00">03:00pm</option>
-                          <option value="16:00:00">04:00pm</option>
-                          <option value="17:00:00">05:00pm</option>
-                        </select>
-                      </div>
-                      <div className="elem-group">
-                        <label htmlFor="date">Date</label>
-                        <input
-                          type="date"
-                          name="date"
-                          value={inputValues.date}
-                          onChange={handleInputChange}
-                          required
-                        />
-                      </div>
-                      <button type="submit">Update</button>
+                },
+              }}
+            />
+            <Dialog open={open} onClose={() => setOpen(false)}>
+              <DialogContent>
+                <form onSubmit={handleFormSubmit}>
+                  <div>
+                    <div className="elem-group">
+                      <label htmlFor="room">Room</label>
+                      <select
+                        name="room_id"
+                        value={inputValues.room_id}
+                        onChange={handleSelectChange}
+                      >
+                        {roomData.map((roomData) => (
+                          <option key={roomData.id} value={roomData.id}>
+                            {roomData.name}
+                          </option>
+                        ))}
+                      </select>
                     </div>
-                  </form>
-                </DialogContent>
-              </Dialog>
-            </div>
+                    <div className="elem-group">
+                      <label htmlFor="title">Title</label>
+                      <input
+                        type="text"
+                        name="title"
+                        value={inputValues.title}
+                        onChange={handleInputChange}
+                        placeholder="To meet with the client"
+                      />
+                    </div>
+
+                    <div className="elem-group">
+                      <label htmlFor="description">Description</label>
+                      <input
+                        type="text"
+                        name="description"
+                        value={inputValues.description}
+                        onChange={handleInputChange}
+                        placeholder="Agenda"
+                        required
+                      />
+                    </div>
+
+                    <div className="elem-group inlined">
+                      <select
+                        name="start_time"
+                        value={inputValues.start_time}
+                        onChange={handleSelectChange}
+                      >
+                        <option value="9:00:00">09:00am</option>
+                        <option value="10:00:00">10:00am</option>
+                        <option value="11:00:00">11:00am</option>
+                        <option value="12:00:00">12:00pm</option>
+                        <option value="13:00:00">01:00pm</option>
+                        <option value="14:00:00">02:00pm</option>
+                        <option value="15:00:00">03:00pm</option>
+                        <option value="16:00:00">04:00pm</option>
+                      </select>
+                    </div>
+                    <div className="elem-group inlined">
+                      <select
+                        name="end_time"
+                        value={inputValues.end_time}
+                        onChange={handleSelectChange}
+                      >
+                        <option value="10:00:00">10:00am</option>
+                        <option value="11:00:00">11:00am</option>
+                        <option value="12:00:00">12:00pm</option>
+                        <option value="13:00:00">01:00pm</option>
+                        <option value="14:00:00">02:00pm</option>
+                        <option value="15:00:00">03:00pm</option>
+                        <option value="16:00:00">04:00pm</option>
+                        <option value="17:00:00">05:00pm</option>
+                      </select>
+                    </div>
+                    <div className="elem-group">
+                      <label htmlFor="date">Date</label>
+                      <input
+                        type="date"
+                        name="date"
+                        value={inputValues.date}
+                        onChange={handleInputChange}
+                        required
+                      />
+                    </div>
+                    <button type="submit">Update</button>
+                  </div>
+                </form>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </div>
@@ -475,4 +503,4 @@ export const Room: React.FC = () => {
   );
 };
 
-export default Room;
+export default RoomReservation;

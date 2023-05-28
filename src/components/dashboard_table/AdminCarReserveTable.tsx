@@ -7,8 +7,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
-import Button from "@mui/material/Button";
-import { carReservationData } from "../../page/dashboard/dashboard";
+import { carReservationData } from "../../page/dashboard/admin-dashboard";
 import axios from "axios";
 import { useEffect } from "react";
 interface Column {

@@ -1,23 +1,20 @@
-import { roomReservationData } from '../../page/dashboard/dashboard';
-// import './card.css';
+import React from 'react';
+import { roomReservationData } from '../../page/dashboard/admin-dashboard';
 
-// export interface data {
-//   data: roomReservationData[];
-// }
 
-export const Card: React.FC = () => {
+interface CardProps {
+  title: string;
+  count: number;
+}
+
+export const Card: React.FC<CardProps> = ({ title, count }) => {
   // console.log(data, "Card Data");
   return(
     <>
-    <div className="card">
+    <div className="dashboard-card">
       <div className="cardTitle">
-        <span>Total Room : </span>
-        {/* <span>{
-          data.map((item) => {
-            item.title
-          })
-        }</span> */}
-      
+        <span className='title'>{title} : </span>
+        <span className='count'>{count}</span> 
       </div>
     </div>
     </>
