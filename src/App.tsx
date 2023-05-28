@@ -86,21 +86,21 @@ function App() {
   return (
     <div className={darkMode ? "app dark" : "app"}>
       <AuthProvider>
-        <Routes>
-          {/* <SuccessMessageProvider> */}
-          <Route path="/register" element={<Register />} />
-          <Route path="/" element={<Navigate to="/login" replace={true} />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="*" element={<Error404 />} />
+        <SuccessMessageProvider>
+          <Routes>
+            <Route path="/register" element={<Register />} />
+            <Route path="/" element={<Navigate to="/login" replace={true} />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="*" element={<Error404 />} />
 
-          {authRedux.role === AuthRole.Superadmin && (
-            <Route path="SuperAdmin-dashboard/*" element={<AdminView />} />
-          )}
-          {authRedux.role === AuthRole.staff && (
-            <Route path="Staff-dashboard/*" element={<UserView />} />
-          )}
-          {/* </SuccessMessageProvider> */}
-        </Routes>
+            {authRedux.role === AuthRole.Superadmin && (
+              <Route path="SuperAdmin-dashboard/*" element={<AdminView />} />
+            )}
+            {authRedux.role === AuthRole.staff && (
+              <Route path="Staff-dashboard/*" element={<UserView />} />
+            )}
+          </Routes>
+        </SuccessMessageProvider>
       </AuthProvider>
     </div>
   );
