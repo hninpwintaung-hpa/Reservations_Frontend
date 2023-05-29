@@ -2,24 +2,20 @@ import React from "react";
 import "./DataTable.css";
 
 import {
-  ReservationData,
   RoomData,
   TeamData,
   UserData,
+  UserReservationData,
 } from "./RoomReservation";
 
 interface DataTableProps {
   rooms: RoomData[];
-  reservationData: ReservationData[];
-  teamData: TeamData[];
-  userData: UserData[];
+  reservationData: UserReservationData[];
 }
 
 const ReservationsDataTable: React.FC<DataTableProps> = ({
   rooms,
   reservationData,
-  teamData,
-  userData,
 }) => {
   const generateTableData = () => {
     const tableData: JSX.Element[] = [];
@@ -38,9 +34,9 @@ const ReservationsDataTable: React.FC<DataTableProps> = ({
         const isCellInRange = cell && cell.start_time <= j && cell.end_time > j;
 
         if (isCellInRange) {
-          const user = userData.find((user) => user.id === cell.user_id);
-          const team = teamData.find((team) => team.id === user?.team_id);
-          const teamName = team ? team.name : "";
+          // const user = userData.find((user) => user.id === cell.user_id);
+          // const team = teamData.find((team) => team.id === user?.team_id);
+          // const teamName = team ? team.name : "";
           const span = cell.end_time - cell.start_time;
 
           cells.push(
@@ -50,11 +46,14 @@ const ReservationsDataTable: React.FC<DataTableProps> = ({
               colSpan={span}
               className="tooltip"
             >
-              <span>{teamName}</span>
+              <span>{cell.user.team.name}</span>
               <div className="tooltiptext">
                 <ul style={{ listStyleType: "none" }}>
                   <li>
-                    <span>Team </span>:{teamName}
+                    <span>Reserve By</span>:{cell.user.name}
+                  </li>
+                  <li>
+                    <span>Team </span>:{cell.user.team.name}
                   </li>
                   <li>
                     <span>Title </span>: {cell.title}
