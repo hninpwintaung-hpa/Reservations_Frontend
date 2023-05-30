@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useEffect, useState } from "react";
 import RoomChart, { ReservationCountData } from "./RoomChart.js";
 import axios from "axios";
 import { useAppSelector } from "../../redux/features/Hook.js";
@@ -59,7 +60,8 @@ const RoomReservationChart: React.FC = () => {
       setChartData(ChartData);
       console.log(ChartData);
     });
-  }, [authRedux.token]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const updateChartData = (formattedData: ReservationCountData[]) => {
     const chartData = monthLabels.map((monthLabel) => {

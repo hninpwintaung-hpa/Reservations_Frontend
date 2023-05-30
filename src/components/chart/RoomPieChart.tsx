@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAppSelector } from "../../redux/features/Hook";
 import { Pie } from "react-chartjs-2";
 import axios from "axios";
@@ -15,6 +15,7 @@ const RoomPieChart = () => {
 
   useEffect(() => {
     getTeamData()
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .then((response: any) => {
         setTeamData(response.data);
         console.log(response.data);
@@ -23,7 +24,8 @@ const RoomPieChart = () => {
       .catch((error) => {
         console.error(error);
       });
-  }, [authToken]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const getTeamData = () => {
     return new Promise((resolve, reject) => {
       axios
@@ -68,7 +70,7 @@ const RoomPieChart = () => {
   };
 
   return (
-    <div style={{ width: "500px", height: "500px" }}>
+    <div style={{ width: "400px", height: "400px" }}>
       <Pie data={chartData} />
     </div>
   );

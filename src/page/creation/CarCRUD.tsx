@@ -10,7 +10,7 @@ const CarCRUD = () => {
         <Sidebar />
         <div className="homeContainer">
             <Navbar />
-            <h1 style={{ textAlign: "center", fontSize: "25px", fontWeight: "700" }}>Car Lists</h1>
+            <h1 style={{ textAlign: "center", fontSize: "25px", fontWeight: "700" }}>Car Creation Page</h1>
             <div>
                 <Link to="/car-create" style={{ display: "block", textAlign: "left", marginTop: "10px", marginLeft: "10px", cursor: "default" }}>
                     <Button size="medium" variant="contained" disableRipple>Add New</Button>

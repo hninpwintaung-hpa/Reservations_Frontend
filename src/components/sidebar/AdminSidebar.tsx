@@ -7,6 +7,10 @@ import { Link } from "react-router-dom";
 import AcePlus from "../img/mainLogo.png";
 import { AuthRole } from "../../redux/features/type/authType";
 import { useAppSelector } from "../../redux/features/Hook";
+import Groups3Icon from "@mui/icons-material/Groups3";
+import CarRepairTwoToneIcon from "@mui/icons-material/CarRepairTwoTone";
+import RoomPreferencesTwoToneIcon from "@mui/icons-material/RoomPreferencesTwoTone";
+import MeetingRoomOutlinedIcon from "@mui/icons-material/MeetingRoomOutlined";
 export const Sidebar = () => {
   const authRedux = useAppSelector((state) => state.auth);
 
@@ -61,7 +65,7 @@ export const Sidebar = () => {
                 </li>
               </Link>
               <Link
-                to={`/${authRedux.role}-dashboard/car-reservation`}
+                to={`/${authRedux.role}-dashboard/car`}
                 style={{ textDecoration: "none" }}
               >
                 <li>
@@ -71,12 +75,12 @@ export const Sidebar = () => {
               </Link>
               <p className="title">Creation Process</p>
               <Link
-                to={`/ ${authRedux.role}-dashboard/team-creation`}
+                to={`/${authRedux.role}-dashboard/team-creation`}
                 style={{ textDecoration: "none" }}
               >
                 <li>
-                  <MeetingRoomIcon className="icon" />
-                  <span>Create Team</span>
+                  <Groups3Icon className="icon" />
+                  <span>Team</span>
                 </li>
               </Link>
               <Link
@@ -84,8 +88,8 @@ export const Sidebar = () => {
                 style={{ textDecoration: "none" }}
               >
                 <li>
-                  <CarRentalIcon className="icon" />
-                  <span>Create Car</span>
+                  <CarRepairTwoToneIcon className="icon" />
+                  <span>Car</span>
                 </li>
               </Link>
               <Link
@@ -93,44 +97,17 @@ export const Sidebar = () => {
                 style={{ textDecoration: "none" }}
               >
                 <li>
-                  <CarRentalIcon className="icon" />
-                  <span>Create room</span>
-                </li>
-              </Link>
-              <p className="title">Report</p>
-              <Link
-                to={`/${authRedux.role}-dashboard/team-report`}
-                style={{ textDecoration: "none" }}
-              >
-                <li>
-                  <MeetingRoomIcon className="icon" />
-                  <span>Team</span>
-                </li>
-              </Link>
-              <Link
-                to={`/${authRedux.role}-dashboard/room-report`}
-                style={{ textDecoration: "none" }}
-              >
-                <li>
-                  <MeetingRoomIcon className="icon" />
+                  <RoomPreferencesTwoToneIcon className="icon" />
                   <span>Room</span>
                 </li>
               </Link>
-              <Link
-                to={`/${authRedux.role}-dashboard/car-report`}
-                style={{ textDecoration: "none" }}
-              >
-                <li>
-                  <CarRentalIcon className="icon" />
-                  <span>Cars</span>
-                </li>
-              </Link>
+              <p className="title">Report</p>
               <Link
                 to={`/${authRedux.role}-dashboard/room-reservation-report`}
                 style={{ textDecoration: "none" }}
               >
                 <li>
-                  <CarRentalIcon className="icon" />
+                  <MeetingRoomOutlinedIcon className="icon" />
                   <span>Room Reservation</span>
                 </li>
               </Link>

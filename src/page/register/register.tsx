@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import PhoneInput from "react-phone-input-2";
+import CustomPhoneInput from "react-phone-input-2";
+
 import "react-phone-input-2/lib/style.css";
 import { Link } from "react-router-dom";
 import 'react-phone-input-2/lib/style.css'
@@ -9,6 +10,12 @@ import AcePlus from "../../components/img/ACEPlus.png";
 // import { useAppSelector } from "../../redux/features/Hook";
 // import { AuthRole } from "./redux/features/type/authType";
 import HowToRegIcon from '@mui/icons-material/HowToReg';
+// import { const } from '../../redux/features/auth/authSlice';
+
+interface Team {
+  id: number;
+  name: string;
+}
 const Register: React.FC= () => {
   const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
@@ -19,13 +26,24 @@ const Register: React.FC= () => {
   const [status, setStatus] = useState(0);
   const [role, setRole] = useState(3);
   const [message,setMessage] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [cfmPassword, setConfirmPassword] = useState("");
   const [alert, setAlert] = useState(false);
+  const [teamList, setTeamList] = useState<[Team]>([{
+    id: 0,
+    name: "",
+  }]);
   
 
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    getTeams().then((response: any) => {
+      setTeamList(response.data.data);
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    axios
+      axios
       .post("http://127.0.0.1:8000/api/register",{
           name: userName,
           email: email,
@@ -35,6 +53,7 @@ const Register: React.FC= () => {
           team_id: teamName,
           role_id: role,
           phone: phone,
+          password_confirmation: cfmPassword,
           
         },
       )
@@ -58,9 +77,29 @@ const Register: React.FC= () => {
       setPhone("");
       setEmployeeId("");
     
+  }
+
+    
+
+  const getTeams = () => {
+    return new Promise((resolve, reject) => {
+      axios
+        .get("http://127.0.0.1:8000/api/teams")
+        .then((response) => {
+          setTeamList(response.data.data);
+        if (response.data.data.length > 0) {
+          setTeamName(response.data.data[0].id.toString());
+        }
+        })
+        .catch((reason) => {
+          reject(reason);
+        });
+    });
   };
+  
 
-
+// console.log(teamList);
+// console.log(teamName);
   return (
     <div className="register">
     {/* <div style={{ display:"flex" , justifyContent:""}}>
@@ -69,8 +108,8 @@ const Register: React.FC= () => {
     <div className="register_wrapper">
       <div className="form-wrapper">
         <form onSubmit={handleSubmit}>
-          <div className="txt-register">              <span style={{ marginTop:"3px" }}>Register Form</span> <HowToRegIcon fontSize="medium"/></div>
-          <div className="username">
+          <div className="txt-register"> <span style={{ marginTop:"3px" }}>Register Form</span> <HowToRegIcon fontSize="medium"/></div>
+          <div className="name-group">
             <input
               type="text"
               id="username"
@@ -81,7 +120,7 @@ const Register: React.FC= () => {
               required
             />
           </div>
-          <div className="email">
+          <div className="emaiil-group">
             <input
               type="email"
               id="email"
@@ -92,7 +131,7 @@ const Register: React.FC= () => {
               required
             />
           </div>
-          <div className="password">
+          <div className="password-group">
             <input
               type="text"
               name="employeeId"
@@ -102,25 +141,33 @@ const Register: React.FC= () => {
               required
             />
           </div>
-          <div style={{ marginBottom:"7px" }}>
-            <PhoneInput
-              country="us"
+
+          <div className="phone-group">
+            <CustomPhoneInput
+
+              country="mm"
               value={phone}
               onChange={(phone) => setPhone(phone)}
             />
           </div>
-          <div className="team">
-            <select
-              className="option"
-              value={teamName}
-              onChange={(e) => setTeamName(e.target.value)}
-            >
-              <option value="1">Management Team</option>
-              <option value="2">HR team</option>
-              <option value="3">Japanese Team</option>
-              <option value="4">Frontend Team</option>
-              <option value="5">Backend Team</option>
-            </select>
+          <div className="team-group">
+          {teamList === null ? (
+                <p>Loading teams...</p>
+              ) : teamList.length === null ? (
+                <p>No teams found</p>
+              ) : (
+                <select
+                  className="team"
+                  value={teamName}
+                  onChange={(e) => setTeamName(e.target.value)}
+                >
+                  {teamList.map((team) => (
+                    <option key={team.id} value={team.id.toString()}>
+                      {team.name}
+                    </option>
+                  ))}
+                </select>
+              )}
           </div>
           <div className="password">
             <input
@@ -137,8 +184,8 @@ const Register: React.FC= () => {
             <input
               type="password"
               id="confirmPassword"
-              name="confirmPassword"
-              value={confirmPassword}
+              name="cfm_Password"
+              value={cfmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Enter confirm password"
               required

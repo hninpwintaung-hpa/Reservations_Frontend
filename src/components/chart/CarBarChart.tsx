@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { useAppSelector } from "../../redux/features/Hook";
 import { Chart, registerables } from "chart.js/auto";
-import BarChart, { ReservationCountData } from "./BarChart.js";
+import BarChart, { ReservationCountData } from "./CarChart.js";
 
 Chart.register(...registerables);
 

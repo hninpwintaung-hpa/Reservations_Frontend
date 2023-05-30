@@ -7,7 +7,7 @@ export const TeamCreation  = () => {
         <div className='home'>
             <Sidebar/>
             <div className="homeContainer">
-                <Navbar/>
+                <div style={{ position:"sticky" }}><Navbar/></div>
                 <Team/>
             </div>
             

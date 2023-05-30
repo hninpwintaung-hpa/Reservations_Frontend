@@ -5,23 +5,19 @@ import { Route, Routes } from "react-router-dom";
 import { AdminDashboard } from "../dashboard/admin-dashboard";
 import { ProUserList } from "../list/pro";
 import { NormalUserList } from "../list/normal";
-import { Car } from "../Car/AdminCar";
+import { Car } from "../car/AdminCar";
 import { AdminRoom } from "../room/AdminRoom";
-import CarReport from "../../components/report/carReport";
-import TeamReport from "../../components/report/teamReport";
-import CarReservationReport from "../../components/report/carReservation";
-import RoomReservationReport from "../../components/report/roomReservation";
-import RoomReport from "../../components/report/roomReport";
 import CarCRUD from "../creation/CarCRUD";
 import { RoomCreation } from "../creation/roomCreation";
 import { TeamCreation } from "../creation/teamCreation";
-import Room from "../../components/create/room";
-import RoomReservation from "../../components/room/RoomReservation";
-import { RoomReservationPage } from "../room/RoomReservationPage";
-import RoomReservationForm from "../../components/room/RoomReservationForm";
+import { ReportCar } from "../report/carReport";
+import { ReportTeam } from "../report/teamReport";
+import { ReservationCarReport } from "../report/carReservationReport";
+import { ReservationRoomReport } from "../report/roomReservationReport";
+import { ReportRoom } from "../report/roomReport";
+import { AdminViewReservationForm } from "../../components/room/RoomReservationForm/AdminViewReservationForm";
 
 function AdminView() {
-  console.log("hello admin");
   const { darkMode } = useContext(DarkModeContext);
   // const authRedux = useAppSelector((state) => state.auth);
   return (
@@ -30,28 +26,35 @@ function AdminView() {
         <Route path="/*" element={<AdminDashboard />} />
         <Route path="/pro-user" element={<ProUserList />} />
         <Route path={`/normal-user`} element={<NormalUserList />} />
-        <Route path={`/car-reservation`} element={<Car />} />
-        <Route path={`/room-reservation`} element={<RoomReservationPage />} />
-        <Route path={`/reserve-room`} element={<RoomReservationForm />} />
-        {/* <Route path={ `/Userroom-`} /> */}
-        <Route path={`/car-report`} element={<CarReport />} />
+        <Route path={`/car`} element={<Car />} />
+        <Route path={`/room-reservation`} element={<AdminRoom />} />
+        <Route
+          path={`/room-reservation/reserve`}
+          element={<AdminViewReservationForm />}
+        />
 
-        <Route path={`/team-report`} element={<TeamReport />} />
+        <Route path={`/car-report`} element={<ReportCar />} />
+
+        <Route path={`/team-report`} element={<ReportTeam />} />
 
         <Route
           path={`/car-reservation-report`}
-          element={<CarReservationReport />}
-        />
-        <Route path={`/room-reservation`} element={<Room />} />
-        <Route
-          path={`/room-reservation-report`}
-          element={<RoomReservationReport />}
+          element={<ReservationCarReport />}
         />
 
-        <Route path={`/room-report`} element={<RoomReport />} />
+        <Route
+          path={`/room-reservation-report`}
+          element={<ReservationRoomReport />}
+        />
+
+        <Route path={`/room-report`} element={<ReportRoom />} />
         <Route path={`/car-creation`} element={<CarCRUD />} />
         <Route path={`/room-creation`} element={<RoomCreation />} />
         <Route path={`/team-creation`} element={<TeamCreation />} />
+        {/* <Route
+          path={`/car-reservation`}
+          element={<CarBooking />}
+        /> */}
       </Routes>
     </div>
   );

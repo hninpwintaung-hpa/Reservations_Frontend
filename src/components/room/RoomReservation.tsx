@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ReservationsDataTable from "./ReservationsDataTable";
-import "./RoomReservationForm.scss";
 import axios from "axios";
-import "./roomStyles.scss";
 import { useAppSelector } from "../../redux/features/Hook";
 import { Link } from "react-router-dom";
 import { Button, Dialog, DialogContent } from "@mui/material";
@@ -83,7 +81,6 @@ export const RoomReservation: React.FC = () => {
 
   const [inputValues, setInputValues] = useState(initialInputValue);
   useEffect(() => {
-    // Update the current time every second
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
@@ -342,6 +339,9 @@ export const RoomReservation: React.FC = () => {
         });
     });
   };
+  const onBackDropClick = () => {
+    setOpen(false);
+  };
   return (
     <div className="home">
       <div className="reservation-container">
@@ -350,14 +350,13 @@ export const RoomReservation: React.FC = () => {
         <div className="date">
           <div className="date__reservationBtn">
             <Link
-              to={`/${authRedux.role}-dashboard/reserve-room`}
+              to={`/${authRedux.role}-dashboard/room-reservation/reserve`}
               className="link-style"
             >
               Reserve Room
             </Link>
           </div>
-          {/* <h3>Sunday 21 May 2023</h3> */}
-          {/* <div>My Reservations</div> */}
+
           <div className="date__dateFilter">
             <label>Data Show By Date : &nbsp;</label>
             <input
@@ -375,7 +374,7 @@ export const RoomReservation: React.FC = () => {
           />
         </div>
         <div className="userData">
-          <h1 className="padding">Your Reservation for "{searchDate}"</h1>
+          <h1>Your Reservation for "{searchDate}"</h1>
           <div className="userData__table">
             <DataTable
               columns={columns}
@@ -389,15 +388,23 @@ export const RoomReservation: React.FC = () => {
                     backgroundColor: "#000",
                   },
                 },
+                headRow: {
+                  style: {
+                    backgroundColor: "#e0e2e7", // Set your desired header color here
+                    color: "#000", // Set the text color for the header
+                  },
+                },
               }}
             />
             <Dialog open={open} onClose={() => setOpen(false)}>
               <DialogContent>
-                <div className="room-reservation">
+                <div className="room-reservation form">
                   <form onSubmit={handleFormSubmit}>
                     <div>
                       <div className="elem-group">
-                        <label htmlFor="room">Room</label>
+                        <label htmlFor="room">
+                          Room <span style={{ color: "red" }}>*</span>
+                        </label>
                         <select
                           name="room_id"
                           value={inputValues.room_id}
@@ -411,7 +418,9 @@ export const RoomReservation: React.FC = () => {
                         </select>
                       </div>
                       <div className="elem-group">
-                        <label htmlFor="title">Title</label>
+                        <label htmlFor="title">
+                          Title <span style={{ color: "red" }}>*</span>
+                        </label>
                         <input
                           type="text"
                           name="title"
@@ -422,7 +431,9 @@ export const RoomReservation: React.FC = () => {
                       </div>
 
                       <div className="elem-group">
-                        <label htmlFor="description">Description</label>
+                        <label htmlFor="description">
+                          Description <span style={{ color: "red" }}>*</span>
+                        </label>
                         <input
                           type="text"
                           name="description"
@@ -432,8 +443,23 @@ export const RoomReservation: React.FC = () => {
                           required
                         />
                       </div>
+                      <div className="elem-group">
+                        <label htmlFor="date">
+                          Date <span style={{ color: "red" }}>*</span>
+                        </label>
+                        <input
+                          type="date"
+                          name="date"
+                          value={inputValues.date}
+                          onChange={handleInputChange}
+                          required
+                        />
+                      </div>
 
                       <div className="elem-group inlined">
+                        <label htmlFor="time">
+                          Time <span style={{ color: "red" }}>*</span>
+                        </label>
                         <select
                           name="start_time"
                           value={inputValues.start_time}
@@ -465,17 +491,13 @@ export const RoomReservation: React.FC = () => {
                           <option value="17:00:00">05:00pm</option>
                         </select>
                       </div>
-                      <div className="elem-group">
-                        <label htmlFor="date">Date</label>
-                        <input
-                          type="date"
-                          name="date"
-                          value={inputValues.date}
-                          onChange={handleInputChange}
-                          required
-                        />
+
+                      <div className="button-group">
+                        <button type="submit">Update</button>
+                        <button type="button" onClick={onBackDropClick}>
+                          Cancel
+                        </button>
                       </div>
-                      <button type="submit">Update</button>
                     </div>
                   </form>
                 </div>

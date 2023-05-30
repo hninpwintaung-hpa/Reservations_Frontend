@@ -1,19 +1,18 @@
-
-import ProUser from "../../components/User/proUser";
 import Navbar from "../../components/navbar/navbar";
+import PersonalProfile from "../../components/profile/profile";
 import { Sidebar } from "../../components/sidebar/AdminSidebar";
 
-// import React from 'react';
 
-export const ProUserList  = () => {
+// import React from 'react';
+export const Profile  = () => {
     return(
         <div className='home'>
             <Sidebar/>
             <div className="homeContainer">
                 <Navbar/>
-                <h1>Pro  User List Process Page</h1>
-                <ProUser/>
+                <PersonalProfile/>
             </div>
     </div>
+   
     );
 };

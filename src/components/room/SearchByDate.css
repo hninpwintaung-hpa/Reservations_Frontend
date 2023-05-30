@@ -1,8 +1,0 @@
-.dateFilter {
-    width:200px;
-    display: flex;
-}
-.dateFilter input{
-    border:1px solid gray;
-    padding: 5px 10px;
-}

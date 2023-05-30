@@ -1,12 +1,6 @@
 import React from "react";
-import "./DataTable.css";
 
-import {
-  RoomData,
-  TeamData,
-  UserData,
-  UserReservationData,
-} from "./RoomReservation";
+import { RoomData, UserReservationData } from "./RoomReservation";
 
 interface DataTableProps {
   rooms: RoomData[];
@@ -34,18 +28,10 @@ const ReservationsDataTable: React.FC<DataTableProps> = ({
         const isCellInRange = cell && cell.start_time <= j && cell.end_time > j;
 
         if (isCellInRange) {
-          // const user = userData.find((user) => user.id === cell.user_id);
-          // const team = teamData.find((team) => team.id === user?.team_id);
-          // const teamName = team ? team.name : "";
           const span = cell.end_time - cell.start_time;
 
           cells.push(
-            <td
-              key={j}
-              style={{ backgroundColor: "rgb(251, 177, 74)" }}
-              colSpan={span}
-              className="tooltip"
-            >
+            <td key={j} colSpan={span} className="tooltip">
               <span>{cell.user.team.name}</span>
               <div className="tooltiptext">
                 <ul style={{ listStyleType: "none" }}>

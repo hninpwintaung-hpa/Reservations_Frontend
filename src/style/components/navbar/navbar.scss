@@ -1,11 +1,10 @@
 .navbar {
     height: 54px;
-    border-bottom: 0.5px solid rgb(231, 228, 228);
+    border-bottom: 3px solid #f7f0f0;
     display: flex;
     align-items: center;
     font-size: 14px;
     color: #555;
-    // background-color: #edc06d;
   
     .wrapper {
       width: 100%;
@@ -22,3 +21,19 @@
       }
     }
   }
+  .scrollableTable {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  
+  .scrollableTable .dataTable {
+    min-width: 500px;
+    max-width: 100%;
+    background-color: #000;
+  }
+  
+  .scrollableTable .dataTable th,
+  .scrollableTable .dataTable td {
+    width: 70px;
+  }
+  

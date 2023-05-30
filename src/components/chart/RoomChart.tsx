@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { Chart, registerables } from "chart.js/auto";
 
 export interface ReservationCountData {
@@ -7,6 +7,7 @@ export interface ReservationCountData {
 }
 interface ChartDataProp {
   chartData: ReservationCountData[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   monthLabels: any;
 }
 Chart.register(...registerables);
@@ -65,6 +66,7 @@ const RoomChart: React.FC<ChartDataProp> = ({ chartData, monthLabels }) => {
         });
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chartData]);
 
   return <canvas ref={chartRef} />;

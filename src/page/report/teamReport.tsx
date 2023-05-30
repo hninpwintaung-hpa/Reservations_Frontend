@@ -1,19 +1,17 @@
 
-import ProUser from "../../components/User/proUser";
 import Navbar from "../../components/navbar/navbar";
+import TeamReport from "../../components/report/teamReport";
 import { Sidebar } from "../../components/sidebar/AdminSidebar";
 
-// import React from 'react';
-
-export const ProUserList  = () => {
+export const ReportTeam  = () => {
     return(
         <div className='home'>
             <Sidebar/>
             <div className="homeContainer">
-                <Navbar/>
-                <h1>Pro  User List Process Page</h1>
-                <ProUser/>
+                <div style={{ position:"sticky" }}><Navbar/></div>
+                <TeamReport/>
             </div>
-    </div>
+            
+        </div>
     );
 };

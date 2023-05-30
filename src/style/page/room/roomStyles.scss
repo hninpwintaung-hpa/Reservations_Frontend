@@ -1,22 +1,23 @@
 .reservation-container {
   height: 100vh;
   .padding {
-    padding: 20px 10px;
+    padding: 20px 15px;
   }
   h1 {
-    border-bottom: 1px solid rgb(228, 224, 224);
-    box-shadow: 0px 3px 2px rgb(247, 244, 244);
+    //color: #fa7c0d;
     color: gray;
-    text-align: left;
-    font-size: 18px;
+    text-align: center;
+    font-size: 25px;
+    font-weight: 700;
     font-weight: bold;
+    text-align: center;
   }
 }
 .date {
   display: flex;
   justify-content: space-between;
   width: 100%;
-  padding: 50px 10px 30px 10px;
+  padding: 0px 10px 30px 10px;
   h3 {
     text-align: center;
     display: block;
@@ -25,11 +26,14 @@
   &__dateFilter {
     display: flex;
     align-items: center;
+    font-size: 16px;
   }
   &__dateFilter input {
     border: 1px solid gray;
     width: 150px;
-    height: 30px;
+    height: 35px;
+    font-size: 16px;
+    border-radius: 5px;
   }
   &__reservationBtn {
     padding: 10px 20px;

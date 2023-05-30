@@ -1,16 +1,18 @@
 import Navbar from "../../components/navbar/navbar";
-import RoomReservation from "../../components/room/RoomReservation";
 import { Sidebar } from "../../components/sidebar/AdminSidebar";
+import Room from "./Room";
 
 // import React from 'react';
-export const AdminRoom = () => {
-  return (
-    <div className="home">
-      <Sidebar />
-      <div className="homeContainer">
-        <Navbar />
-        <RoomReservation />
-      </div>
-    </div>
-  );
+
+export const AdminRoom  = () => {
+    return(
+        <div className='home'>
+            <Sidebar/>
+            <div className="homeContainer">
+                <Navbar/>
+                <Room/>
+            </div>
+            
+        </div>
+    );
 };

@@ -1,19 +1,16 @@
-
-import ProUser from "../../components/User/proUser";
 import Navbar from "../../components/navbar/navbar";
+import CarReservationReport from "../../components/report/carReservation";
 import { Sidebar } from "../../components/sidebar/AdminSidebar";
 
-// import React from 'react';
-
-export const ProUserList  = () => {
+export const ReservationCarReport  = () => {
     return(
         <div className='home'>
             <Sidebar/>
             <div className="homeContainer">
-                <Navbar/>
-                <h1>Pro  User List Process Page</h1>
-                <ProUser/>
+                <div style={{ position:"sticky" }}><Navbar/></div>
+                <CarReservationReport/>
             </div>
-    </div>
+            
+        </div>
     );
 };

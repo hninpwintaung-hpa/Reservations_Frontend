@@ -1,16 +1,16 @@
+import CarDataTable from "../../components/car/CarDataTable";
 import Navbar from "../../components/navbar/navbar";
-import { Sidebar } from "../../components/sidebar/UserSidbar";
-import Room from "./Room";
+import { Sidebar } from "../../components/sidebar/AdminSidebar";
 
 // import React from 'react';
 
-export const UserRoom  = () => {
+export const CarBooking  = () => {
     return(
         <div className='home'>
             <Sidebar/>
             <div className="homeContainer">
                 <Navbar/>
-                <Room/>
+                <CarDataTable/>
             </div>
             
         </div>
