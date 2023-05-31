@@ -16,6 +16,7 @@ import { ReservationCarReport } from "../report/carReservationReport";
 import { ReservationRoomReport } from "../report/roomReservationReport";
 import { ReportRoom } from "../report/roomReport";
 import { AdminViewReservationForm } from "../../components/room/RoomReservationForm/AdminViewReservationForm";
+import CreateCar from "../../components/create/CreateCar";
 
 function AdminView() {
   const { darkMode } = useContext(DarkModeContext);
@@ -51,6 +52,7 @@ function AdminView() {
         <Route path={`/car-creation`} element={<CarCRUD />} />
         <Route path={`/room-creation`} element={<RoomCreation />} />
         <Route path={`/team-creation`} element={<TeamCreation />} />
+        <Route path={`/car-create`} element={<CreateCar />} />
         {/* <Route
           path={`/car-reservation`}
           element={<CarBooking />}

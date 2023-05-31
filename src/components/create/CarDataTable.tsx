@@ -1,8 +1,9 @@
 import { Button, Dialog, DialogContent } from "@mui/material";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import DataTable, { TableColumn } from "react-data-table-component";
 import { useAppSelector } from "../../redux/features/Hook";
+import { DarkModeContext } from "../../context/darkModeContext";
 
 interface CarData {
   id: number;
@@ -11,6 +12,7 @@ interface CarData {
   capacity: number;
 }
 const CarDataTable = () => {
+  const { darkMode } = useContext(DarkModeContext);
   const authRedux = useAppSelector((state) => state.auth);
   const [carData, setCarData] = useState<CarData[]>([]);
   const [refresh, setRefresh] = useState(false);
@@ -161,7 +163,7 @@ const CarDataTable = () => {
     <>
       <DataTable
         columns={columns}
-        // className={darkMode ? "darkTable" : ""}
+        className={darkMode ? "darkTable" : ""}
         data={carData}
         theme="solarized"
         pagination
@@ -169,6 +171,12 @@ const CarDataTable = () => {
           table: {
             style: {
               backgroundColor: "#000",
+            },
+          },
+          headRow: {
+            style: {
+              backgroundColor: "#e0e2e7",
+              color: "#000",
             },
           },
         }}

@@ -4,6 +4,7 @@ import { useContext, useEffect, useState } from "react";
 import { DarkModeContext } from "../../context/darkModeContext";
 import { useAppSelector } from "../../redux/features/Hook";
 import axios from "axios";
+import { Paper, TableContainer } from "@mui/material";
 
 interface DataRow {
   id: number;
@@ -56,7 +57,7 @@ function AdminCarRequest(): JSX.Element {
       ...row,
       status: checked,
     };
-    console.log(row.id);
+    //console.log(row.id);
     axios
       .patch(
         `http://127.0.0.1:8000/api/car_reservation/${row.id}`,
@@ -84,7 +85,7 @@ function AdminCarRequest(): JSX.Element {
           item.id === row.id ? updatedUser : item
         );
         setCar(updatedUsers);
-        // console.log(updatedUser);
+        //console.log(updatedUser);
       })
       .catch((error) => {
         // console.log(updatedUser.team[0].id.valueOf());
@@ -136,20 +137,28 @@ function AdminCarRequest(): JSX.Element {
     },
   ];
   return (
-    <DataTable
-      columns={columns}
-      className={darkMode ? "darkTable" : ""}
-      data={car}
-      theme="solarized"
-      pagination
-      customStyles={{
-        table: {
-          style: {
-            backgroundColor: "#000",
+    <TableContainer component={Paper} style={{ maxWidth: 1300 }}>
+      <DataTable
+        columns={columns}
+        className={darkMode ? "darkTable" : ""}
+        data={car}
+        theme="solarized"
+        pagination
+        customStyles={{
+          table: {
+            style: {
+              backgroundColor: "#000",
+            },
           },
-        },
-      }}
-    />
+          headRow: {
+            style: {
+              backgroundColor: "#e0e2e7", // Set your desired header color here
+              color: "#000", // Set the text color for the header
+            },
+          },
+        }}
+      />
+    </TableContainer>
   );
 }
 

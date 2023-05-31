@@ -1,9 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import {
-  Button,
-  Dialog,
-  DialogContent,
-} from "@mui/material";
+import { Button, Dialog, DialogContent } from "@mui/material";
 import DataTable, { TableColumn } from "react-data-table-component";
 import { DarkModeContext } from "../../context/darkModeContext";
 import axios from "axios";
@@ -20,19 +16,16 @@ function Team(): JSX.Element {
   const [team, setTeam] = useState<DataRow[]>([]);
   const [teamData, setTeamData] = useState<DataRow[]>([]);
   const [isUpdated, setIsUpdated] = useState(false);
-  // const [roleNames, setRoleNames] = useState<{ [key: number]: string }>({});
   const [formValues, setFormValues] = useState<DataRow>({
     id: 0,
     name: "",
   });
   const authRedux = useAppSelector((state) => state.auth);
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     getTeamData().then((response: any) => {
       setIsUpdated(false);
       setTeam(response.data.data);
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isUpdated]);
   const getTeamData = () => {
     return new Promise((resolve, reject) => {
@@ -44,8 +37,6 @@ function Team(): JSX.Element {
         })
         .then((response) => {
           setTeamData(response.data.data);
-          //   setTeamList(response.data);
-          //   setUserData(response.data);
           console.log(response.data.data);
           resolve(response.data);
         })
@@ -83,7 +74,7 @@ function Team(): JSX.Element {
         console.log("Team created successfully");
         setIsUpdated(true);
         setFormValues({ id: 0, name: "" });
-        // formValues.name= "";
+
         const formElement = document.getElementById("teamForm");
         if (formElement) {
           formElement.reset();
@@ -109,7 +100,7 @@ function Team(): JSX.Element {
           `http://127.0.0.1:8000/api/teams/${formValues.id}`,
           {
             id: updatedUser.id,
-            name:updatedUser.name,
+            name: updatedUser.name,
           },
           {
             headers: {
@@ -121,7 +112,7 @@ function Team(): JSX.Element {
           const updatedUsers = user.map((item) =>
             item.id === formValues.id ? updatedUser : item
           );
-          // setUser(updatedUsers);
+
           setUser(updatedUsers);
           setOpen(false);
           setIsUpdated(true);
@@ -182,7 +173,6 @@ function Team(): JSX.Element {
               color="error"
               size="small"
               sx={{ marginLeft: "5px" }}
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               onClick={(e: any) => {
                 e.preventDefault();
                 handleDelete(row.id);
@@ -225,10 +215,10 @@ function Team(): JSX.Element {
             width: "300px",
             height: "50px",
             marginTop: "5px",
-            marginRight:"5px",
+            marginRight: "5px",
             border: "0.1px solid #000",
             boxShadow: "2px 2px 2px #000",
-            borderRadius:"10px",
+            borderRadius: "10px",
           }}
         />
         <Button
@@ -241,6 +231,7 @@ function Team(): JSX.Element {
           Create Team
         </Button>
       </form>
+
       <DataTable
         columns={columns}
         className={darkMode ? "darkTable" : ""}
@@ -251,6 +242,12 @@ function Team(): JSX.Element {
           table: {
             style: {
               backgroundColor: "#000",
+            },
+          },
+          headRow: {
+            style: {
+              backgroundColor: "#e0e2e7",
+              color: "#000",
             },
           },
         }}
@@ -264,7 +261,7 @@ function Team(): JSX.Element {
             name="name"
             value={formValues.name}
             onChange={handleFormChange}
-            style={{ marginTop:"20px", marginBottom:"20px" }}
+            style={{ marginTop: "20px", marginBottom: "20px" }}
           />
           <div>
             <Button

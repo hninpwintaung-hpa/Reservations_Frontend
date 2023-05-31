@@ -36,16 +36,19 @@ const ReservationsDataTable: React.FC<DataTableProps> = ({
               <div className="tooltiptext">
                 <ul style={{ listStyleType: "none" }}>
                   <li>
-                    <span>Reserve By</span>:{cell.user.name}
+                    <span>Reserve By :</span>
+                    {cell.user.name}
                   </li>
                   <li>
-                    <span>Team </span>:{cell.user.team.name}
+                    <span>Team :</span>
+                    {cell.user.team.name}
                   </li>
                   <li>
-                    <span>Title </span>: {cell.title}
+                    <span>Title :</span> {cell.title}
                   </li>
                   <li>
-                    <span>Agenda</span>:{cell.description}
+                    <span>Agenda :</span>
+                    {cell.description}
                   </li>
                 </ul>
               </div>

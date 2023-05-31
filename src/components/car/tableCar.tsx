@@ -4,6 +4,8 @@ import React, { useContext, useEffect, useState } from "react";
 import { DarkModeContext } from "../../context/darkModeContext";
 import { useAppSelector } from "../../redux/features/Hook";
 import axios from "axios";
+import { Paper, TableContainer } from "@mui/material";
+import "../../style/components/room/MUItable.scss";
 
 interface DataRow {
   car: { id: number; licence_no: string; brand: string };
@@ -20,6 +22,7 @@ interface DataRow {
 interface TableProps {
   date: string;
 }
+
 const TableCar: React.FC<TableProps> = ({ date }) => {
   const { darkMode } = useContext(DarkModeContext);
   const authRedux = useAppSelector((state) => state.auth);
@@ -57,6 +60,10 @@ const TableCar: React.FC<TableProps> = ({ date }) => {
       selector: (row: DataRow) => row.date,
     },
     {
+      name: "Request User",
+      selector: (row: DataRow) => row.user.name,
+    },
+    {
       name: "Brand",
       selector: (row: DataRow) => row.car.brand,
     },
@@ -82,8 +89,8 @@ const TableCar: React.FC<TableProps> = ({ date }) => {
       selector: (row: DataRow) => row.end_time,
     },
     {
-      name: "Request User",
-      selector: (row: DataRow) => row.user.name,
+      name: "Passengers",
+      selector: (row: DataRow) => row.no_of_traveller,
     },
     {
       name: "Team Name",
@@ -99,21 +106,33 @@ const TableCar: React.FC<TableProps> = ({ date }) => {
         ),
     },
   ];
+
   return (
-    <DataTable
-      columns={columns}
-      className={darkMode ? "darkTable" : ""}
-      data={user}
-      theme="solarized"
-      pagination
-      customStyles={{
-        table: {
-          style: {
-            backgroundColor: "#000",
+    <TableContainer component={Paper} style={{ maxWidth: 1300 }}>
+      <DataTable
+        columns={columns}
+        className={darkMode ? "darkTable" : ""}
+        data={user}
+        theme="solarized"
+        pagination
+        style={{ fontSize: "30px" }}
+        customStyles={{
+          table: {
+            style: {
+              backgroundColor: "#ee6",
+              fontSize: "30 px",
+            },
           },
-        },
-      }}
-    />
+          headRow: {
+            style: {
+              backgroundColor: "#e0e2e7", // Set your desired header color here
+              color: "#000",
+              fontSize: "30 px", // Set the text color for the header
+            },
+          },
+        }}
+      />
+    </TableContainer>
   );
 };
 

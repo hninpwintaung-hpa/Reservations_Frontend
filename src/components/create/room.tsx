@@ -10,7 +10,7 @@ import { useAppSelector } from "../../redux/features/Hook";
 interface DataRow {
   name: string;
   capacity: number;
-  amenities: string,
+  amenities: string;
   id: number;
 }
 
@@ -35,8 +35,7 @@ function AdminRoomComponent(): JSX.Element {
       setRoom(response.data);
     });
   }, [isUpdated]);
-  
-  
+
   const getRoomData = () => {
     return new Promise((resolve, reject) => {
       axios
@@ -64,19 +63,22 @@ function AdminRoomComponent(): JSX.Element {
     const updatedRoom: DataRow = {
       ...formValues,
     };
-  
+
     return new Promise<void>((resolve, reject) => {
       axios
-        .patch(`http://127.0.0.1:8000/api/rooms/${formValues.id}`,{
-          name:updatedRoom.name,
-          capacity: updatedRoom.capacity,
-          amenities: updatedRoom.amenities,
-
-          }, {
-          headers: {
-            Authorization: `Bearer ${authRedux.token}`,
+        .patch(
+          `http://127.0.0.1:8000/api/rooms/${formValues.id}`,
+          {
+            name: updatedRoom.name,
+            capacity: updatedRoom.capacity,
+            amenities: updatedRoom.amenities,
           },
-        })
+          {
+            headers: {
+              Authorization: `Bearer ${authRedux.token}`,
+            },
+          }
+        )
         .then(() => {
           const updatedRooms = room.map((item) =>
             item.id === formValues.id ? updatedRoom : item
@@ -92,7 +94,6 @@ function AdminRoomComponent(): JSX.Element {
         });
     });
   };
-  
 
   const handleDelete = (row: number) => {
     return new Promise<void>((resolve, reject) => {
@@ -111,18 +112,20 @@ function AdminRoomComponent(): JSX.Element {
         });
     });
   };
-  
-  const handleFormChange = (event: React.ChangeEvent<HTMLInputElement>, row: DataRow) => {
+
+  const handleFormChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    row: DataRow
+  ) => {
     const { name, value } = event.target;
     const newValue = value;
 
-      setFormValues((prevValues) => ({
-        ...prevValues,
-        [name]: newValue,
-      }));
+    setFormValues((prevValues) => ({
+      ...prevValues,
+      [name]: newValue,
+    }));
 
-      console.log(formValues);
-    
+    console.log(formValues);
   };
 
   const columns: TableColumn<DataRow>[] = [
@@ -134,7 +137,7 @@ function AdminRoomComponent(): JSX.Element {
       name: "Capacity",
       selector: (row: DataRow) => row.capacity,
     },
-    
+
     {
       name: "Amenity",
       selector: (row: DataRow) => row.amenities,
@@ -172,7 +175,7 @@ function AdminRoomComponent(): JSX.Element {
       ),
     },
   ];
-  
+
   function handleAdd() {
     setAddOpen(!addOpen);
   }
@@ -180,38 +183,43 @@ function AdminRoomComponent(): JSX.Element {
   function handleSave() {
     return new Promise<void>((resolve, reject) => {
       axios
-        .post(`http://127.0.0.1:8000/api/rooms/`,{
-          name: formValues.name,
-          capacity: formValues.capacity,
-          amenities: formValues.amenities,
-          }, {
-          headers: {
-            Authorization: `Bearer ${authRedux.token}`,
+        .post(
+          `http://127.0.0.1:8000/api/rooms/`,
+          {
+            name: formValues.name,
+            capacity: formValues.capacity,
+            amenities: formValues.amenities,
           },
-        })
+          {
+            headers: {
+              Authorization: `Bearer ${authRedux.token}`,
+            },
+          }
+        )
         .then(() => {
-          console.log("success");
           setIsUpdated(true);
           setAddOpen(!addOpen);
         })
         .catch((error) => {
           reject(error);
         });
-    }); 
+    });
   }
 
   return (
     <>
       <Button
-          style={{marginTop: "20px", marginLeft: "20px"}}
-              variant="contained"
-              color="primary"
-              size="small"
-              onClick={(e: any) => {
-                e.preventDefault();
-                handleAdd();
-              }}
-            >Add New Room</Button>
+        style={{ marginTop: "20px", marginLeft: "20px" }}
+        variant="contained"
+        color="primary"
+        size="small"
+        onClick={(e: any) => {
+          e.preventDefault();
+          handleAdd();
+        }}
+      >
+        Add New Room
+      </Button>
       <DataTable
         columns={columns}
         className={darkMode ? "darkTable" : ""}
@@ -224,11 +232,16 @@ function AdminRoomComponent(): JSX.Element {
               backgroundColor: "#000",
             },
           },
+          headRow: {
+            style: {
+              backgroundColor: "#e0e2e7",
+              color: "#000",
+            },
+          },
         }}
       />
       <Dialog open={open} onClose={() => setOpen(false)}>
         <DialogContent>
-
           <label htmlFor="name">Name:</label>
           <input
             type="text"
@@ -265,29 +278,15 @@ function AdminRoomComponent(): JSX.Element {
         </DialogContent>
       </Dialog>
 
-
-    <Dialog open={addOpen} onClose={() => setAddOpen(!addOpen)}>
+      <Dialog open={addOpen} onClose={() => setAddOpen(!addOpen)}>
         <DialogContent>
-
           <label htmlFor="name">Name:</label>
-          <input
-            type="text"
-            name="name"
-            onChange={handleFormChange}
-          />
+          <input type="text" name="name" onChange={handleFormChange} />
           <label htmlFor="capacity">Capacity</label>
-          <input
-            type="number"
-            name="capacity"
-            onChange={handleFormChange}
-          />
+          <input type="number" name="capacity" onChange={handleFormChange} />
 
           <label htmlFor="amenities">Amenity</label>
-          <input
-            type="string"
-            name="amenities"
-            onChange={handleFormChange}
-          />
+          <input type="string" name="amenities" onChange={handleFormChange} />
 
           <div>
             <Button
@@ -301,7 +300,6 @@ function AdminRoomComponent(): JSX.Element {
           </div>
         </DialogContent>
       </Dialog>
-      
     </>
   );
 }

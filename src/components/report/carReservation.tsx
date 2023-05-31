@@ -4,6 +4,7 @@ import { DarkModeContext } from "../../context/darkModeContext";
 import axios from "axios";
 import { useAppSelector } from "../../redux/features/Hook";
 import SearchComponent from "../search/search";
+import { Paper, TableContainer } from "@mui/material";
 interface DataRow {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   car: any;
@@ -81,7 +82,7 @@ function CarReservationReport(): JSX.Element {
         selector: (row: DataRow) => row.destination,
       },
       {
-        name: "Passenger",
+        name: "Passengers",
         selector: (row: DataRow) => row.no_of_traveller,
       },
       {
@@ -154,21 +155,28 @@ function CarReservationReport(): JSX.Element {
           filterText={filterText}
         />
       </div>
-
-      <DataTable
-        columns={columns}
-        className={darkMode ? "darkTable" : ""}
-        data={filteredData}
-        theme="solarized"
-        pagination
-        customStyles={{
-          table: {
-            style: {
-              backgroundColor: "#000",
+      <TableContainer component={Paper} style={{ maxWidth: 1300 }}>
+        <DataTable
+          columns={columns}
+          className={darkMode ? "darkTable" : ""}
+          data={filteredData}
+          theme="solarized"
+          pagination
+          customStyles={{
+            table: {
+              style: {
+                backgroundColor: "#000",
+              },
             },
-          },
-        }}
-      />
+            headRow: {
+              style: {
+                backgroundColor: "#e0e2e7", // Set your desired header color here
+                color: "#000", // Set the text color for the header
+              },
+            },
+          }}
+        />
+      </TableContainer>
     </>
   );
 }

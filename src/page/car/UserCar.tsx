@@ -3,7 +3,6 @@ import TableCar from "../../components/car/tableCar";
 import Navbar from "../../components/navbar/navbar";
 import { Sidebar } from "../../components/sidebar/UserSidbar";
 import { Button } from "@mui/material";
-import "./UserCarStyles.scss";
 import { useState } from "react";
 export const Car = () => {
   const [searchDate, setSearchDate] = useState(
