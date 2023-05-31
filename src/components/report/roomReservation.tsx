@@ -5,24 +5,22 @@ import axios from "axios";
 import { useAppSelector } from "../../redux/features/Hook";
 import SearchComponent from "../search/search";
 import { Paper, TableContainer } from "@mui/material";
-interface DataRow {
-  // name:string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  car: any;
+import { TimeFormatConverter } from "../room/RoomReservation";
+interface ReservationData {
+  name: string;
   id: number;
   date: string;
   title: string;
-  start_time: string;
-  end_time: string;
+  start_time: number;
+  end_time: number;
   description: string;
   room: { id: number; name: string };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  user: { id: number; name: string; team: any };
+  user: { id: number; name: string; team: { id: number; name: string } };
 }
 
 function RoomReservationReport(): JSX.Element {
   const { darkMode } = useContext(DarkModeContext);
-  const [roomData, setRoomData] = useState<DataRow[]>([]);
+  const [roomData, setRoomData] = useState<ReservationData[]>([]);
   const [filterText, setFilterText] = useState("");
   const authRedux = useAppSelector((state) => state.auth);
   useEffect(() => {
@@ -51,43 +49,39 @@ function RoomReservationReport(): JSX.Element {
     });
   };
 
-  const columns: TableColumn<DataRow>[] = useMemo(
+  const columns: TableColumn<ReservationData>[] = useMemo(
     () => [
       {
-        name: "Id",
-        selector: (row: DataRow) => row.id,
+        name: "Date",
+        selector: (row: ReservationData) => row.date,
       },
       {
-        name: "Date",
-        selector: (row: DataRow) => row.date,
+        name: "Reserved By",
+        selector: (row: ReservationData) => row.user.name,
+      },
+      {
+        name: "Team Name",
+        selector: (row: ReservationData) => row.user.team.name,
       },
       {
         name: "Room Name",
-        selector: (row: DataRow) => row.room.name,
+        selector: (row: ReservationData) => row.room.name,
       },
       {
         name: "Title",
-        selector: (row: DataRow) => row.title,
+        selector: (row: ReservationData) => row.title,
       },
       {
         name: "Description",
-        selector: (row: DataRow) => row.description,
+        selector: (row: ReservationData) => row.description,
       },
       {
-        name: "Start_Time",
-        selector: (row: DataRow) => row.start_time,
+        name: "Start Time",
+        selector: (row: ReservationData) => TimeFormatConverter(row.start_time),
       },
       {
-        name: "End_Time",
-        selector: (row: DataRow) => row.end_time,
-      },
-      {
-        name: "Requested_User",
-        selector: (row: DataRow) => row.user.name,
-      },
-      {
-        name: "Team_Name",
-        selector: (row: DataRow) => row.user.team.name,
+        name: "End Time",
+        selector: (row: ReservationData) => TimeFormatConverter(row.end_time),
       },
     ],
     []
@@ -147,8 +141,8 @@ function RoomReservationReport(): JSX.Element {
             },
             headRow: {
               style: {
-                backgroundColor: "#e0e2e7", // Set your desired header color here
-                color: "#000", // Set the text color for the header
+                backgroundColor: "#e0e2e7",
+                color: "#000",
               },
             },
           }}

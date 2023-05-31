@@ -1,4 +1,10 @@
-import { Button, Dialog, DialogContent } from "@mui/material";
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  Paper,
+  TableContainer,
+} from "@mui/material";
 import axios from "axios";
 import React, { useContext, useEffect, useState } from "react";
 import DataTable, { TableColumn } from "react-data-table-component";
@@ -161,26 +167,29 @@ const CarDataTable = () => {
   };
   return (
     <>
-      <DataTable
-        columns={columns}
-        className={darkMode ? "darkTable" : ""}
-        data={carData}
-        theme="solarized"
-        pagination
-        customStyles={{
-          table: {
-            style: {
-              backgroundColor: "#000",
+      <TableContainer component={Paper} style={{ maxWidth: 1300 }}>
+        <DataTable
+          columns={columns}
+          className={darkMode ? "darkTable" : ""}
+          data={carData}
+          theme="solarized"
+          pagination
+          customStyles={{
+            table: {
+              style: {
+                backgroundColor: "#000",
+              },
             },
-          },
-          headRow: {
-            style: {
-              backgroundColor: "#e0e2e7",
-              color: "#000",
+            headRow: {
+              style: {
+                backgroundColor: "#e0e2e7",
+                color: "#000",
+              },
             },
-          },
-        }}
-      />
+          }}
+        />
+      </TableContainer>
+
       <Dialog open={open} onClose={() => setOpen(false)}>
         <DialogContent>
           <div>

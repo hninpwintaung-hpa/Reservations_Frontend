@@ -44,7 +44,17 @@ export interface UserData {
   email: string;
   team_id: number;
 }
+export const TimeFormatConverter = (time: number) => {
+  const [hour, minutes] = time.toString().split(":");
+  const date = new Date(0, 0, 0, Number(hour), Number(minutes));
 
+  const twelveHourFormat = new Intl.DateTimeFormat("en-US", {
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
+  });
+  return twelveHourFormat.format(date);
+};
 export const RoomReservation: React.FC = () => {
   const authRedux = useAppSelector((state) => state.auth);
   const authUser = authRedux.user;
@@ -80,15 +90,16 @@ export const RoomReservation: React.FC = () => {
   };
 
   const [inputValues, setInputValues] = useState(initialInputValue);
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
+  // useEffect(() => {
+  //   const timer = setInterval(() => {
+  //     setCurrentTime(new Date());
+  //   }, 1000);
 
-    return () => {
-      clearInterval(timer);
-    };
-  }, []);
+  //   return () => {
+  //     clearInterval(timer);
+  //   };
+  // }, []);
+  // console.log(currentTime);
 
   const getTimeFormat = (date: string) => {
     const [hours, minutes, seconds] = date.split(":");
@@ -233,18 +244,6 @@ export const RoomReservation: React.FC = () => {
       .catch((error) => {
         console.error("Error:", error);
       });
-  };
-
-  const TimeFormatConverter = (time: number) => {
-    const [hour, minutes] = time.toString().split(":");
-    const date = new Date(0, 0, 0, Number(hour), Number(minutes));
-
-    const twelveHourFormat = new Intl.DateTimeFormat("en-US", {
-      hour: "numeric",
-      minute: "numeric",
-      hour12: true,
-    });
-    return twelveHourFormat.format(date);
   };
 
   const columns: TableColumn<UserReservationData>[] = [

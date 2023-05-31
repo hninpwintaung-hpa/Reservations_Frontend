@@ -5,18 +5,19 @@ import { DarkModeContext } from "../../context/darkModeContext";
 import { useAppSelector } from "../../redux/features/Hook";
 import axios from "axios";
 import { Paper, TableContainer } from "@mui/material";
+import { TimeFormatConverter } from "../room/RoomReservation";
 
 interface DataRow {
   id: number;
   date: string;
   title: string;
-  start_time: string;
-  end_time: string;
+  start_time: number;
+  end_time: number;
   destination: string;
   no_of_traveller: number;
   status: boolean;
-  user: { id: number; name: string };
-  car: { id: number; licence_no: string };
+  user: { id: number; name: string; team: { id: number; name: string } };
+  car: { id: number; brand: string; licence_no: string };
   remark: string;
   approved_by: string;
 }
@@ -95,12 +96,24 @@ function AdminCarRequest(): JSX.Element {
 
   const columns = [
     {
-      name: "Licence_no",
+      name: "Date",
+      selector: (row: DataRow) => row.date,
+    },
+    {
+      name: "Brand",
+      selector: (row: DataRow) => row.car.brand,
+    },
+    {
+      name: "Licence No",
       selector: (row: DataRow) => row.car.licence_no,
     },
     {
-      name: "Date",
-      selector: (row: DataRow) => row.date,
+      name: "Reserved By",
+      selector: (row: DataRow) => row.user.name,
+    },
+    {
+      name: "Team",
+      selector: (row: DataRow) => row.user.team.name,
     },
     {
       name: "Title",
@@ -111,21 +124,18 @@ function AdminCarRequest(): JSX.Element {
       selector: (row: DataRow) => row.destination,
     },
     {
-      name: "Passenger_Count",
+      name: "Passengers",
       selector: (row: DataRow) => row.no_of_traveller,
     },
     {
-      name: "Start_Time",
-      selector: (row: DataRow) => row.start_time,
+      name: "Start Time",
+      selector: (row: DataRow) => TimeFormatConverter(row.start_time),
     },
     {
-      name: "End_Time",
-      selector: (row: DataRow) => row.end_time,
+      name: "End Time",
+      selector: (row: DataRow) => TimeFormatConverter(row.end_time),
     },
-    {
-      name: "Requested_User",
-      selector: (row: DataRow) => row.user.name,
-    },
+
     {
       name: "Status",
       cell: (row: DataRow) => (
@@ -136,6 +146,7 @@ function AdminCarRequest(): JSX.Element {
       ),
     },
   ];
+
   return (
     <TableContainer component={Paper} style={{ maxWidth: 1300 }}>
       <DataTable
@@ -152,8 +163,8 @@ function AdminCarRequest(): JSX.Element {
           },
           headRow: {
             style: {
-              backgroundColor: "#e0e2e7", // Set your desired header color here
-              color: "#000", // Set the text color for the header
+              backgroundColor: "#e0e2e7",
+              color: "#000",
             },
           },
         }}

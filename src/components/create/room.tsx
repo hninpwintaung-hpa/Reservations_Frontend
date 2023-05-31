@@ -1,5 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Button, Switch, Dialog, DialogContent } from "@mui/material";
+import {
+  Button,
+  Switch,
+  Dialog,
+  DialogContent,
+  TableContainer,
+  Paper,
+} from "@mui/material";
 import DataTable, { TableColumn } from "react-data-table-component";
 import { redirect, useNavigate } from "react-router-dom";
 import { DarkModeContext } from "../../context/darkModeContext";
@@ -220,26 +227,29 @@ function AdminRoomComponent(): JSX.Element {
       >
         Add New Room
       </Button>
-      <DataTable
-        columns={columns}
-        className={darkMode ? "darkTable" : ""}
-        data={room}
-        theme="solarized"
-        pagination
-        customStyles={{
-          table: {
-            style: {
-              backgroundColor: "#000",
+      <TableContainer component={Paper} style={{ maxWidth: 1300 }}>
+        <DataTable
+          columns={columns}
+          className={darkMode ? "darkTable" : ""}
+          data={room}
+          theme="solarized"
+          pagination
+          customStyles={{
+            table: {
+              style: {
+                backgroundColor: "#000",
+              },
             },
-          },
-          headRow: {
-            style: {
-              backgroundColor: "#e0e2e7",
-              color: "#000",
+            headRow: {
+              style: {
+                backgroundColor: "#e0e2e7",
+                color: "#000",
+              },
             },
-          },
-        }}
-      />
+          }}
+        />
+      </TableContainer>
+
       <Dialog open={open} onClose={() => setOpen(false)}>
         <DialogContent>
           <label htmlFor="name">Name:</label>

@@ -5,18 +5,17 @@ import axios from "axios";
 import { useAppSelector } from "../../redux/features/Hook";
 import SearchComponent from "../search/search";
 import { Paper, TableContainer } from "@mui/material";
-interface DataRow {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+import { TimeFormatConverter } from "../room/RoomReservation";
+interface ReservationData {
   car: any;
   id: number;
   date: string;
   title: string;
-  start_time: string;
-  end_time: string;
+  start_time: number;
+  end_time: number;
   destination: string;
   no_of_traveller: number;
   status: number;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   user: { id: number; name: string; team: any };
   team: string;
   licence_no: string;
@@ -25,17 +24,11 @@ interface DataRow {
 
 function CarReservationReport(): JSX.Element {
   const { darkMode } = useContext(DarkModeContext);
-  const [carData, setCarData] = useState<DataRow[]>([]);
+  const [carData, setCarData] = useState<ReservationData[]>([]);
   const [filterText, setFilterText] = useState("");
   const authRedux = useAppSelector((state) => state.auth);
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    getCarData().then((response: any) => {
-      console.log(response.data);
-      //   setIsUpdated(false);
-      //   setT(response.data.data);
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    getCarData();
   }, []);
   const getCarData = () => {
     return new Promise((resolve, reject) => {
@@ -46,11 +39,7 @@ function CarReservationReport(): JSX.Element {
           },
         })
         .then((response) => {
-          console.log(response.data);
           setCarData(response.data.data);
-          //   setTeamList(response.data);
-          //   setUserData(response.data);
-          //   console.log(response.data.data);
           resolve(response.data);
         })
         .catch((reason) => {
@@ -59,55 +48,52 @@ function CarReservationReport(): JSX.Element {
     });
   };
 
-  const columns: TableColumn<DataRow>[] = useMemo(
+  const columns: TableColumn<ReservationData>[] = useMemo(
     () => [
       {
-        name: "Id",
-        selector: (row: DataRow) => row.id,
-      },
-      {
         name: "Date",
-        selector: (row: DataRow) => row.date,
+        selector: (row: ReservationData) => row.date,
       },
       {
         name: "Licence No",
-        selector: (row: DataRow) => row.car.licence_no,
+        selector: (row: ReservationData) => row.car.licence_no,
+      },
+      {
+        name: "Reserved By",
+        selector: (row: ReservationData) => row.user.name,
+      },
+      {
+        name: "Team Name",
+        selector: (row: ReservationData) => row.user.team.name,
       },
       {
         name: "Title",
-        selector: (row: DataRow) => row.title,
+        selector: (row: ReservationData) => row.title,
       },
       {
         name: "Destination",
-        selector: (row: DataRow) => row.destination,
+        selector: (row: ReservationData) => row.destination,
       },
       {
         name: "Passengers",
-        selector: (row: DataRow) => row.no_of_traveller,
+        selector: (row: ReservationData) => row.no_of_traveller,
       },
       {
-        name: "Start_Time",
-        selector: (row: DataRow) => row.start_time,
+        name: "Start Time",
+        selector: (row: ReservationData) => TimeFormatConverter(row.start_time),
       },
       {
-        name: "End_Time",
-        selector: (row: DataRow) => row.end_time,
-      },
-      {
-        name: "Requested_User",
-        selector: (row: DataRow) => row.user.name,
-      },
-      {
-        name: "Team_Name",
-        selector: (row: DataRow) => row.user.team.name,
+        name: "End Time",
+        selector: (row: ReservationData) => TimeFormatConverter(row.end_time),
       },
       {
         name: "Status",
-        selector: (row: DataRow) => (row.status == 1 ? "success" : "pending"),
+        selector: (row: ReservationData) =>
+          row.status == 1 ? "success" : "pending",
       },
       {
-        name: "Approved_By",
-        selector: (row: DataRow) => row.approved_by,
+        name: "Approved By",
+        selector: (row: ReservationData) => row.approved_by,
       },
     ],
     []
