@@ -7,7 +7,6 @@ import { ProUserList } from "../list/pro";
 import { NormalUserList } from "../list/normal";
 import { Car } from "../car/AdminCar";
 import { AdminRoom } from "../room/AdminRoom";
-import CarCRUD from "../creation/CarCRUD";
 import { RoomCreation } from "../creation/roomCreation";
 import { TeamCreation } from "../creation/teamCreation";
 import { ReportCar } from "../report/carReport";
@@ -16,7 +15,8 @@ import { ReservationCarReport } from "../report/carReservationReport";
 import { ReservationRoomReport } from "../report/roomReservationReport";
 import { ReportRoom } from "../report/roomReport";
 import { AdminViewReservationForm } from "../../components/room/RoomReservationForm/AdminViewReservationForm";
-import CreateCar from "../../components/create/CreateCar";
+
+import CarCreate from "../creation/CarCRUD";
 
 function AdminView() {
   const { darkMode } = useContext(DarkModeContext);
@@ -49,14 +49,9 @@ function AdminView() {
         />
 
         <Route path={`/room-report`} element={<ReportRoom />} />
-        <Route path={`/car-creation`} element={<CarCRUD />} />
+        <Route path={`/car-creation`} element={<CarCreate />} />
         <Route path={`/room-creation`} element={<RoomCreation />} />
         <Route path={`/team-creation`} element={<TeamCreation />} />
-        <Route path={`/car-create`} element={<CreateCar />} />
-        {/* <Route
-          path={`/car-reservation`}
-          element={<CarBooking />}
-        /> */}
       </Routes>
     </div>
   );

@@ -1,14 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
 import {
   Button,
-  Switch,
   Dialog,
   DialogContent,
   TableContainer,
   Paper,
 } from "@mui/material";
 import DataTable, { TableColumn } from "react-data-table-component";
-import { redirect, useNavigate } from "react-router-dom";
 import { DarkModeContext } from "../../context/darkModeContext";
 import axios from "axios";
 import { useAppSelector } from "../../redux/features/Hook";
@@ -25,7 +23,6 @@ function AdminRoomComponent(): JSX.Element {
   const { darkMode } = useContext(DarkModeContext);
   const [open, setOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
-  // const [roomData,setRoomData] = useState<DataRow[]>([]);
   const [room, setRoom] = useState<DataRow[]>([]);
   const [isUpdated, setIsUpdated] = useState(false);
   const [formValues, setFormValues] = useState<DataRow>({

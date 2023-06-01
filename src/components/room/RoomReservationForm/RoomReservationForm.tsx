@@ -25,6 +25,11 @@ const RoomReservationForm: React.FC = () => {
   const [minDate] = useState(() => new Date().toISOString().split("T")[0]); // Set the current date as the minimum selectable date
   const navigate = useNavigate();
   const { setSuccessMessage } = useSuccessMessage();
+  const [message, setMessage] = useState("");
+  const [titleError, setTitleError] = useState("");
+  const [timeError, setTimeError] = useState("");
+  const [dateError, setDateError] = useState("");
+
   const initialInputValue: InputValue = {
     title: "",
     description: "",
@@ -81,19 +86,15 @@ const RoomReservationForm: React.FC = () => {
     e.preventDefault();
     inputValue["user_id"] = authUser;
     sendDataToBackend({ inputValue });
-    const successMessage = "Reservation created successfully.";
-    setSuccessMessage(successMessage);
-    navigate(
-      `/${
-        authRedux.role
-      }-dashboard/room-reservation?success=${encodeURIComponent(
-        successMessage
-      )}`
-    );
+    setTitleError("");
+    setTimeError("");
+    setDateError("");
+    setMessage("");
   };
   // const resetForm = () => {
   //   setInputValue(initialInputValue);
   // };
+  //console.log(inputValue);
   const sendDataToBackend = (data: { inputValue: InputValue }) => {
     axios
       .post(
@@ -107,10 +108,40 @@ const RoomReservationForm: React.FC = () => {
         }
       )
       .then((response) => {
-        console.log(response.data);
+        console.log(response);
+        const successMessage = "Reservation created successfully.";
+        navigate(
+          `/${
+            authRedux.role
+          }-dashboard/room-reservation?success=${encodeURIComponent(
+            successMessage
+          )}`
+        );
       })
       .catch((error) => {
-        console.error("Error:", error);
+        if (error.response.data.message.endTimeError) {
+          setMessage(error.response.data.message.endTimeError);
+        }
+
+        if (error.response.data.message.overlap) {
+          setMessage(error.response.data.message.overlap);
+        }
+
+        if (error.response.data.message.errorDate) {
+          setMessage(error.response.data.message.errorDate);
+        }
+        if (error.response.data.message.title) {
+          setTitleError(error.response.data.message.title[0]);
+        }
+        if (error.response.data.message.date) {
+          setDateError(error.response.data.message.date[0]);
+        }
+        if (
+          error.response.data.message.start_time &&
+          error.response.data.message.end_time
+        ) {
+          setTimeError("Start time and end time field is required.");
+        }
       });
   };
   const handleCancel = () => {
@@ -124,6 +155,8 @@ const RoomReservationForm: React.FC = () => {
 
       <div className="reserve_section">
         <div className="form">
+          {message && <div className="errorMessage">{message}</div>}
+
           <form onSubmit={handleFormSubmit}>
             <div>
               <div className="elem-group">
@@ -154,18 +187,15 @@ const RoomReservationForm: React.FC = () => {
                   placeholder="Weekly Meeting"
                 />
               </div>
-
+              {titleError && <div className="errorMessage">{titleError}</div>}
               <div className="elem-group">
-                <label htmlFor="description">
-                  Description <span style={{ color: "red" }}>*</span>
-                </label>
+                <label htmlFor="description">Description</label>
                 <input
                   type="text"
                   name="description"
                   value={inputValue.description}
                   onChange={handleInputChange}
                   placeholder="Agenda"
-                  required
                 />
               </div>
 
@@ -179,7 +209,7 @@ const RoomReservationForm: React.FC = () => {
                   onChange={handleSelectChange}
                 >
                   <option>---start time---</option>
-                  <option value="9:00:00">09:00am</option>
+                  <option value="09:00:00">09:00am</option>
                   <option value="10:00:00">10:00am</option>
                   <option value="11:00:00">11:00am</option>
                   <option value="12:00:00">12:00pm</option>
@@ -206,6 +236,11 @@ const RoomReservationForm: React.FC = () => {
                   <option value="17:00:00">05:00pm</option>
                 </select>
               </div>
+              {timeError && (
+                <div style={{ marginTop: "20px" }} className="errorMessage">
+                  {timeError}
+                </div>
+              )}
               <div className="elem-group">
                 <label htmlFor="date">
                   Date <span style={{ color: "red" }}>*</span>
@@ -216,9 +251,9 @@ const RoomReservationForm: React.FC = () => {
                   min={minDate}
                   value={inputValue.date}
                   onChange={handleInputChange}
-                  required
                 />
               </div>
+              {dateError && <div className="errorMessage">{dateError}</div>}
               <div className="button-group">
                 <button type="submit">Book Now</button>
                 <button type="button" onClick={handleCancel}>

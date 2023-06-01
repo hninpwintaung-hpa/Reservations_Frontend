@@ -4,6 +4,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import DataTable, { TableColumn } from "react-data-table-component";
 import { useAppSelector } from "../../redux/features/Hook";
+import { useNavigate } from "react-router-dom";
 
 interface CarData {
   id: number;
@@ -17,8 +18,15 @@ const CarDataTable = () => {
   const [refresh, setRefresh] = useState(false);
   const [open, setOpen] = useState(false);
   const [selectedCarId, setSelectedCarId] = useState<any>();
+  const [titleError, setTitleError] = useState("");
+  const [destinationError, setDestinationError] = useState("");
+  const [passengerError, setPassengerError] = useState("");
+  const [dateError, setDateError] = useState("");
+  const [timeError, setTimeError] = useState("");
+  const [message, setMessage] = useState("");
 
-  const [inputValue, setInputValue] = useState({
+  const navigate = useNavigate();
+  const initialInputValue = {
     date: "",
     title: "",
     destination: "",
@@ -29,7 +37,8 @@ const CarDataTable = () => {
     user_id: 0,
     status: 0,
     approved_by: "",
-  });
+  };
+  const [inputValue, setInputValue] = useState(initialInputValue);
   useEffect(() => {
     fetchCarList().then((response: any) => {
       setCarData(response.data);
@@ -117,10 +126,12 @@ const CarDataTable = () => {
     inputValue["car_id"] = selectedCarId;
     inputValue["user_id"] = authRedux.user.id;
     sendDataToBackend();
-    setOpen(false);
+    resetForm();
     setRefresh(true);
   };
-
+  const resetForm = () => {
+    setInputValue(initialInputValue);
+  };
   const sendDataToBackend = () => {
     axios
       .post(
@@ -145,11 +156,50 @@ const CarDataTable = () => {
       )
       .then(() => {
         //setCarData(updatedCars);
-        setOpen(false);
         setRefresh(true);
+        const successMessage = "Reservation created successfully.";
+        navigate(
+          `/${
+            authRedux.role
+          }-dashboard/car-reservation?success=${encodeURIComponent(
+            successMessage
+          )}`
+        );
       })
       .catch((error) => {
-        console.error(error);
+        setOpen(true);
+        console.log(error);
+        if (error.response.data.message.endTimeError) {
+          setMessage(error.response.data.message.endTimeError);
+        }
+        if (error.response.data.message.errorDate) {
+          setMessage(error.response.data.message.errorDate);
+        }
+
+        if (error.response.data.message.overlap) {
+          setMessage(error.response.data.message.overlap);
+        }
+
+        if (error.response.data.message.destination) {
+          setDestinationError(error.response.data.message.destination);
+        }
+
+        if (error.response.data.message.no_of_traveller) {
+          setPassengerError(error.response.data.message.no_of_traveller);
+        }
+
+        if (error.response.data.message.title) {
+          setTitleError(error.response.data.message.title[0]);
+        }
+        if (error.response.data.message.date) {
+          setDateError(error.response.data.message.date[0]);
+        }
+        if (
+          error.response.data.message.start_time &&
+          error.response.data.message.end_time
+        ) {
+          setTimeError("Start time and end time field is required.");
+        }
       });
   };
 
@@ -176,7 +226,19 @@ const CarDataTable = () => {
       <Dialog open={open} onClose={() => setOpen(false)}>
         <DialogContent>
           <h1>Car Reservation Form</h1>
+
           <div className="form">
+            {message && (
+              <div
+                style={{
+                  marginLeft: "10px",
+                }}
+                className="errorMessage"
+              >
+                {message}
+              </div>
+            )}
+
             <input
               type="hidden"
               name="id"
@@ -195,6 +257,7 @@ const CarDataTable = () => {
                 placeholder="To meet with KBZ Bank client"
               />
             </div>
+            {titleError && <div className="errorMessage">{titleError}</div>}
             <div className="elem-group">
               <label htmlFor="destination">
                 Destination <span style={{ color: "red" }}>*</span>
@@ -208,6 +271,9 @@ const CarDataTable = () => {
                 required
               />
             </div>
+            {destinationError && (
+              <div className="errorMessage">{destinationError}</div>
+            )}
             <div className="elem-group">
               <label htmlFor="no_of_traveller">
                 Passenger <span style={{ color: "red" }}>*</span>
@@ -220,6 +286,9 @@ const CarDataTable = () => {
                 placeholder="Enter traveller number"
               />
             </div>
+            {passengerError && (
+              <div className="errorMessage">{passengerError}</div>
+            )}
             <div className="elem-group">
               <label htmlFor="date">
                 Date <span style={{ color: "red" }}>*</span>
@@ -231,6 +300,7 @@ const CarDataTable = () => {
                 onChange={handleInputChange}
               />
             </div>
+            {dateError && <div className="errorMessage">{dateError}</div>}
             <div className="elem-group inlined">
               <label htmlFor="time">
                 Time <span style={{ color: "red" }}>*</span>
@@ -242,7 +312,7 @@ const CarDataTable = () => {
                 onChange={handleSelectChange}
               >
                 <option>--- start time ---</option>
-                <option value="9:00:00">09:00am</option>
+                <option value="09:00:00">09:00am</option>
                 <option value="10:00:00">10:00am</option>
                 <option value="11:00:00">11:00am</option>
                 <option value="12:00:00">12:00pm</option>
@@ -270,6 +340,7 @@ const CarDataTable = () => {
                 <option value="17:00:00">05:00pm</option>
               </select>
             </div>
+            {timeError && <div className="errorMessage">{timeError}</div>}
             <div className="button-group">
               <button onClick={handleFormSubmit}>Reserve</button>
               <button onClick={onBackDropClick}>Cancel</button>

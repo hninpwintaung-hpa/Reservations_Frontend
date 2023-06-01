@@ -35,8 +35,7 @@ const CarDataTable = () => {
       setCarData(response.data);
       setRefresh(false);
     });
-    //sendDataToBackend();
-  }, []);
+  }, [refresh]);
 
   const fetchCarList = () => {
     return new Promise((resolve, reject) => {
@@ -106,6 +105,9 @@ const CarDataTable = () => {
       ),
     },
   ];
+  const handleAddNewCar = () => {
+    setOpen(true);
+  };
   const handleEdit = (data: CarData) => {
     setInputValue({ ...data });
     setOpen(true);
@@ -192,50 +194,53 @@ const CarDataTable = () => {
 
       <Dialog open={open} onClose={() => setOpen(false)}>
         <DialogContent>
-          <div>
-            <label htmlFor="brand">Brand / Model:</label>
-            <input
-              type="text"
-              name="brand"
-              value={inputValue.brand}
-              onChange={handleInputChange}
-            />
-          </div>
-          <div>
-            <label htmlFor="licence_no">Licence No:</label>
-            <input
-              type="text"
-              name="licence_no"
-              value={inputValue.licence_no}
-              onChange={handleInputChange}
-            />
-          </div>
-          <div>
-            <label htmlFor="Capacity">Capacity:</label>
-            <input
-              type="number"
-              name="capacity"
-              value={inputValue.capacity}
-              onChange={handleInputChange}
-            />
-          </div>
-          <div>
-            <Button
-              onClick={handleUpdate}
-              variant="contained"
-              color="primary"
-              size="small"
-            >
-              Update
-            </Button>
-            <Button
-              onClick={onBackDropClick}
-              variant="contained"
-              color="primary"
-              size="small"
-            >
-              Cancel
-            </Button>
+          <div className="form">
+            <div className="elem-group">
+              <label htmlFor="brand">Brand / Model:</label>
+              <input
+                type="text"
+                name="brand"
+                value={inputValue.brand}
+                onChange={handleInputChange}
+              />
+            </div>
+
+            <div className="elem-group">
+              <label htmlFor="licence_no">Licence No:</label>
+              <input
+                type="text"
+                name="licence_no"
+                value={inputValue.licence_no}
+                onChange={handleInputChange}
+              />
+            </div>
+            <div className="elem-group">
+              <label htmlFor="Capacity">Capacity:</label>
+              <input
+                type="number"
+                name="capacity"
+                value={inputValue.capacity}
+                onChange={handleInputChange}
+              />
+            </div>
+            <div className="button-group">
+              <Button
+                onClick={handleUpdate}
+                variant="contained"
+                color="primary"
+                size="small"
+              >
+                Update
+              </Button>
+              <Button
+                onClick={onBackDropClick}
+                variant="contained"
+                color="primary"
+                size="small"
+              >
+                Cancel
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

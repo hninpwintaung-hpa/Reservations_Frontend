@@ -35,19 +35,16 @@ const Login = () => {
   const authRedux = useAppSelector((state) => state.auth);
   const [error, setError] = useState<string | null>(null);
   const [alert, setAlert] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
+  const [emailError, setEmailError] = useState("");
   const [message, setMessage] = useState("");
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   async function onClickHandle(ev: any) {
     ev.preventDefault();
-    if (!input.email || !input.password) {
-      setError("Please enter your email and password.");
-      return;
-    }
+
     setStatus("PROCESSING......");
     getUserData(input)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .then((res: any) => {
-        console.log(res);
         setStatus("SUCCESS");
         dispatch(
           setAuth({
@@ -67,9 +64,21 @@ const Login = () => {
       .catch((error) => {
         setStatus("Error");
         setAlert(true);
-        setMessage(error.response.data.message);
-        console.log(message);
+        if (error.response.data.message.email) {
+          setEmailError(error.response.data.message.email[0]);
+        }
+
+        if (error.response.data.message.password) {
+          setPasswordError(error.response.data.message.password[0]);
+        }
+
+        if (error.response.data.message.error) {
+          setMessage(error.response.data.message.error);
+        }
       });
+    setEmailError("");
+    setPasswordError("");
+    setMessage("");
   }
   React.useEffect(() => {
     if (authRedux.auth === true) {
@@ -78,7 +87,6 @@ const Login = () => {
       if (authRedux.role === AuthRole.Superadmin)
         navigate("/SuperAdmin-dashboard");
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -87,9 +95,11 @@ const Login = () => {
         <div className="form-container">
           <form onSubmit={onClickHandle}>
             <div className="txt-login">
-              <span style={{ marginTop:"3px" }}>Login Form</span>
-              <AccountCircleOutlinedIcon/>
+              <span style={{ marginTop: "3px" }}>Login Form</span>
+              <AccountCircleOutlinedIcon />
             </div>
+            {message && <div className="errorMessage">{message}</div>}
+
             <input
               type="email"
               name="email"
@@ -99,6 +109,7 @@ const Login = () => {
               }}
               required
             />
+            {emailError && <div className="errorMessage">{emailError}</div>}
             <input
               type="password"
               name="password"
@@ -108,22 +119,14 @@ const Login = () => {
               }}
               required
             />
-            {alert && (
-              <p
-                style={{
-                  color: "green",
-                  marginTop: "10px",
-                  marginBottom: "10px",
-                  fontSize: "15px",
-                }}
-              >
-                {message}
-              </p>
+            {passwordError && (
+              <div className="errorMessage">{passwordError}</div>
             )}
+
             <button type="submit" onClick={onClickHandle}>
               {status}
             </button>
-            {error && <div style={{ color: "red" }}>{error}</div>}
+
             <div className="text-link">
               <span className="text">
                 Not a member?

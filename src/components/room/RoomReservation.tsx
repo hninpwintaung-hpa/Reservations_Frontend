@@ -1,9 +1,19 @@
 import React, { useEffect, useState } from "react";
 import ReservationsDataTable from "./ReservationsDataTable";
+import CloseIcon from "@mui/icons-material/Close";
 import axios from "axios";
 import { useAppSelector } from "../../redux/features/Hook";
 import { Link } from "react-router-dom";
-import { Button, Dialog, DialogContent } from "@mui/material";
+import {
+  Alert,
+  Button,
+  Collapse,
+  Dialog,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  IconButton,
+} from "@mui/material";
 import DataTable, { TableColumn } from "react-data-table-component";
 
 export interface UserReservationData {
@@ -65,7 +75,14 @@ export const RoomReservation: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const currentDate = new Date();
   const [refresh, setRefresh] = useState(false);
+  const [titleError, setTitleError] = useState("");
+  const [timeError, setTimeError] = useState("");
+  const [dateError, setDateError] = useState("");
+  const [message, setMessage] = useState("");
+  const queryParams = new URLSearchParams(location.search);
 
+  const successMessage = queryParams.get("success");
+  const [alert, setAlert] = useState(true);
   const [userReservationData, setUserReservationData] = useState<
     UserReservationData[]
   >([]);
@@ -219,10 +236,12 @@ export const RoomReservation: React.FC = () => {
 
   const handleFormSubmit = (e: any) => {
     e.preventDefault();
-    console.log(inputValues);
     sendDataToBackend({ inputValues });
-    setOpen(false);
     setRefresh(true);
+    setTitleError("");
+    setTimeError("");
+    setDateError("");
+    setMessage("");
   };
 
   const sendDataToBackend = (data: { inputValues: ReservationData }) => {
@@ -239,10 +258,36 @@ export const RoomReservation: React.FC = () => {
       )
       .then((response) => {
         console.log(response.data);
+        setOpen(false);
         setRefresh(true);
       })
       .catch((error) => {
-        console.error("Error:", error);
+        setOpen(true);
+        console.log(error);
+        // console.log(message);
+        if (error.response.data.message.end_time) {
+          setMessage(error.response.data.message.end_time[0]);
+        }
+
+        if (error.response.data.message.overlap) {
+          setMessage(error.response.data.message.overlap);
+        }
+
+        if (error.response.data.message.dateError) {
+          setMessage(error.response.data.message.dateError);
+        }
+        if (error.response.data.message.title) {
+          setTitleError(error.response.data.message.title[0]);
+        }
+        if (error.response.data.message.date) {
+          setDateError(error.response.data.message.date[0]);
+        }
+        if (
+          error.response.data.message.start_time &&
+          error.response.data.message.end_time
+        ) {
+          setTimeError("Start time and end time field is .");
+        }
       });
   };
 
@@ -326,8 +371,14 @@ export const RoomReservation: React.FC = () => {
   const handleDelete = (id: number) => {
     return new Promise<void>((resolve, reject) => {
       axios
-        .delete(`http://127.0.0.1:8000/api/room_reservation/${id}`)
-        .then(() => {
+        .delete(`http://127.0.0.1:8000/api/room_reservation/${id}`, {
+          headers: {
+            Authorization: `Bearer ${authRedux.token}`,
+          },
+        })
+        .then((response) => {
+          //setMessage(response.data.message);
+          setOpenDelete(true);
           setUserReservationData((prevData) =>
             prevData.filter((item) => item.id !== id)
           );
@@ -340,6 +391,14 @@ export const RoomReservation: React.FC = () => {
   };
   const onBackDropClick = () => {
     setOpen(false);
+  };
+
+  const [openDelete, setOpenDelete] = useState(false);
+  const handleOpen = () => {
+    setOpenDelete(true);
+  };
+  const handleClose = () => {
+    setOpenDelete(false);
   };
   return (
     <div className="home">
@@ -355,6 +414,27 @@ export const RoomReservation: React.FC = () => {
               Reserve Room
             </Link>
           </div>
+          {successMessage && (
+            <Collapse in={alert}>
+              <Alert
+                action={
+                  <IconButton
+                    aria-label="close"
+                    color="inherit"
+                    size="small"
+                    onClick={() => {
+                      setAlert(false);
+                    }}
+                  >
+                    <CloseIcon fontSize="inherit" />
+                  </IconButton>
+                }
+                sx={{ mb: 2 }}
+              >
+                {successMessage}
+              </Alert>
+            </Collapse>
+          )}
 
           <div className="date__dateFilter">
             <label>Data Show By Date : &nbsp;</label>
@@ -398,7 +478,10 @@ export const RoomReservation: React.FC = () => {
             <Dialog open={open} onClose={() => setOpen(false)}>
               <DialogContent>
                 <div className="room-reservation form">
+                  <h1>Room Reservation Edit Form</h1>
                   <form onSubmit={handleFormSubmit}>
+                    {message && <div className="errorMessage">{message}</div>}
+
                     <div>
                       <div className="elem-group">
                         <label htmlFor="room">
@@ -428,6 +511,9 @@ export const RoomReservation: React.FC = () => {
                           placeholder="To meet with the client"
                         />
                       </div>
+                      {titleError && (
+                        <div className="errorMessage">{titleError}</div>
+                      )}
 
                       <div className="elem-group">
                         <label htmlFor="description">
@@ -439,9 +525,9 @@ export const RoomReservation: React.FC = () => {
                           value={inputValues.description}
                           onChange={handleInputChange}
                           placeholder="Agenda"
-                          required
                         />
                       </div>
+
                       <div className="elem-group">
                         <label htmlFor="date">
                           Date <span style={{ color: "red" }}>*</span>
@@ -451,9 +537,11 @@ export const RoomReservation: React.FC = () => {
                           name="date"
                           value={inputValues.date}
                           onChange={handleInputChange}
-                          required
                         />
                       </div>
+                      {dateError && (
+                        <div className="errorMessage">{dateError}</div>
+                      )}
 
                       <div className="elem-group inlined">
                         <label htmlFor="time">
@@ -491,6 +579,10 @@ export const RoomReservation: React.FC = () => {
                         </select>
                       </div>
 
+                      {timeError && (
+                        <div className="errorMessage">{timeError}</div>
+                      )}
+
                       <div className="button-group">
                         <button type="submit">Update</button>
                         <button type="button" onClick={onBackDropClick}>
@@ -501,6 +593,22 @@ export const RoomReservation: React.FC = () => {
                   </form>
                 </div>
               </DialogContent>
+            </Dialog>
+            <Dialog open={openDelete} onClose={handleClose} className="dialog">
+              <DialogTitle className="dialog__title"></DialogTitle>
+              <DialogContent>
+                <DialogContentText>
+                  <h2 className="dialog__title">
+                    {" "}
+                    Your reservation successfully deleted.
+                  </h2>
+                </DialogContentText>
+              </DialogContent>
+              <div className="dialog__button-group">
+                <Button onClick={handleClose} style={{ textAlign: "center" }}>
+                  Close
+                </Button>
+              </div>
             </Dialog>
           </div>
         </div>
