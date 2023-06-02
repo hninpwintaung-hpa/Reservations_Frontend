@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Button,
   Dialog,
@@ -10,7 +11,8 @@ import React, { useContext, useEffect, useState } from "react";
 import DataTable, { TableColumn } from "react-data-table-component";
 import { useAppSelector } from "../../redux/features/Hook";
 import { DarkModeContext } from "../../context/darkModeContext";
-
+import DriveFileRenameOutlineTwoToneIcon from "@mui/icons-material/DriveFileRenameOutlineTwoTone";
+    import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 interface CarData {
   id: number;
   brand: string;
@@ -23,6 +25,9 @@ const CarDataTable = () => {
   const [carData, setCarData] = useState<CarData[]>([]);
   const [refresh, setRefresh] = useState(false);
   const [open, setOpen] = useState(false);
+  const [bradError,setBrandError]= useState("");
+  const [licenceError,setLicenceError]= useState("");
+  const [capacityError,setCapacityError]= useState("");
   const authToken = authRedux.token;
   const [inputValue, setInputValue] = useState<CarData>({
     id: 0,
@@ -35,6 +40,7 @@ const CarDataTable = () => {
       setCarData(response.data);
       setRefresh(false);
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh]);
 
   const fetchCarList = () => {
@@ -56,10 +62,6 @@ const CarDataTable = () => {
 
   const columns: TableColumn<CarData>[] = [
     {
-      name: "ID",
-      selector: (row: CarData) => row.id,
-    },
-    {
       name: "Brand/Model",
       selector: (row: CarData) => row.brand,
     },
@@ -77,37 +79,29 @@ const CarDataTable = () => {
       cell: (row: CarData) => (
         <>
           <div style={{ display: "flex" }}>
-            <Button
-              variant="contained"
+            <DriveFileRenameOutlineTwoToneIcon
               color="success"
-              size="small"
+              fontSize="large"
               onClick={(e: any) => {
                 e.preventDefault();
                 handleEdit(row);
               }}
-            >
-              Edit
-            </Button>
-            <Button
-              variant="contained"
+            />
+            <DeleteForeverIcon
+            fontSize="large"
               color="error"
-              size="small"
               sx={{ marginLeft: "5px" }}
               onClick={(e: any) => {
                 e.preventDefault();
                 handleDelete(row.id);
               }}
-            >
-              Delete
-            </Button>
+            />
           </div>
         </>
       ),
     },
   ];
-  const handleAddNewCar = () => {
-    setOpen(true);
-  };
+
   const handleEdit = (data: CarData) => {
     setInputValue({ ...data });
     setOpen(true);
@@ -121,10 +115,13 @@ const CarDataTable = () => {
     }));
   };
 
-  const handleUpdate = (e: any) => {
+  const handleUpdate = () => {
     sendDataToBackend();
     setOpen(false);
     setRefresh(true);
+    setBrandError("");
+    setCapacityError("");
+    setLicenceError("");
   };
 
   const sendDataToBackend = () => {
@@ -147,7 +144,16 @@ const CarDataTable = () => {
         setRefresh(true);
       })
       .catch((error) => {
-        console.error(error);
+        setOpen(true);
+        if(error.response.data.message.brand){
+          setBrandError(error.response.data.message.brand);
+        }
+        if(error.response.data.message.licence_no){
+          setLicenceError(error.response.data.message.licence_no);
+        }
+        if(error.response.data.message.capacity){
+          setCapacityError(error.response.data.message.capacity);
+        }
       });
   };
 
@@ -157,7 +163,11 @@ const CarDataTable = () => {
   const handleDelete = (id: number) => {
     return new Promise<void>((resolve, reject) => {
       axios
-        .delete(`http://127.0.0.1:8000/api/cars/${id}`)
+        .delete(`http://127.0.0.1:8000/api/cars/${id}`,{
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        })
         .then(() => {
           setCarData((prevData) => prevData.filter((item) => item.id !== id));
           resolve();
@@ -204,7 +214,7 @@ const CarDataTable = () => {
                 onChange={handleInputChange}
               />
             </div>
-
+            {bradError && <div className="errorMessage">{bradError}</div>}
             <div className="elem-group">
               <label htmlFor="licence_no">Licence No:</label>
               <input
@@ -214,6 +224,8 @@ const CarDataTable = () => {
                 onChange={handleInputChange}
               />
             </div>
+            {licenceError && <div className="errorMessage">{licenceError}</div>}
+
             <div className="elem-group">
               <label htmlFor="Capacity">Capacity:</label>
               <input
@@ -223,6 +235,8 @@ const CarDataTable = () => {
                 onChange={handleInputChange}
               />
             </div>
+            {capacityError && <div className="errorMessage">{capacityError}</div>}
+
             <div className="button-group">
               <Button
                 onClick={handleUpdate}

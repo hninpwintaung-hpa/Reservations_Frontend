@@ -1,12 +1,13 @@
 import { ChangeEvent, useContext, useEffect, useMemo, useState } from "react";
 import DataTable, { TableColumn } from "react-data-table-component";
 import { DarkModeContext } from "../../context/darkModeContext";
-import axios from "axios";
-import { useAppSelector } from "../../redux/features/Hook";
 import SearchComponent from "../search/search";
+import { useCarReserveDataQuery } from "../api/reservationApi";
+import ReactLoading from "react-loading";
 import { Paper, TableContainer } from "@mui/material";
 import { TimeFormatConverter } from "../room/RoomReservation";
-interface ReservationData {
+export interface DataCarInterface {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   car: any;
   id: number;
   date: string;
@@ -16,84 +17,71 @@ interface ReservationData {
   destination: string;
   no_of_traveller: number;
   status: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   user: { id: number; name: string; team: any };
   team: string;
   licence_no: string;
   approved_by: string;
+  remark:string;
 }
 
 function CarReservationReport(): JSX.Element {
   const { darkMode } = useContext(DarkModeContext);
-  const [carData, setCarData] = useState<ReservationData[]>([]);
+  const [carData, setCarData] = useState<DataCarInterface[]>([]);
   const [filterText, setFilterText] = useState("");
-  const authRedux = useAppSelector((state) => state.auth);
-  useEffect(() => {
-    getCarData();
-  }, []);
-  const getCarData = () => {
-    return new Promise((resolve, reject) => {
-      axios
-        .get("http://127.0.0.1:8000/api/car_reservation", {
-          headers: {
-            Authorization: `Bearer ${authRedux.token}`,
-          },
-        })
-        .then((response) => {
-          setCarData(response.data.data);
-          resolve(response.data);
-        })
-        .catch((reason) => {
-          reject(reason);
-        });
-    });
-  };
+  const [, setInitialLoading] = useState(false);
 
-  const columns: TableColumn<ReservationData>[] = useMemo(
+  const { data: CarDataReserveQuery, isFetching: isCarReserveFetching } =
+    useCarReserveDataQuery();
+  useEffect(() => {
+    if (CarDataReserveQuery && !isCarReserveFetching) {
+      setInitialLoading(true);
+      setCarData(CarDataReserveQuery.data);
+    }
+  }, [CarDataReserveQuery, isCarReserveFetching]);
+
+  const columns: TableColumn<DataCarInterface>[] = useMemo(
     () => [
       {
         name: "Date",
-        selector: (row: ReservationData) => row.date,
+        selector: (row: DataCarInterface) => row.date,
       },
       {
         name: "Licence No",
-        selector: (row: ReservationData) => row.car.licence_no,
+        selector: (row: DataCarInterface) => row.car.licence_no,
       },
       {
         name: "Reserved By",
-        selector: (row: ReservationData) => row.user.name,
+        selector: (row: DataCarInterface) => row.user.name,
       },
       {
         name: "Team Name",
-        selector: (row: ReservationData) => row.user.team.name,
+        selector: (row: DataCarInterface) => row.user.team.name,
       },
       {
         name: "Title",
-        selector: (row: ReservationData) => row.title,
+        selector: (row: DataCarInterface) => row.title,
       },
       {
         name: "Destination",
-        selector: (row: ReservationData) => row.destination,
+        selector: (row: DataCarInterface) => row.destination,
       },
       {
         name: "Passengers",
-        selector: (row: ReservationData) => row.no_of_traveller,
+        selector: (row: DataCarInterface) => row.no_of_traveller,
       },
       {
         name: "Start Time",
-        selector: (row: ReservationData) => TimeFormatConverter(row.start_time),
+        selector: (row: DataCarInterface) => TimeFormatConverter(row.start_time),
       },
       {
         name: "End Time",
-        selector: (row: ReservationData) => TimeFormatConverter(row.end_time),
+        selector: (row: DataCarInterface) => TimeFormatConverter(row.end_time),
       },
       {
         name: "Status",
-        selector: (row: ReservationData) =>
+        selector: (row: DataCarInterface) =>
           row.status == 1 ? "success" : "pending",
-      },
-      {
-        name: "Approved By",
-        selector: (row: ReservationData) => row.approved_by,
       },
     ],
     []
@@ -108,12 +96,11 @@ function CarReservationReport(): JSX.Element {
         return (
           item.date.toString().includes(searchText) ||
           item.car.licence_no.toString().toLowerCase().includes(searchText) ||
-          item.approved_by.toString().toLowerCase().includes(searchText) ||
           item.car.toString().toLowerCase().includes(searchText) ||
           item.destination.toString().toLowerCase().includes(searchText) ||
           item.end_time.toString().toLowerCase().includes(searchText) ||
           item.start_time.toString().toLowerCase().includes(searchText) ||
-          item.no_of_traveller.toString().includes(searchText) ||
+          String(item.no_of_traveller).includes(searchText) ||
           item.user.team.name.toLowerCase().includes(searchText) ||
           item.user.name.toString().toLowerCase().includes(searchText) ||
           item.title.toString().toLowerCase().includes(searchText)
@@ -131,8 +118,19 @@ function CarReservationReport(): JSX.Element {
   };
   return (
     <>
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <h1 style={{ margin: "15px", fontSize: "30px" }}>
+    {isCarReserveFetching ? (
+      <div style={{ display: "flex", justifyContent: "center" }}>
+      <ReactLoading
+        color={"blue"}
+        type={"spin"}
+        height={"80px"}
+        width={"80px"}
+      />
+    </div>
+    ): (
+      <>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <h1 className={darkMode ? 'dark_title' : 'page_title'}>
           Car Reservation List Report
         </h1>
         <SearchComponent
@@ -141,28 +139,38 @@ function CarReservationReport(): JSX.Element {
           filterText={filterText}
         />
       </div>
+      <div style={{ maxWidth: "100%", overflowX: "auto" }}>
       <TableContainer component={Paper} style={{ maxWidth: 1300 }}>
+
         <DataTable
+          responsive
           columns={columns}
           className={darkMode ? "darkTable" : ""}
           data={filteredData}
+          fixedHeaderScrollHeight="100px"
           theme="solarized"
           pagination
           customStyles={{
             table: {
               style: {
+                maxWidth: "100%",
+
                 backgroundColor: "#000",
               },
             },
             headRow: {
               style: {
-                backgroundColor: "#e0e2e7", // Set your desired header color here
-                color: "#000", // Set the text color for the header
+                backgroundColor: "#e0e2e7",
+                color: "#000",
               },
             },
           }}
         />
-      </TableContainer>
+        </TableContainer>
+      </div>
+      </>
+    )}
+      
     </>
   );
 }

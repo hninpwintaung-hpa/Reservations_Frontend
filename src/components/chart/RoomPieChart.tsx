@@ -18,8 +18,6 @@ const RoomPieChart = () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .then((response: any) => {
         setTeamData(response.data);
-        console.log(response.data);
-        console.log(authToken);
       })
       .catch((error) => {
         console.error(error);
@@ -36,7 +34,6 @@ const RoomPieChart = () => {
         })
         .then((response) => {
           resolve(response.data);
-          // console.log(response.data);
         })
         .catch((reason) => {
           reject(reason);
@@ -70,7 +67,7 @@ const RoomPieChart = () => {
   };
 
   return (
-    <div style={{ width: "400px", height: "400px" }}>
+    <div style={{ width: "300px", height: "300px" }}>
       <Pie data={chartData} />
     </div>
   );

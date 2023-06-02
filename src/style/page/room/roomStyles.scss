@@ -36,19 +36,19 @@
     border-radius: 5px;
   }
   &__reservationBtn {
-    padding: 10px 20px;
     margin: 0;
     text-decoration: none;
-    // border: 1px solid rgb(241, 160, 20);
     border: 1px solid rgb(202, 199, 199);
-    //background-color: rgba(7, 100, 44, 0.365);
     background-color: rgb(237, 234, 234);
-    //background-color: rgb(251, 177, 74);
     box-shadow: 3px 3px 3px rgb(224, 224, 221);
     border-radius: 2px;
     font-weight: bold;
 
     .link-style {
+      padding: 10px 20px;
+      display: block;
+      width: 100%;
+      height: 100%;
       text-decoration: none;
       font-weight: normal;
       color: #204453;

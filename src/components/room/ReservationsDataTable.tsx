@@ -62,7 +62,7 @@ const ReservationsDataTable: React.FC<DataTableProps> = ({
 
           j += span - 1;
         } else {
-          cells.push(<td key={j} style={{ backgroundColor: "white" }} />);
+          cells.push(<td key={j}/>);
         }
       }
 

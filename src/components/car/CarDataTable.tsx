@@ -128,6 +128,11 @@ const CarDataTable = () => {
     sendDataToBackend();
     resetForm();
     setRefresh(true);
+    setDateError("");
+    setTimeError("");
+    setDestinationError("");
+    setTitleError("");
+    
   };
   const resetForm = () => {
     setInputValue(initialInputValue);
@@ -175,7 +180,9 @@ const CarDataTable = () => {
         if (error.response.data.message.errorDate) {
           setMessage(error.response.data.message.errorDate);
         }
-
+        if (error.response.data.message.capacityError) {
+          setMessage(error.response.data.message.capacityError);
+        }
         if (error.response.data.message.overlap) {
           setMessage(error.response.data.message.overlap);
         }

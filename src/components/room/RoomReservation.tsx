@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import ReservationsDataTable from "./ReservationsDataTable";
 import CloseIcon from "@mui/icons-material/Close";
 import axios from "axios";
@@ -15,6 +15,7 @@ import {
   IconButton,
 } from "@mui/material";
 import DataTable, { TableColumn } from "react-data-table-component";
+import { DarkModeContext } from "../../context/darkModeContext";
 
 export interface UserReservationData {
   date: string;
@@ -57,7 +58,6 @@ export interface UserData {
 export const TimeFormatConverter = (time: number) => {
   const [hour, minutes] = time.toString().split(":");
   const date = new Date(0, 0, 0, Number(hour), Number(minutes));
-
   const twelveHourFormat = new Intl.DateTimeFormat("en-US", {
     hour: "numeric",
     minute: "numeric",
@@ -80,6 +80,7 @@ export const RoomReservation: React.FC = () => {
   const [dateError, setDateError] = useState("");
   const [message, setMessage] = useState("");
   const queryParams = new URLSearchParams(location.search);
+  const { darkMode } = useContext(DarkModeContext);
 
   const successMessage = queryParams.get("success");
   const [alert, setAlert] = useState(true);
@@ -107,16 +108,6 @@ export const RoomReservation: React.FC = () => {
   };
 
   const [inputValues, setInputValues] = useState(initialInputValue);
-  // useEffect(() => {
-  //   const timer = setInterval(() => {
-  //     setCurrentTime(new Date());
-  //   }, 1000);
-
-  //   return () => {
-  //     clearInterval(timer);
-  //   };
-  // }, []);
-  // console.log(currentTime);
 
   const getTimeFormat = (date: string) => {
     const [hours, minutes, seconds] = date.split(":");
@@ -133,7 +124,6 @@ export const RoomReservation: React.FC = () => {
   useEffect(() => {
     getUserReservationData().then((response: any) => {
       setUserReservationData(response.data);
-      //setRefresh(false);
     });
   }, [searchDate]);
 
@@ -196,6 +186,7 @@ export const RoomReservation: React.FC = () => {
 
   const getUserReservationData = async () => {
     try {
+      // eslint-disable-next-line no-async-promise-executor
       return new Promise(async (resolve, reject) => {
         await axios
           .get(
@@ -263,8 +254,6 @@ export const RoomReservation: React.FC = () => {
       })
       .catch((error) => {
         setOpen(true);
-        console.log(error);
-        // console.log(message);
         if (error.response.data.message.end_time) {
           setMessage(error.response.data.message.end_time[0]);
         }
@@ -336,8 +325,8 @@ export const RoomReservation: React.FC = () => {
                 handleEdit(row);
               }}
               disabled={
-                getTimeFormat(row.start_time.toString()) < currentTime &&
-                new Date(row.date) < currentDate
+                getTimeFormat(row.start_time.toString()) > currentTime &&
+                new Date(row.date) < new Date(currentDate)
               }
             >
               Edit
@@ -352,8 +341,8 @@ export const RoomReservation: React.FC = () => {
                 handleDelete(row.id);
               }}
               disabled={
-                getTimeFormat(row.start_time.toString()) < currentTime &&
-                new Date(row.date) < currentDate
+                getTimeFormat(row.start_time.toString()) > currentTime &&
+                new Date(row.date) < new Date(currentDate)
               }
             >
               Delete
@@ -377,7 +366,6 @@ export const RoomReservation: React.FC = () => {
           },
         })
         .then((response) => {
-          //setMessage(response.data.message);
           setOpenDelete(true);
           setUserReservationData((prevData) =>
             prevData.filter((item) => item.id !== id)
@@ -403,38 +391,39 @@ export const RoomReservation: React.FC = () => {
   return (
     <div className="home">
       <div className="reservation-container">
-        <h1 className="padding">Meeting Rooms Schedule</h1>
-
+        <h1 className={darkMode ? "dark_title" : "page_title"}>
+          Meeting Rooms Schedule
+        </h1>
+        {successMessage && (
+          <Collapse in={alert}>
+            <Alert
+              action={
+                <IconButton
+                  aria-label="close"
+                  color="inherit"
+                  size="small"
+                  onClick={() => {
+                    setAlert(false);
+                  }}
+                >
+                  <CloseIcon fontSize="inherit" />
+                </IconButton>
+              }
+              sx={{ mb: 2 }}
+            >
+              {successMessage}
+            </Alert>
+          </Collapse>
+        )}
         <div className="date">
           <div className="date__reservationBtn">
             <Link
               to={`/${authRedux.role}-dashboard/room-reservation/reserve`}
-              className="link-style"
+              className={darkMode ? "dark_reserve_btn" : "link-style"}
             >
               Reserve Room
             </Link>
           </div>
-          {successMessage && (
-            <Collapse in={alert}>
-              <Alert
-                action={
-                  <IconButton
-                    aria-label="close"
-                    color="inherit"
-                    size="small"
-                    onClick={() => {
-                      setAlert(false);
-                    }}
-                  >
-                    <CloseIcon fontSize="inherit" />
-                  </IconButton>
-                }
-                sx={{ mb: 2 }}
-              >
-                {successMessage}
-              </Alert>
-            </Collapse>
-          )}
 
           <div className="date__dateFilter">
             <label>Data Show By Date : &nbsp;</label>
@@ -453,11 +442,13 @@ export const RoomReservation: React.FC = () => {
           />
         </div>
         <div className="userData">
-          <h1>Your Reservation for "{searchDate}"</h1>
+          <h1 className={darkMode ? "dark_title" : "page_title"}>
+            Your Reservation for "{searchDate}"
+          </h1>
           <div className="userData__table">
             <DataTable
               columns={columns}
-              //className={darkMode ? "darkTable" : ""}
+              className={darkMode ? "darkTable" : ""}
               data={userReservationData}
               theme="solarized"
               pagination

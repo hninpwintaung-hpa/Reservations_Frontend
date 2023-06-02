@@ -1,18 +1,23 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useContext, useEffect, useState } from "react";
 import {
   Button,
   Dialog,
   DialogContent,
-  TableContainer,
   Paper,
+  TableContainer,
 } from "@mui/material";
 import DataTable, { TableColumn } from "react-data-table-component";
 import { DarkModeContext } from "../../context/darkModeContext";
 import axios from "axios";
 import { useAppSelector } from "../../redux/features/Hook";
+import { useRoomListDataQuery } from "../api/api";
+import ReactLoading from "react-loading";
+import DriveFileRenameOutlineTwoToneIcon from "@mui/icons-material/DriveFileRenameOutlineTwoTone";
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 // import { AuthRole } from "./redux/features/type/authType";
 
-interface DataRow {
+export interface RoomData {
   name: string;
   capacity: number;
   amenities: string;
@@ -22,49 +27,39 @@ interface DataRow {
 function AdminRoomComponent(): JSX.Element {
   const { darkMode } = useContext(DarkModeContext);
   const [open, setOpen] = useState(false);
+  const[openUpdate, setOpenUpdate]=useState(false);
   const [addOpen, setAddOpen] = useState(false);
-  const [room, setRoom] = useState<DataRow[]>([]);
-  const [isUpdated, setIsUpdated] = useState(false);
-  const [formValues, setFormValues] = useState<DataRow>({
+  const [room, setRoom] = useState<RoomData[]>([]);
+  const [, setIsUpdated] = useState(false);
+  const [nameError,setNameError]=useState("");
+  const [capacityError,setCapacityError]=useState("");
+
+  const [formValues, setFormValues] = useState<RoomData>({
     name: "",
-    capacity: 0,
+    capacity: 1,
     amenities: "",
     id: 0,
   });
 
   const authRedux = useAppSelector((state) => state.auth);
+  const { data: roomDataQuery, isFetching: isRoomFetching } =
+    useRoomListDataQuery();
   useEffect(() => {
-    getRoomData().then((response: any) => {
-      setIsUpdated(false);
-      setRoom(response.data);
-    });
-  }, [isUpdated]);
+    if (roomDataQuery && !isRoomFetching) {
+      setRoom(roomDataQuery.data);
+      setIsUpdated(true);
+    }
+  }, [roomDataQuery, isRoomFetching]);
 
-  const getRoomData = () => {
-    return new Promise((resolve, reject) => {
-      axios
-        .get("http://127.0.0.1:8000/api/rooms", {
-          headers: {
-            Authorization: `Bearer ${authRedux.token}`,
-          },
-        })
-        .then((response) => {
-          console.log(response.data);
-          resolve(response.data);
-        })
-        .catch((reason) => {
-          reject(reason);
-        });
-    });
-  };
-
-  const handleEdit = (row: DataRow) => {
+  const handleEdit = (row: RoomData) => {
     setFormValues({ ...row });
-    setOpen(true);
+    setOpenUpdate(true);
+    setCapacityError("");
+    setCapacityError("");
   };
 
   const handleUpdate = () => {
-    const updatedRoom: DataRow = {
+    const updatedRoom: RoomData = {
       ...formValues,
     };
 
@@ -89,12 +84,19 @@ function AdminRoomComponent(): JSX.Element {
           );
           // setUser(updatedUsers);
           setRoom(updatedRooms);
-          setOpen(false);
+          setOpenUpdate(false);
           setIsUpdated(true);
-          resolve();
+          setCapacityError("");
+          setNameError("");
         })
         .catch((error) => {
-          reject(error);
+          setOpenUpdate(true);
+          if(error.response.data.message.name){
+            setNameError(error.response.data.message.name);
+          }
+          if(error.response.data.message.capacity){
+            setCapacityError(error.response.data.message.capacity);
+          }
         });
     });
   };
@@ -117,10 +119,7 @@ function AdminRoomComponent(): JSX.Element {
     });
   };
 
-  const handleFormChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    row: DataRow
-  ) => {
+  const handleFormChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     const newValue = value;
 
@@ -132,48 +131,42 @@ function AdminRoomComponent(): JSX.Element {
     console.log(formValues);
   };
 
-  const columns: TableColumn<DataRow>[] = [
+  const columns: TableColumn<RoomData>[] = [
     {
       name: "Name",
-      selector: (row: DataRow) => row.name,
+      selector: (row: RoomData) => row.name,
     },
     {
       name: "Capacity",
-      selector: (row: DataRow) => row.capacity,
+      selector: (row: RoomData) => row.capacity,
     },
 
     {
       name: "Amenity",
-      selector: (row: DataRow) => row.amenities,
+      selector: (row: RoomData) => row.amenities,
     },
     {
       name: "Actions",
-      cell: (row: DataRow) => (
+      cell: (row: RoomData) => (
         <>
           <div style={{ display: "flex" }}>
-            <Button
-              variant="contained"
+            <DriveFileRenameOutlineTwoToneIcon
+              fontSize="large"
               color="success"
-              size="small"
               onClick={(e: any) => {
                 e.preventDefault();
                 handleEdit(row);
               }}
-            >
-              Edit
-            </Button>
-            <Button
-              variant="contained"
+            />
+            <DeleteForeverIcon
+              fontSize="large"
               color="error"
-              size="small"
               sx={{ marginLeft: "5px" }}
               onClick={(e: any) => {
                 e.preventDefault();
                 handleDelete(row.id);
               }}
-            >
-              Delete
-            </Button>
+            />
           </div>
         </>
       ),
@@ -182,13 +175,15 @@ function AdminRoomComponent(): JSX.Element {
 
   function handleAdd() {
     setAddOpen(!addOpen);
+    setNameError("");
+    setCapacityError("");
   }
 
   function handleSave() {
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<void>((reject) => {
       axios
         .post(
-          `http://127.0.0.1:8000/api/rooms/`,
+          "http://127.0.0.1:8000/api/rooms",
           {
             name: formValues.name,
             capacity: formValues.capacity,
@@ -202,111 +197,192 @@ function AdminRoomComponent(): JSX.Element {
         )
         .then(() => {
           setIsUpdated(true);
-          setAddOpen(!addOpen);
+          setNameError("");
+          setCapacityError("");
+    setAddOpen(!addOpen);
+
         })
         .catch((error) => {
-          reject(error);
+          setOpen(true);
+          if(error.response.data.message.name){
+            setNameError(error.response.data.message.name);
+          }
+          if(error.response.data.message.capacity){
+            setCapacityError(error.response.data.message.capacity);
+          }
         });
     });
   }
+  const onBackDropClick = () => {
+    setOpenUpdate(false);
+    setNameError("");
+    setCapacityError("");
+  };
 
   return (
     <>
-      <Button
-        style={{ marginTop: "20px", marginLeft: "20px" }}
-        variant="contained"
-        color="primary"
-        size="small"
-        onClick={(e: any) => {
-          e.preventDefault();
-          handleAdd();
-        }}
-      >
-        Add New Room
-      </Button>
-      <TableContainer component={Paper} style={{ maxWidth: 1300 }}>
-        <DataTable
-          columns={columns}
-          className={darkMode ? "darkTable" : ""}
-          data={room}
-          theme="solarized"
-          pagination
-          customStyles={{
-            table: {
-              style: {
-                backgroundColor: "#000",
-              },
-            },
-            headRow: {
-              style: {
-                backgroundColor: "#e0e2e7",
-                color: "#000",
-              },
-            },
-          }}
-        />
-      </TableContainer>
-
-      <Dialog open={open} onClose={() => setOpen(false)}>
-        <DialogContent>
-          <label htmlFor="name">Name:</label>
-          <input
-            type="text"
-            name="name"
-            value={formValues.name}
-            onChange={handleFormChange}
+      {isRoomFetching ? (
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <ReactLoading
+            color={"blue"}
+            type={"spin"}
+            height={"80px"}
+            width={"80px"}
           />
-          <label htmlFor="capacity">Capacity</label>
-          <input
-            type="number"
-            name="capacity"
-            value={formValues.capacity}
-            onChange={handleFormChange}
-          />
-
-          <label htmlFor="amenities">Amenity</label>
-          <input
-            type="string"
-            name="amenities"
-            value={formValues.amenities}
-            onChange={handleFormChange}
-          />
-
-          <div>
+        </div>
+      ) : (
+        <>
+          <div style={{ marginLeft: "13px" }}>
             <Button
-              onClick={handleUpdate}
+              className={darkMode ? "dark_btn" : ""}
+              style={{ margin: "0px 15px 15px 0px" }}
               variant="contained"
               color="primary"
-              size="small"
+              size="medium"
+              onClick={(e: any) => {
+                e.preventDefault();
+                handleAdd();
+              }}
             >
-              Update
+              Add New Room
             </Button>
           </div>
-        </DialogContent>
-      </Dialog>
+          <TableContainer component={Paper} style={{ maxWidth: 1300 }}>
+            <DataTable
+              columns={columns}
+              className={darkMode ? "darkTable" : ""}
+              data={room}
+              theme="solarized"
+              pagination
+              customStyles={{
+                table: {
+                  style: {
+                    backgroundColor: "#000",
+                  },
+                },
+                headRow: {
+                  style: {
+                    backgroundColor: "#e0e2e7",
+                    color: "#000",
+                  },
+                },
+              }}
+            />
+          </TableContainer>
+          <Dialog open={openUpdate} onClose={() => setOpenUpdate(false)}>
+            <DialogContent>
+              <div className="form">
+                <h2>Update Room Data</h2>
+                <form>
+                  <div className="elem-group">
+                    <label htmlFor="name">Name:</label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={formValues.name}
+                      onChange={handleFormChange}
+                    />
+                  </div>
+                  {nameError && <div className="errorMessage">{nameError}</div>}
+                  <div className="elem-group">
+                    <label htmlFor="capacity">Capacity</label>
+                    <input
+                      type="number"
+                      name="capacity"
+                      value={formValues.capacity}
+                      onChange={handleFormChange}
+                    />
+                  </div>
+                  {capacityError && <div className="errorMessage">{capacityError}</div>}
 
-      <Dialog open={addOpen} onClose={() => setAddOpen(!addOpen)}>
-        <DialogContent>
-          <label htmlFor="name">Name:</label>
-          <input type="text" name="name" onChange={handleFormChange} />
-          <label htmlFor="capacity">Capacity</label>
-          <input type="number" name="capacity" onChange={handleFormChange} />
+                  <div className="elem-group">
+                    <label htmlFor="amenities">Amenity</label>
+                    <input
+                      type="string"
+                      name="amenities"
+                      value={formValues.amenities}
+                      onChange={handleFormChange}
+                    />
+                  </div>
+                  <div className="button-group">
+                    <Button
+                      onClick={handleUpdate}
+                      variant="contained"
+                      color="primary"
+                      size="small"
+                    >
+                      Update
+                    </Button>
+                    <Button
+                      onClick={onBackDropClick}
+                      variant="contained"
+                      color="primary"
+                      size="small"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            </DialogContent>
+          </Dialog>
 
-          <label htmlFor="amenities">Amenity</label>
-          <input type="string" name="amenities" onChange={handleFormChange} />
+          <Dialog open={addOpen} onClose={() => setAddOpen(!addOpen)}>
+            <DialogContent>
+              <div className="form">
+                <h2>Add New Car</h2>
+                <form>
+                  <div className="elem-group">
+                    <label htmlFor="name">Name:</label>
+                    <input
+                      type="text"
+                      name="name"
+                      onChange={handleFormChange}
+                    />
+                  </div>
+                  {nameError && <div className="errorMessage">{nameError}</div>}
+                  <div className="elem-group">
+                    <label htmlFor="capacity">Capacity</label>
+                    <input
+                      type="number"
+                      name="capacity"
+                      onChange={handleFormChange}
+                    />
+                  </div>
+                  {capacityError && <div>{capacityError}</div>}
+                  <div className="elem-group">
+                    <label htmlFor="amenities">Amenity</label>
+                    <input
+                      type="string"
+                      name="amenities"
+                      onChange={handleFormChange}
+                    />
+                  </div>
 
-          <div>
-            <Button
-              onClick={handleSave}
-              variant="contained"
-              color="primary"
-              size="small"
-            >
-              Save
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+                  <div className="btn-group">
+                    <Button
+                      onClick={handleSave}
+                      variant="contained"
+                      color="primary"
+                      size="small"
+                    >
+                      Save
+                    </Button>
+                    <Button
+                      onClick={onBackDropClick}
+                      variant="contained"
+                      color="primary"
+                      size="small"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </>
+      )}
     </>
   );
 }

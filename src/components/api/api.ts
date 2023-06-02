@@ -3,9 +3,8 @@ import { useQuery } from "react-query";
 import { reject } from "lodash";
 import { useAppSelector } from "../../redux/features/Hook";
 import { DataRow } from '../User/proUser';
-import { RoomData } from "../room/RoomReservation";
-import { carData } from "../dashboard_table/AdminCarReserveTable";
-
+import { CarData } from '../car/CarDataTable';
+import { RoomData } from "../create/room";
 export const useTeamUserDataQuery = () => {
     const authRedux = useAppSelector((state) => state.auth);
   
@@ -149,7 +148,7 @@ export const useTeamDataQuery = () => {
   export const useCarListDataQuery = () => {
     const authRedux = useAppSelector((state) => state.auth);
   
-    return useQuery<{ data: carData[] }, Error>(
+    return useQuery<{ data: CarData[] }, Error>(
       "roleData",
       async () => {
         const axiosConfig = {
@@ -175,31 +174,32 @@ export const useTeamDataQuery = () => {
     );
   };
 
-export const useRoomListDataQuery = () => {
+  export const useRoomListDataQuery = () => {
     const authRedux = useAppSelector((state) => state.auth);
   
     return useQuery<{ data: RoomData[] }, Error>(
-        "roomData",
-        async () => {
-            const axiosConfig = {
-                timeout: 5000,
-                headers: {
-                    Authorization: `Bearer ${authRedux.token}`,
-                },
-            };
+      "roomData",
+      async () => {
+        const axiosConfig = {
+          timeout: 5000,
+          headers: {
+            Authorization: `Bearer ${authRedux.token}`,
+          },
+        };
   
-            const response = await axios.get(
-                "http://127.0.0.1:8000/api/rooms",
-                axiosConfig
-            );
+        const response = await axios.get(
+          "http://127.0.0.1:8000/api/rooms",
+          axiosConfig
+        );
   
-            return { data: response.data.data };
+        return { data: response.data.data };
+      },
+      {
+        onError: (reason) => {
+          reject(reason);
+          throw reason;
         },
-        {
-            onError: (reason) => {
-                reject(reason);
-                throw reason;
-            },
-        }
+      }
     );
-}
+  };
+  

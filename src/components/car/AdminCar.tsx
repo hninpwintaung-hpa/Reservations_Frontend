@@ -1,13 +1,17 @@
 import Switch from "@mui/material/Switch/Switch";
-import DataTable, { TableColumn } from "react-data-table-component";
+import DataTable from "react-data-table-component";
 import { useContext, useEffect, useState } from "react";
 import { DarkModeContext } from "../../context/darkModeContext";
 import { useAppSelector } from "../../redux/features/Hook";
 import axios from "axios";
 import { Paper, TableContainer } from "@mui/material";
 import { TimeFormatConverter } from "../room/RoomReservation";
+import { useCarReserveDataQuery } from "../api/reservationApi";
+import ReactLoading from "react-loading";
 
-interface DataRow {
+ interface DataCarInterface {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  car: any;
   id: number;
   date: string;
   title: string;
@@ -15,50 +19,37 @@ interface DataRow {
   end_time: number;
   destination: string;
   no_of_traveller: number;
-  status: boolean;
-  user: { id: number; name: string; team: { id: number; name: string } };
-  car: { id: number; brand: string; licence_no: string };
+  status: number | boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  user: { id: number; name: string; team: any };
+  team: string;
   remark: string;
+  licence_no: string;
   approved_by: string;
 }
 
 function AdminCarRequest(): JSX.Element {
   const { darkMode } = useContext(DarkModeContext);
   const authRedux = useAppSelector((state) => state.auth);
-  const [car, setCar] = useState<DataRow[]>([]);
-
+  const [car, setCar] = useState<DataCarInterface[]>([]);
+  const { data: carDataReserveQuery, isFetching: isCarReserveFetching } =
+  useCarReserveDataQuery();
   useEffect(() => {
-    getCarData().then((response: any) => {
-      setCar(response.data);
-    });
-  }, []);
-  const getCarData = () => {
-    return new Promise((resolve, reject) => {
-      axios
-        .get("http://127.0.0.1:8000/api/car_reservation", {
-          headers: {
-            Authorization: `Bearer ${authRedux.token}`,
-          },
-        })
-        .then((response) => {
-          resolve(response.data);
-        })
-        .catch((reason) => {
-          reject(reason);
-        });
-    });
-  };
+    if (carDataReserveQuery) {
+      setCar(carDataReserveQuery.data);
+      // setIsUpdated(true);
+    }
+  }, [carDataReserveQuery]);
   const handleStatusChange = (
     event: React.ChangeEvent<HTMLInputElement>,
-    row: DataRow
+    row: DataCarInterface
   ) => {
     const { checked } = event.target;
 
-    const updatedUser: DataRow = {
+    const updatedUser: DataCarInterface = {
       ...row,
       status: checked,
     };
-    //console.log(row.id);
     axios
       .patch(
         `http://127.0.0.1:8000/api/car_reservation/${row.id}`,
@@ -86,10 +77,8 @@ function AdminCarRequest(): JSX.Element {
           item.id === row.id ? updatedUser : item
         );
         setCar(updatedUsers);
-        //console.log(updatedUser);
       })
       .catch((error) => {
-        // console.log(updatedUser.team[0].id.valueOf());
         console.error("Error updating user status:", error);
       });
   };
@@ -97,48 +86,48 @@ function AdminCarRequest(): JSX.Element {
   const columns = [
     {
       name: "Date",
-      selector: (row: DataRow) => row.date,
+      selector: (row: DataCarInterface) => row.date,
     },
     {
       name: "Brand",
-      selector: (row: DataRow) => row.car.brand,
+      selector: (row: DataCarInterface) => row.car.brand,
     },
     {
       name: "Licence No",
-      selector: (row: DataRow) => row.car.licence_no,
+      selector: (row: DataCarInterface) => row.car.licence_no,
     },
     {
       name: "Reserved By",
-      selector: (row: DataRow) => row.user.name,
+      selector: (row: DataCarInterface) => row.user.name,
     },
     {
       name: "Team",
-      selector: (row: DataRow) => row.user.team.name,
+      selector: (row: DataCarInterface) => row.user.team.name,
     },
     {
       name: "Title",
-      selector: (row: DataRow) => row.title,
+      selector: (row: DataCarInterface) => row.title,
     },
     {
       name: "Destination",
-      selector: (row: DataRow) => row.destination,
+      selector: (row: DataCarInterface) => row.destination,
     },
     {
       name: "Passengers",
-      selector: (row: DataRow) => row.no_of_traveller,
+      selector: (row: DataCarInterface) => row.no_of_traveller,
     },
     {
       name: "Start Time",
-      selector: (row: DataRow) => TimeFormatConverter(row.start_time),
+      selector: (row: DataCarInterface) => TimeFormatConverter(row.start_time),
     },
     {
       name: "End Time",
-      selector: (row: DataRow) => TimeFormatConverter(row.end_time),
+      selector: (row: DataCarInterface) => TimeFormatConverter(row.end_time),
     },
 
     {
       name: "Status",
-      cell: (row: DataRow) => (
+      cell: (row: DataCarInterface) => (
         <Switch
           checked={Boolean(row.status)}
           onChange={(event) => handleStatusChange(event, row)}
@@ -148,7 +137,18 @@ function AdminCarRequest(): JSX.Element {
   ];
 
   return (
-    <TableContainer component={Paper} style={{ maxWidth: 1300 }}>
+    <>
+    {isCarReserveFetching ? (
+      <div style={{ display: "flex", justifyContent: "center" }}>
+      <ReactLoading
+        color={"blue"}
+        type={"spin"}
+        height={"80px"}
+        width={"80px"}
+      />
+    </div>
+    ): (
+      <TableContainer component={Paper} style={{ maxWidth: 1300 }}>
       <DataTable
         columns={columns}
         className={darkMode ? "darkTable" : ""}
@@ -170,6 +170,9 @@ function AdminCarRequest(): JSX.Element {
         }}
       />
     </TableContainer>
+    )}
+    </>
+    
   );
 }
 

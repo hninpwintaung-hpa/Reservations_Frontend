@@ -1,13 +1,15 @@
 import { ChangeEvent, useContext, useEffect, useMemo, useState } from "react";
 import DataTable, { TableColumn } from "react-data-table-component";
 import { DarkModeContext } from "../../context/darkModeContext";
-import axios from "axios";
-import { useAppSelector } from "../../redux/features/Hook";
 import SearchComponent from "../search/search";
-import { Paper, TableContainer } from "@mui/material";
+import { useRoomReserveDataQuery } from "../api/reservationApi";
+import ReactLoading from "react-loading";
 import { TimeFormatConverter } from "../room/RoomReservation";
-interface ReservationData {
-  name: string;
+import { Paper, TableContainer } from "@mui/material";
+export interface RoomDataInterface {
+  // name:string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  car: any;
   id: number;
   date: string;
   title: string;
@@ -15,73 +17,55 @@ interface ReservationData {
   end_time: number;
   description: string;
   room: { id: number; name: string };
-  user: { id: number; name: string; team: { id: number; name: string } };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  user: { id: number; name: string; team: any };
 }
 
 function RoomReservationReport(): JSX.Element {
   const { darkMode } = useContext(DarkModeContext);
-  const [roomData, setRoomData] = useState<ReservationData[]>([]);
+  const [roomData, setRoomData] = useState<RoomDataInterface[]>([]);
   const [filterText, setFilterText] = useState("");
-  const authRedux = useAppSelector((state) => state.auth);
+  const { data: carDataQuery, isFetching: iscarFetching } =
+  useRoomReserveDataQuery();
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    getRoomData().then((response: any) => {
-      console.log(response.data);
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  const getRoomData = () => {
-    return new Promise((resolve, reject) => {
-      axios
-        .get("http://127.0.0.1:8000/api/room_reservation", {
-          headers: {
-            Authorization: `Bearer ${authRedux.token}`,
-          },
-        })
-        .then((response) => {
-          console.log(response.data);
-          setRoomData(response.data.data);
-          resolve(response.data);
-        })
-        .catch((reason) => {
-          reject(reason);
-        });
-    });
-  };
+    if (carDataQuery && !iscarFetching) {
+      setRoomData(carDataQuery.data);
+    }
+  }, [carDataQuery,iscarFetching]);
 
-  const columns: TableColumn<ReservationData>[] = useMemo(
+  const columns: TableColumn<RoomDataInterface>[] = useMemo(
     () => [
       {
         name: "Date",
-        selector: (row: ReservationData) => row.date,
+        selector: (row: RoomDataInterface) => row.date,
       },
       {
         name: "Reserved By",
-        selector: (row: ReservationData) => row.user.name,
+        selector: (row: RoomDataInterface) => row.user.name,
       },
       {
         name: "Team Name",
-        selector: (row: ReservationData) => row.user.team.name,
+        selector: (row: RoomDataInterface) => row.user.team.name,
       },
       {
         name: "Room Name",
-        selector: (row: ReservationData) => row.room.name,
+        selector: (row: RoomDataInterface) => row.room.name,
       },
       {
         name: "Title",
-        selector: (row: ReservationData) => row.title,
+        selector: (row: RoomDataInterface) => row.title,
       },
       {
         name: "Description",
-        selector: (row: ReservationData) => row.description,
+        selector: (row: RoomDataInterface) => row.description,
       },
       {
         name: "Start Time",
-        selector: (row: ReservationData) => TimeFormatConverter(row.start_time),
+        selector: (row: RoomDataInterface) => TimeFormatConverter(row.start_time),
       },
       {
         name: "End Time",
-        selector: (row: ReservationData) => TimeFormatConverter(row.end_time),
+        selector: (row: RoomDataInterface) => TimeFormatConverter(row.end_time),
       },
     ],
     []
@@ -116,8 +100,19 @@ function RoomReservationReport(): JSX.Element {
   };
   return (
     <>
+    {iscarFetching ? (
+      <div style={{ display: "flex", justifyContent: "center" }}>
+      <ReactLoading
+        color={"blue"}
+        type={"spin"}
+        height={"80px"}
+        width={"80px"}
+      />
+    </div>
+    ):(
+      <>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <h1 style={{ margin: "15px", fontSize: "30px" }}>
+        <h1 className={darkMode ? 'dark_title' : 'page_title'}>
           Room Reservation List Report
         </h1>
         <SearchComponent
@@ -127,27 +122,33 @@ function RoomReservationReport(): JSX.Element {
         />
       </div>
       <TableContainer component={Paper} style={{ maxWidth: 1300 }}>
-        <DataTable
-          columns={columns}
-          className={darkMode ? "darkTable" : ""}
-          data={filteredData}
-          theme="solarized"
-          pagination
-          customStyles={{
-            table: {
-              style: {
-                backgroundColor: "#000",
-              },
+
+      <DataTable
+        columns={columns}
+        className={darkMode ? "darkTable" : ""}
+        data={filteredData}
+        theme="solarized"
+        style={{ maxWidth:"700px" }}
+        pagination
+        customStyles={{
+          table: {
+            style: {
+              backgroundColor: "#000",
             },
-            headRow: {
-              style: {
-                backgroundColor: "#e0e2e7",
-                color: "#000",
-              },
+          },
+          headRow: {
+            style: {
+              backgroundColor: "#e0e2e7",
+              color: "#000",
             },
-          }}
-        />
+          },
+        }}
+      />
       </TableContainer>
+
+      </>
+    )}
+      
     </>
   );
 }

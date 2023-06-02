@@ -7,6 +7,7 @@ import { useAppSelector } from "../../redux/features/Hook";
 import { Card } from '../../components/card/card';
 import Charts from "../chart/Charts";
 import debounce from "lodash/debounce";
+import ReactLoading from "react-loading";
 
 
 export interface roomReservationData {
@@ -41,34 +42,39 @@ export const AdminDashboard: React.FC = () => {
   const [roomCount, setroomCount] = useState(0);
   const [carReserveCount, setCarReserveCount] = useState(0);
   const [roomReserveCount, setRoomReserveCount] = useState(0);
-
+  const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
-    const debouncedFetchData = debounce(() => {
-      getRoomCount().then((response: any) => {
-        setroomCount(response.data);
-      });
+    const fetchData = async () => {
+      try {
+        const [roomCountRes, carCountRes, carReserveCountRes, roomReserveCountRes] : any = await Promise.all([
+          getRoomCount(),
+          getCarCount(),
+          getCarReserveCount(),
+          getRoomReserveCount()
+        ]);
 
-      getCarCount().then((response: any) => {
-        setCarCount(response.data);
-      });
+        setroomCount(roomCountRes.data);
+        setCarCount(carCountRes.data);
+        setCarReserveCount(carReserveCountRes.data);
+        setRoomReserveCount(roomReserveCountRes.data);
+        setIsLoading(false); // Set loading status to false once data is fetched
+      } catch (error) {
+        console.log(error);
+        setIsLoading(false); // Set loading status to false in case of an error
+      }
+    };
 
-      getCarReserveCount().then((response: any) => {
-        setCarReserveCount(response.data);
-      });
-      
-      getRoomReserveCount().then((response: any) => {
-        setRoomReserveCount(response.data);
-      });
-    }, 500); // Adjust the debounce delay as needed
+    const debouncedFetchData = debounce(fetchData, 500); // Adjust the debounce delay as needed
 
     debouncedFetchData();
 
     return () => {
-      // Clear the debounce function on component unmount
       debouncedFetchData.cancel();
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+
 
 
   const getRoomCount = () => {
@@ -144,15 +150,29 @@ export const AdminDashboard: React.FC = () => {
       <Sidebar />
       <div className="homeContainer">
         <Navbar />
-        <div className="dashboard-container" style={{ padding: "5px" }}>
+        {isLoading? (
+          <div style={{ display: "flex", justifyContent: "center" }}>
+          <ReactLoading
+            color={"blue"}
+            type={"spin"}
+            height={"80px"}
+            width={"80px"}
+          />
+        </div>
+        ):(
+          <>
+            <div className="dashboard-container" style={{ padding: "5px" }}>
           <Card title="Total Room" count={roomCount} />
           <Card title="Total Car" count={carCount} />
           <Card title="Total Room Reservation" count={roomReserveCount} />
           <Card title="Total Car Reservation" count={carReserveCount} />
         </div>
-        <div>
+        <div style={{  marginBottom:"50px"  }}>
           <Charts/>
         </div>
+          </>
+        )}
+        
       </div>
     </div>
   );

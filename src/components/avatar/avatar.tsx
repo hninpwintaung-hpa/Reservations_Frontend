@@ -10,7 +10,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Logout from '@mui/icons-material/Logout';
 import { useAppSelector ,useAppDispatch} from '../../redux/features/Hook';
 import { resetAuth } from "../../redux/features/auth/authSlice";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 
 
@@ -46,7 +46,7 @@ const AccountMenu = () => {
             aria-haspopup="true"
             aria-expanded={open ? 'true' : undefined}
           >
-            <Avatar sx={{ width: 32, height: 32 }}>M</Avatar>
+            <Avatar sx={{ width: 32, height: 32 }}>S</Avatar>
           </IconButton>
         </Tooltip>
       </Box>
@@ -86,7 +86,7 @@ const AccountMenu = () => {
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
         <MenuItem onClick={handleClose}>
-          <Avatar /> Profile
+          <Avatar /> <Link to={`/${authRedux.role}-dashboard/personal-profile`} style={{ textDecoration: "none" }}>Profile</Link>
         </MenuItem>
         <Divider />
         <MenuItem onClick={handleLogout}>

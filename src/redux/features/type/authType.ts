@@ -8,7 +8,7 @@ export interface AuthInterface {
     role: string;
     auth: boolean;
   }
-  
+
   export const DefaultAuthState = {
     token: "",
     user: {

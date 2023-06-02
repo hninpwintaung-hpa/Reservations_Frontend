@@ -1,8 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useAppSelector } from "../../../redux/features/Hook";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useLocation, useNavigate } from "react-router-dom";
-import { useSuccessMessage } from "../../SuccessMessageContext/SuccessMessageContext";
+import { useNavigate } from "react-router-dom";
 
 interface InputValue {
   team_id: number;
@@ -24,7 +24,6 @@ const RoomReservationForm: React.FC = () => {
   const authUser = authRedux.user.id;
   const [minDate] = useState(() => new Date().toISOString().split("T")[0]); // Set the current date as the minimum selectable date
   const navigate = useNavigate();
-  const { setSuccessMessage } = useSuccessMessage();
   const [message, setMessage] = useState("");
   const [titleError, setTitleError] = useState("");
   const [timeError, setTimeError] = useState("");
@@ -47,7 +46,8 @@ const RoomReservationForm: React.FC = () => {
     getRoomData().then((response: any) => {
       setRoomData(response.data);
     });
-  }, [authRedux.token]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const getRoomData = () => {
     return new Promise((resolve, reject) => {
@@ -91,10 +91,7 @@ const RoomReservationForm: React.FC = () => {
     setDateError("");
     setMessage("");
   };
-  // const resetForm = () => {
-  //   setInputValue(initialInputValue);
-  // };
-  //console.log(inputValue);
+
   const sendDataToBackend = (data: { inputValue: InputValue }) => {
     axios
       .post(
@@ -113,7 +110,7 @@ const RoomReservationForm: React.FC = () => {
         navigate(
           `/${
             authRedux.role
-          }-dashboard/room-reservation?success=${encodeURIComponent(
+          }-dashboard/home?success=${encodeURIComponent(
             successMessage
           )}`
         );
@@ -122,11 +119,9 @@ const RoomReservationForm: React.FC = () => {
         if (error.response.data.message.endTimeError) {
           setMessage(error.response.data.message.endTimeError);
         }
-
         if (error.response.data.message.overlap) {
           setMessage(error.response.data.message.overlap);
         }
-
         if (error.response.data.message.errorDate) {
           setMessage(error.response.data.message.errorDate);
         }
@@ -145,7 +140,7 @@ const RoomReservationForm: React.FC = () => {
       });
   };
   const handleCancel = () => {
-    navigate(`/${authRedux.role}-dashboard/room-reservation`);
+    navigate(`/${authRedux.role}-dashboard/home`);
   };
   return (
     <div className="room-reservation">

@@ -8,9 +8,10 @@ import {
 
   import DataTable, { TableColumn } from "react-data-table-component";
   import { DarkModeContext } from "../../context/darkModeContext";
-  import axios from "axios";
-  import { useAppSelector } from "../../redux/features/Hook";
   import SearchComponent from "../search/search";
+import { useTeamUserDataQuery } from "../api/api";
+import ReactLoading from 'react-loading';
+import { Paper, TableContainer } from "@mui/material";
   interface DataRow {
     id: number;
     name: string;
@@ -21,35 +22,17 @@ import {
     const { darkMode } = useContext(DarkModeContext);
     const [teamData, setTeamData] = useState<DataRow[]>([]);
     const [filterText, setFilterText] = useState("");
-    const authRedux = useAppSelector((state) => state.auth);
+  const [, setIsUpdated] = useState(false);
+
+  const { data: userDataQuery, isFetching: isUserFetching } =
+  useTeamUserDataQuery();
     useEffect(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      getTeamData().then((response: any) => {
-        console.log(response.data);
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-    const getTeamData = () => {
-      return new Promise((resolve, reject) => {
-        axios
-          .get("http://127.0.0.1:8000/api/users", {
-            headers: {
-              Authorization: `Bearer ${authRedux.token}`,
-            },
-          })
-          .then((response) => {
-            console.log(response.data);
-            setTeamData(response.data.data);
-            //   setTeamList(response.data);
-            //   setUserData(response.data);
-            //   console.log(response.data.data);
-            resolve(response.data);
-          })
-          .catch((reason) => {
-            reject(reason);
-          });
-      });
-    };
+      if (userDataQuery && !isUserFetching) {
+        setTeamData(userDataQuery.data);
+        setIsUpdated(true);
+      }
+    }, [userDataQuery,isUserFetching]);
+    console.log(userDataQuery);
   
     const columns: TableColumn<DataRow>[] = useMemo(
       () => [
@@ -94,14 +77,26 @@ import {
     };
     return (
       <>
+      {(isUserFetching)?(
+                <div style={{ display: "flex", justifyContent: "center" }}>
+                <ReactLoading
+                  color={"blue"}
+                  type={"spin"}
+                  height={"80px"}
+                  width={"80px"}
+                />
+              </div>
+      ):(
+        <>
           <div style={{ display:"flex", justifyContent:"space-between" }}>
-              <h1 style={{ margin:"15px", fontSize:"30px" }}>Team List Report</h1>
+              <h1 className={darkMode ? 'dark_title' : 'page_title'}>Team List Report</h1>
               <SearchComponent
           onFilter={handleFilterTextChange}
           onClear={handleClearFilter}
           filterText={filterText}
         />
           </div>
+      <TableContainer component={Paper} style={{ maxWidth: 1300 }}>
           
         <DataTable
           columns={columns}
@@ -115,8 +110,18 @@ import {
                 backgroundColor: "#000",
               },
             },
+            headRow: {
+              style: {
+                backgroundColor: "#e0e2e7",
+                color: "#000",
+              },
+            },
           }}
         />
+        </TableContainer>
+        </>
+      )}
+          
       </>
     );
   }

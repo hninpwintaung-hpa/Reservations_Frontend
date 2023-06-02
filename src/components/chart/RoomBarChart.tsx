@@ -58,7 +58,6 @@ const RoomReservationChart: React.FC = () => {
       });
       const ChartData = updateChartData(extractedData);
       setChartData(ChartData);
-      console.log(ChartData);
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -91,7 +90,6 @@ const RoomReservationChart: React.FC = () => {
         })
         .then((response) => {
           resolve(response.data);
-          // console.log(response.data);
         })
         .catch((reason) => {
           reject(reason);

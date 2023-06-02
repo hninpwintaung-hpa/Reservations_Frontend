@@ -1,62 +1,161 @@
-import Button from "@mui/material/Button/Button";
-import Switch from "@mui/material/Switch/Switch";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useContext, useEffect, useState } from "react";
+import { Button, Switch, Dialog, DialogContent } from "@mui/material";
 import DataTable, { TableColumn } from "react-data-table-component";
-import { useContext, useEffect, useState } from "react";
 import { DarkModeContext } from "../../context/darkModeContext";
-import { useAppSelector } from "../../redux/features/Hook";
 import axios from "axios";
-// import { DarkModeContext } from "./path/to/darkModeContext";
+import { useAppSelector } from "../../redux/features/Hook";
+import DriveFileRenameOutlineTwoToneIcon from "@mui/icons-material/DriveFileRenameOutlineTwoTone";
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import ReactLoading from "react-loading";
+import { useTeamDataQuery, useRoleDataQuery, useNormalQuery } from "../api/api";
 
-interface DataRow {
-  team: { id: number; name: string }[];
+export interface DataRow {
+  team: { id: number; name: string };
   employee_id: string;
   name: string;
   password: string;
   email: string;
-  roles: { id: number; name: string }[];
+  roles: [{ id: number; name: string }];
   phone: string;
-  id: string;
+  id: number;
   role_id: string;
   status: boolean;
+  team_id: string;
 }
-
+export interface FormInputValue {
+  employee_id: string;
+  name: string;
+  password: string;
+  email: string;
+  phone: string;
+  id: number;
+  role_id: string;
+  status: boolean;
+  team_id: string;
+}
 function NormalUser(): JSX.Element {
   const { darkMode } = useContext(DarkModeContext);
-  const authRedux = useAppSelector((state) => state.auth);
+  const [open, setOpen] = useState(false);
+  const [role, setRole] = useState<string>("");
   const [user, setUser] = useState<DataRow[]>([]);
+  const [roleList, setRoleList] = useState<{ id: number; name: string }[]>([]);
+  const [teamName, setTeamName] = useState("");
+  const [teamList, setTeamList] = useState<{ id: number; name: string }[]>([]);
+  const [, setIsUpdated] = useState(false);
+  const [, setInitialLoading] = useState(false);
   const [formValues, setFormValues] = useState<DataRow>({
+    team: { id: 0, name: "" },
     employee_id: "",
     name: "",
     email: "",
-    team: [],
-    roles: [],
     role_id: "",
     password: "",
     phone: "",
     status: true,
-    id: "",
+    roles: [{ id: 0, name: "" }],
+    id: 0,
+    team_id: "",
   });
+  const authRedux = useAppSelector((state) => state.auth);
+
+  const { data: userDataQuery, isFetching: isUserFetching } = useNormalQuery();
+  const { data: teamDataQuery, isFetching: isTeamFetching } =
+    useTeamDataQuery();
+  const { data: roleDataQuery, isFetching: isRoleFetching } =
+    useRoleDataQuery();
   useEffect(() => {
-    getUserData().then((response: any) => {
-      setUser(response.data);
-    });
-  }, [authRedux.token]);
-  const getUserData = () => {
-    return new Promise((resolve, reject) => {
+    if (userDataQuery && !isUserFetching) {
+      setInitialLoading(true);
+      setUser(userDataQuery.data);
+    }
+  }, [userDataQuery, isUserFetching]);
+
+  useEffect(() => {
+    if (teamDataQuery) {
+      setTeamList(teamDataQuery.data);
+      setIsUpdated(true);
+    }
+  }, [teamDataQuery]);
+
+  useEffect(() => {
+    if (roleDataQuery) {
+      setIsUpdated(true);
+      setRoleList(roleDataQuery.data);
+    }
+  }, [roleDataQuery]);
+
+  const handleUpdate = () => {
+    const updatedUser: DataRow = {
+      ...formValues,
+      roles: [
+        {
+          id: parseInt(role, 10),
+          name: roleList.find((r) => r.id === parseInt(role, 10))?.name || "",
+        },
+      ],
+
+      team: {
+        id: parseInt(teamName, 10),
+        name: teamList.find((t) => t.id === parseInt(teamName, 10))?.name || "",
+      },
+    };
+    const updatedUsers = user.map((item) =>
+      item.id === formValues.id ? updatedUser : item
+    );
+    setUser(updatedUsers);
+    window.location.reload();
+    // console.log(updatedUser.roles[0].id);
+
+    return new Promise<void>((resolve, reject) => {
       axios
-        .get("http://127.0.0.1:8000/api/staff", {
+        .patch(
+          `http://127.0.0.1:8000/api/users/${formValues.id}`,
+          {
+            name: updatedUser.name,
+            email: updatedUser.email,
+            password: updatedUser.password,
+            status: updatedUser.status,
+            team_id: updatedUser.team.id,
+            phone: updatedUser.phone,
+            employee_id: updatedUser.employee_id,
+            role_id: updatedUser.roles[0].id,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${authRedux.token}`,
+            },
+          }
+        )
+        .then(() => {
+          setOpen(false);
+          setIsUpdated(true);
+          resolve();
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
+  };
+
+  const handleDelete = (row: number) => {
+    return new Promise<void>((resolve, reject) => {
+      axios
+        .delete(`http://127.0.0.1:8000/api/users/${row}`, {
           headers: {
             Authorization: `Bearer ${authRedux.token}`,
           },
         })
-        .then((response) => {
-          resolve(response.data);
+        .then(() => {
+          setUser((prevUser) => prevUser.filter((item) => item.id !== row));
+          resolve();
         })
-        .catch((reason) => {
-          reject(reason);
+        .catch((error) => {
+          reject(error);
         });
     });
   };
+
   const handleStatusChange = (
     event: React.ChangeEvent<HTMLInputElement>,
     row: DataRow
@@ -69,16 +168,16 @@ function NormalUser(): JSX.Element {
     };
     axios
       .patch(
-        `http://127.0.0.1:8000/api/users/${row.id}`,
+        `http://127.0.0.1:8000/api/status_change/${row.id}`,
         {
           name: updatedUser.name,
           email: updatedUser.email,
           password: updatedUser.password,
           status: checked,
-          team_id: updatedUser.team?.id,
+          team_id: updatedUser.team.id,
           phone: updatedUser.phone,
           employee_id: updatedUser.employee_id,
-          role_id: updatedUser.roles[0]?.id,
+          role_id: updatedUser.roles[0].id,
         },
         {
           headers: {
@@ -93,28 +192,43 @@ function NormalUser(): JSX.Element {
         setUser(updatedUsers);
       })
       .catch((error) => {
-        // console.log(updatedUser.team[0].id.valueOf());
         console.error("Error updating user status:", error);
       });
   };
-  const handleDelete = (row: number) => {
-    return new Promise<void>((resolve, reject) => {
-      axios
-        .delete(`http://127.0.0.1:8000/api/users/user_delete/${row}`, {
-          headers: {
-            Authorization: `Bearer ${authRedux.token}`,
+
+  const handleFormChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const { name, value } = event.target;
+
+    if (name === "role_id") {
+      setFormValues((prevValues) => ({
+        ...prevValues,
+        roles: [
+          {
+            id: parseInt(value, 10),
+            name:
+              roleList.find((r) => r.id === parseInt(value, 10))?.name || "",
           },
-        })
-        .then(() => {
-          setUser((prevUser) => prevUser.filter((item) => item.id !== row));
-          resolve();
-        })
-        .catch((error) => {
-          reject(error);
-        });
-    });
+        ],
+      }));
+      setRole(value);
+    }
+
+    if (name === "team_id") {
+      setTeamName(value);
+    }
+
+    setFormValues((prevValues) => ({
+      ...prevValues,
+      [name]: value,
+    }));
   };
-  const columns = [
+
+  const handleEdit = (row: DataRow) => {
+    setFormValues({ ...row });
+    setOpen(true);
+  };
+
+  const columns: TableColumn<DataRow>[] = [
     {
       name: "Emp_id",
       selector: (row: DataRow) => row.employee_id,
@@ -128,25 +242,19 @@ function NormalUser(): JSX.Element {
       selector: (row: DataRow) => row.email,
     },
     {
-      name: "Roles",
-      selector: (row: DataRow) => row.roles,
+      name: "Role",
+      selector: (row: DataRow) => row.roles[0].name,
       cell: (row: DataRow) => {
-        const roleNames = row.roles.map((role) => role.name).join(", ");
-        return <span>{roleNames}</span>;
+        return <span>{row.roles[0].name}</span>;
       },
     },
     {
-      name: "Phone",
+      name: "Phone_no",
       selector: (row: DataRow) => row.phone,
     },
     {
       name: "Team_Name",
-      selector: (row: DataRow) => row.team,
-      cell: (row: DataRow) => {
-        // const teamNames = row.team((tea)=> tea.name).join(", ");
-        return <span>{row.team.name}</span>;
-        // console.log(row);
-      },
+      selector: (row: DataRow) => row.team.name,
     },
     {
       name: "Status",
@@ -160,34 +268,143 @@ function NormalUser(): JSX.Element {
     {
       name: "Actions",
       cell: (row: DataRow) => (
-        <Button
-          onClick={(e: any) => {
-            e.preventDefault();
-            handleDelete(row.id);
-          }}
-          variant="contained"
-          color="error"
-        >
-          Delete
-        </Button>
+        <>
+          <div style={{ display: "flex" }}>
+            <DriveFileRenameOutlineTwoToneIcon
+              sx={{ cursor: "pointer" }}
+              fontSize="large"
+              color="success"
+              onClick={(e: any) => {
+                e.preventDefault();
+                handleEdit(row);
+              }}
+            />
+            <DeleteForeverIcon
+              fontSize="large"
+              color="error"
+              sx={{ marginLeft: "5px", cursor: "pointer" }}
+              onClick={(e: any) => {
+                e.preventDefault();
+                handleDelete(row.id);
+              }}
+            />
+          </div>
+        </>
       ),
     },
   ];
+  const onBackDropClick = () => {
+    setOpen(false);
+  };
   return (
-    <DataTable
-      columns={columns}
-      className={darkMode ? "darkTable" : ""}
-      data={user}
-      theme="solarized"
-      pagination
-      customStyles={{
-        table: {
-          style: {
-            backgroundColor: "#000",
-          },
-        },
-      }}
-    />
+    <>
+      {isUserFetching || isRoleFetching || isTeamFetching ? (
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <ReactLoading
+            color={"blue"}
+            type={"spin"}
+            height={"80px"}
+            width={"80px"}
+          />
+        </div>
+      ) : (
+        <>
+          <DataTable
+            columns={columns}
+            className={darkMode ? "darkTable" : ""}
+            data={user}
+            pagination
+            customStyles={{
+              table: {
+                style: {
+                  backgroundColor: "#000",
+                },
+              },
+              headRow: {
+                style: {
+                  backgroundColor: "#e0e2e7",
+                  color: "#000",
+                },
+              },
+            }}
+          />
+          <Dialog open={open} onClose={() => setOpen(false)}>
+            <DialogContent>
+              <div className="form">
+                <form>
+                  <div className="elem-group">
+                    <label htmlFor="team">RoleName::</label>
+                    <div className="role">
+                      <select
+                        style={{
+                          width: "100%",
+                          marginBottom: "10px",
+                          marginTop: "10px",
+                          padding: "6px 0px",
+                        }}
+                        className="option"
+                        name="role_id"
+                        value={formValues.roles[0].id}
+                        onChange={handleFormChange}
+                        // onChange={(e) => setRole(e.target.value)}
+                      >
+                        {roleList.map((role) => (
+                          <option key={role.id} value={role.id}>
+                            {role.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  <div className="elem-group">
+                    <label htmlFor="team">TeamName::</label>
+                    <div className="team">
+                      <select
+                        style={{
+                          width: "100%",
+                          marginBottom: "10px",
+                          marginTop: "10px",
+                          padding: "6px 0px",
+                        }}
+                        name="team_id"
+                        className="option"
+                        value={formValues.team_id}
+                        onChange={handleFormChange}
+                        // onChange={(e) => setTeamName(e.target.value)}
+                      >
+                        {teamList.map((team) => (
+                          <option key={team.id} value={team.id}>
+                            {team.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <Button
+                      onClick={handleUpdate}
+                      variant="contained"
+                      color="primary"
+                      size="small"
+                    >
+                      Update
+                    </Button>
+                    <Button
+                      onClick={onBackDropClick}
+                      variant="contained"
+                      color="primary"
+                      size="small"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </>
+      )}
+    </>
   );
 }
 

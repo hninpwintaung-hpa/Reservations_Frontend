@@ -59,7 +59,7 @@ const Login = () => {
           })
         );
 
-        navigate(`/${res.role}-dashboard`);
+        navigate(`/${res.role}-dashboard/home`);
       })
       .catch((error) => {
         setStatus("Error");

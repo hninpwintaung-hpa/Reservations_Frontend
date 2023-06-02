@@ -1,9 +1,19 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Button, Dialog, DialogContent } from "@mui/material";
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  Paper,
+  TableContainer,
+} from "@mui/material";
 import DataTable, { TableColumn } from "react-data-table-component";
 import { DarkModeContext } from "../../context/darkModeContext";
 import axios from "axios";
 import { useAppSelector } from "../../redux/features/Hook";
+import DriveFileRenameOutlineTwoToneIcon from "@mui/icons-material/DriveFileRenameOutlineTwoTone";
+    import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import { useTeamDataQuery } from "../api/api";
+import ReactLoading from "react-loading";
 interface DataRow {
   id: number;
   name: string;
@@ -13,50 +23,33 @@ function Team(): JSX.Element {
   const { darkMode } = useContext(DarkModeContext);
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState<DataRow[]>([]);
-  const [team, setTeam] = useState<DataRow[]>([]);
   const [teamData, setTeamData] = useState<DataRow[]>([]);
-  const [isUpdated, setIsUpdated] = useState(false);
+  const [, setIsUpdated] = useState(false);
   const [formValues, setFormValues] = useState<DataRow>({
     id: 0,
     name: "",
   });
+  const [teamError,setTeamError]= useState("");
   const authRedux = useAppSelector((state) => state.auth);
-  useEffect(() => {
-    getTeamData().then((response: any) => {
-      setIsUpdated(false);
-      setTeam(response.data.data);
-    });
-  }, [isUpdated]);
-  const getTeamData = () => {
-    return new Promise((resolve, reject) => {
-      axios
-        .get("http://127.0.0.1:8000/api/teams", {
-          headers: {
-            Authorization: `Bearer ${authRedux.token}`,
-          },
-        })
-        .then((response) => {
-          setTeamData(response.data.data);
-          console.log(response.data.data);
-          resolve(response.data);
-        })
-        .catch((reason) => {
-          reject(reason);
-        });
-    });
-  };
-  const handleFormChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    row: DataRow
-  ) => {
-    const { name, value } = event.target;
-    const newValue = value;
-    setFormValues((preValues) => ({
-      ...preValues,
-      [name]: newValue,
-    }));
-    console.log(formValues);
-  };
+  const { data: teamDataQuery, isFetching: isTeamFetching } =
+    useTeamDataQuery();
+    useEffect(() => {
+      if (teamDataQuery && !isTeamFetching) {
+        setTeamData(teamDataQuery.data);
+        setIsUpdated(true);
+      }
+    }, [teamDataQuery,isTeamFetching]);
+  
+    const handleFormChange: React.ChangeEventHandler<HTMLInputElement> = (
+      event
+    ) => {
+      const { name, value } = event.target;
+    
+      setFormValues((prevValues) => ({
+        ...prevValues,
+        [name]: value,
+      }));
+    };
   const handleCreate = () => {
     axios
       .post(
@@ -71,17 +64,17 @@ function Team(): JSX.Element {
         }
       )
       .then(() => {
-        console.log("Team created successfully");
         setIsUpdated(true);
         setFormValues({ id: 0, name: "" });
-
-        const formElement = document.getElementById("teamForm");
-        if (formElement) {
-          formElement.reset();
-        }
+        setTeamError("");
+        setFormValues("");
+        window.location.reload();
       })
       .catch((error) => {
-        console.error("Error creating team:", error);
+        console.log(error);
+          if(error.response.data.message.name){
+            setTeamError(error.response.data.message.name);
+          }
       });
   };
 
@@ -90,6 +83,9 @@ function Team(): JSX.Element {
     setOpen(true);
   };
   const handleUpdate = () => {
+    setOpen(false);
+    setIsUpdated(true);
+    window.location.reload();
     const updatedUser: DataRow = {
       ...formValues,
     };
@@ -100,7 +96,7 @@ function Team(): JSX.Element {
           `http://127.0.0.1:8000/api/teams/${formValues.id}`,
           {
             id: updatedUser.id,
-            name: updatedUser.name,
+            name:updatedUser.name,
           },
           {
             headers: {
@@ -112,7 +108,6 @@ function Team(): JSX.Element {
           const updatedUsers = user.map((item) =>
             item.id === formValues.id ? updatedUser : item
           );
-
           setUser(updatedUsers);
           setOpen(false);
           setIsUpdated(true);
@@ -133,7 +128,7 @@ function Team(): JSX.Element {
           },
         })
         .then(() => {
-          setUser((prevUser) => prevUser.filter((item) => item.id !== row));
+          setTeamData((prevData)=>prevData.filter((item)=>item.id !==row));
           setIsUpdated(true);
           resolve();
         })
@@ -157,29 +152,26 @@ function Team(): JSX.Element {
       cell: (row: DataRow) => (
         <>
           <div style={{ display: "flex" }}>
-            <Button
-              variant="contained"
+            <DriveFileRenameOutlineTwoToneIcon
               color="success"
-              size="small"
+              fontSize="large"
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               onClick={(e: any) => {
                 e.preventDefault();
                 handleEdit(row);
               }}
-            >
-              Edit
-            </Button>
-            <Button
-              variant="contained"
+            />
+            
+            <DeleteForeverIcon
+            fontSize="large"
               color="error"
-              size="small"
               sx={{ marginLeft: "5px" }}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               onClick={(e: any) => {
                 e.preventDefault();
                 handleDelete(row.id);
               }}
-            >
-              Delete
-            </Button>
+            />
           </div>
         </>
       ),
@@ -187,7 +179,18 @@ function Team(): JSX.Element {
   ];
   return (
     <>
-      <form
+    {isTeamFetching ? (
+      <div style={{ display: "flex", justifyContent: "center" }}>
+      <ReactLoading
+        color={"blue"}
+        type={"spin"}
+        height={"80px"}
+        width={"80px"}
+      />
+    </div>
+    ):(
+      <>
+        <form
         id="teamForm"
         style={{
           display: "flex",
@@ -206,6 +209,7 @@ function Team(): JSX.Element {
         >
           Create team Name:
         </label>
+        <div>
         <input
           type="text"
           name="name"
@@ -215,13 +219,18 @@ function Team(): JSX.Element {
             width: "300px",
             height: "50px",
             marginTop: "5px",
-            marginRight: "5px",
+            marginRight:"5px",
             border: "0.1px solid #000",
             boxShadow: "2px 2px 2px #000",
-            borderRadius: "10px",
+            borderRadius:"10px",
           }}
         />
+      {teamError && <div className="errorMessage" style={{ marginTop:"15px" }}>{teamError}</div>}
+        </div>
+
+        <div>
         <Button
+        className={darkMode ? 'dark_btn' : ''}
           variant="contained"
           color="primary"
           size="large"
@@ -230,8 +239,11 @@ function Team(): JSX.Element {
         >
           Create Team
         </Button>
+        </div>
+
       </form>
 
+      <TableContainer component={Paper} style={{ maxWidth: 1300 }}>
       <DataTable
         columns={columns}
         className={darkMode ? "darkTable" : ""}
@@ -245,25 +257,31 @@ function Team(): JSX.Element {
             },
           },
           headRow: {
-            style: {
-              backgroundColor: "#e0e2e7",
-              color: "#000",
+              style: {
+                backgroundColor: "#e0e2e7",
+                color: "#000",
+              },
             },
-          },
         }}
       />
+      </TableContainer>
       <Dialog open={open} onClose={() => setOpen(false)}>
         <DialogContent>
-          <label htmlFor="status">Team Name:</label>
+          <div className="form">
+            <form>
+              <div className="elem-group">
+              <label htmlFor="status">Team Name:</label>
           <input
             key={formValues.id}
             type="text"
             name="name"
             value={formValues.name}
             onChange={handleFormChange}
-            style={{ marginTop: "20px", marginBottom: "20px" }}
+            style={{ marginTop:"20px", marginBottom:"20px" }}
           />
-          <div>
+              </div>
+              <div className="btn-group">
+            
             <Button
               onClick={handleUpdate}
               variant="contained"
@@ -273,8 +291,15 @@ function Team(): JSX.Element {
               Update
             </Button>
           </div>
+            </form>
+          </div>
+
+
         </DialogContent>
       </Dialog>
+      </>
+    )}
+      
     </>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useAppSelector } from "../../redux/features/Hook";
 import { Chart, registerables } from "chart.js/auto";
@@ -47,7 +47,9 @@ const CarBarChart: React.FC = () => {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     getReservationData().then((response: any) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const extractedData = response.data.map((item: any) => {
         const month = MonthConverter(item.month);
         return {
@@ -57,9 +59,9 @@ const CarBarChart: React.FC = () => {
       });
       const ChartData = updateChartData(extractedData);
       setChartData(ChartData);
-      console.log(ChartData);
     });
-  }, [authRedux.token]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const updateChartData = (formattedData: ReservationCountData[]) => {
     const chartData = monthLabels.map((monthLabel) => {
@@ -89,7 +91,6 @@ const CarBarChart: React.FC = () => {
         })
         .then((response) => {
           resolve(response.data);
-          // console.log(response.data);
         })
         .catch((reason) => {
           reject(reason);
