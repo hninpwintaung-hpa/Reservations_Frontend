@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAppSelector } from "../../redux/features/Hook";
 import { Pie } from "react-chartjs-2";
 import axios from "axios";
+import { ChartOptions } from "chart.js/auto";
 
 interface TeamData {
   name: string;
@@ -22,7 +23,7 @@ const RoomPieChart = () => {
       .catch((error) => {
         console.error(error);
       });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const getTeamData = () => {
     return new Promise((resolve, reject) => {
@@ -65,10 +66,28 @@ const RoomPieChart = () => {
       },
     ],
   };
+  const config: ChartOptions<"pie"> = {
+    type: "pie",
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: "right",
+        },
+        title: {
+          display: true,
+          text: "Room Reservation Pie Chart",
+          position: "bottom",
+          font: { weight: "bold", size: 18 },
+          align: "center",
+        },
+      },
+    },
+  };
 
   return (
     <div style={{ width: "300px", height: "300px" }}>
-      <Pie data={chartData} />
+      <Pie data={chartData} options={config.options} />
     </div>
   );
 };

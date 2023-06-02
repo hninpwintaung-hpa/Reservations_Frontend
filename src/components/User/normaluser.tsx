@@ -44,6 +44,7 @@ function NormalUser(): JSX.Element {
   const [teamList, setTeamList] = useState<{ id: number; name: string }[]>([]);
   const [, setIsUpdated] = useState(false);
   const [, setInitialLoading] = useState(false);
+  const [permissionError, setPermissionError] = useState("");
   const [formValues, setFormValues] = useState<DataRow>({
     team: { id: 0, name: "" },
     employee_id: "",
@@ -72,18 +73,18 @@ function NormalUser(): JSX.Element {
   }, [userDataQuery, isUserFetching]);
 
   useEffect(() => {
-    if (teamDataQuery) {
+    if (teamDataQuery && !isTeamFetching) {
       setTeamList(teamDataQuery.data);
       setIsUpdated(true);
     }
-  }, [teamDataQuery]);
+  }, [teamDataQuery, isTeamFetching]);
 
   useEffect(() => {
-    if (roleDataQuery) {
+    if (roleDataQuery && !isRoleFetching) {
       setIsUpdated(true);
       setRoleList(roleDataQuery.data);
     }
-  }, [roleDataQuery]);
+  }, [roleDataQuery, isRoleFetching]);
 
   const handleUpdate = () => {
     const updatedUser: DataRow = {
@@ -134,6 +135,10 @@ function NormalUser(): JSX.Element {
         })
         .catch((error) => {
           reject(error);
+          console.log(error);
+          if (error.response.data.message) {
+            setPermissionError(error.response.data.message);
+          }
         });
     });
   };
@@ -346,7 +351,6 @@ function NormalUser(): JSX.Element {
                         name="role_id"
                         value={formValues.roles[0].id}
                         onChange={handleFormChange}
-                        // onChange={(e) => setRole(e.target.value)}
                       >
                         {roleList.map((role) => (
                           <option key={role.id} value={role.id}>
@@ -355,6 +359,9 @@ function NormalUser(): JSX.Element {
                         ))}
                       </select>
                     </div>
+                    {permissionError && (
+                      <div className="errorMessage">{permissionError}</div>
+                    )}
                   </div>
                   <div className="elem-group">
                     <label htmlFor="team">TeamName::</label>

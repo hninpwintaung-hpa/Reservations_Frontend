@@ -7,7 +7,7 @@ import { AuthRole } from "./redux/features/type/authType";
 import Register from "./page/register/register";
 import Error404 from "./page/error/Error404";
 import AdminView from "./page/admin/AdminView";
-import UserView from './page/user/UserView';
+import UserView from "./page/user/UserView";
 import Login from "./page/login/login";
 import CarStatusUpdate from "./components/car/AdminCar";
 
@@ -15,33 +15,39 @@ function App() {
   const { darkMode } = useContext(DarkModeContext);
   const authRedux = useAppSelector((state) => state.auth);
   return (
-    
     <div className={darkMode ? "app dark" : "app"}>
       <AuthProvider>
         <Routes>
-          <Route path="/adminCar" element={<CarStatusUpdate/>}/>
-          <Route path="/register" element={<Register />} />
-          <Route path="/" element={<Navigate to="/login" replace={true} />} />
-          <Route path="/login" element={<Login/>}/>
-          <Route path="*" element={<Error404 />} />
-          {
-            (authRedux.role === AuthRole.Superadmin || authRedux.role === AuthRole.Admin) && (
-            <Route
-              path={`/${authRedux.role}-dashboard/*`}
-              element={<AdminView />}
-            />
-          )}
-          {/* {
-            authRedux.role === AuthRole.Superadmin && (
-              <Route path="/personal-profile" element={<Profile />} />
+          <Route path="/adminCar" element={<CarStatusUpdate />} />
 
-          )} */}
-          {authRedux.role === AuthRole.staff  && (
+          <Route path="/register" element={<Register />} />
+          {authRedux.auth === true ? (
+            <>
+              <Route path="/" element={<Login />} />
+              {(authRedux.role === AuthRole.Superadmin ||
+                authRedux.role === AuthRole.Admin) && (
+                <Route
+                  path={`/${authRedux.role}-dashboard/*`}
+                  element={<AdminView />}
+                />
+              )}
+              {authRedux.role === AuthRole.staff && (
+                <Route
+                  path={`/${authRedux.role}-dashboard/*`}
+                  element={<UserView />}
+                />
+              )}
+            </>
+          ) : (
+            <>
               <Route
-              path={`/${authRedux.role}-dashboard/*`}
-                element={<UserView />}
+                path="/"
+                element={<Navigate to="/login" replace={true} />}
               />
-            )}
+              <Route path="/login" element={<Login />} />
+            </>
+          )}
+          <Route path="/*" element={<Error404 />} />
         </Routes>
       </AuthProvider>
     </div>

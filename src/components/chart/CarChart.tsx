@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { Chart, registerables } from "chart.js/auto";
 import axios from "axios";
 
-
 export interface ReservationCountData {
   month: string;
   count: number;
@@ -54,11 +53,21 @@ const BarChart: React.FC<ChartDataProp> = ({ chartData, monthLabels }) => {
             ],
           },
           options: {
+            plugins: {
+              title: {
+                display: true,
+                text: "Car Reservation Bar Chart",
+                position: "bottom",
+                font: { weight: "bold", size: 18 },
+                align: "center",
+                padding: 5,
+              },
+            },
             scales: {
               y: {
                 beginAtZero: true,
                 ticks: {
-                  // callback: (value) => `${value} units`, // Custom label format
+                  // callback: (value) => ${value} units, // Custom label format
                   stepSize: 3,
                 },
               },

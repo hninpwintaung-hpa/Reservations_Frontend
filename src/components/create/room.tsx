@@ -27,12 +27,12 @@ export interface RoomData {
 function AdminRoomComponent(): JSX.Element {
   const { darkMode } = useContext(DarkModeContext);
   const [open, setOpen] = useState(false);
-  const[openUpdate, setOpenUpdate]=useState(false);
+  const [openUpdate, setOpenUpdate] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [room, setRoom] = useState<RoomData[]>([]);
   const [, setIsUpdated] = useState(false);
-  const [nameError,setNameError]=useState("");
-  const [capacityError,setCapacityError]=useState("");
+  const [nameError, setNameError] = useState("");
+  const [capacityError, setCapacityError] = useState("");
 
   const [formValues, setFormValues] = useState<RoomData>({
     name: "",
@@ -55,10 +55,12 @@ function AdminRoomComponent(): JSX.Element {
     setFormValues({ ...row });
     setOpenUpdate(true);
     setCapacityError("");
-    setCapacityError("");
+    setNameError("");
   };
 
   const handleUpdate = () => {
+    setCapacityError("");
+    setNameError("");
     const updatedRoom: RoomData = {
       ...formValues,
     };
@@ -91,10 +93,10 @@ function AdminRoomComponent(): JSX.Element {
         })
         .catch((error) => {
           setOpenUpdate(true);
-          if(error.response.data.message.name){
+          if (error.response.data.message.name) {
             setNameError(error.response.data.message.name);
           }
-          if(error.response.data.message.capacity){
+          if (error.response.data.message.capacity) {
             setCapacityError(error.response.data.message.capacity);
           }
         });
@@ -199,15 +201,14 @@ function AdminRoomComponent(): JSX.Element {
           setIsUpdated(true);
           setNameError("");
           setCapacityError("");
-    setAddOpen(!addOpen);
-
+          setAddOpen(!addOpen);
         })
         .catch((error) => {
           setOpen(true);
-          if(error.response.data.message.name){
+          if (error.response.data.message.name) {
             setNameError(error.response.data.message.name);
           }
-          if(error.response.data.message.capacity){
+          if (error.response.data.message.capacity) {
             setCapacityError(error.response.data.message.capacity);
           }
         });
@@ -293,7 +294,9 @@ function AdminRoomComponent(): JSX.Element {
                       onChange={handleFormChange}
                     />
                   </div>
-                  {capacityError && <div className="errorMessage">{capacityError}</div>}
+                  {capacityError && (
+                    <div className="errorMessage">{capacityError}</div>
+                  )}
 
                   <div className="elem-group">
                     <label htmlFor="amenities">Amenity</label>

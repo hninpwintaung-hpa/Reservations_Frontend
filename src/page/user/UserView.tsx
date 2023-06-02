@@ -6,7 +6,7 @@ import AuthProvider from "../../redux/authProvider";
 import { UserRoom } from "../room/UserRoom";
 import { CarBooking } from "../car/booking/CarBooking";
 import { UserRoomReservationForm } from "../../components/room/RoomReservationForm/UserRoomReservationForm";
-import {UserProfileList} from "../../page/profile/userprofile";
+import { UserProfileList } from "../../page/profile/userprofile";
 import Error404 from "../error/Error404";
 
 function UserView() {
@@ -20,11 +20,11 @@ function UserView() {
             path="/room-reservation/reserve/"
             element={<UserRoomReservationForm />}
           />
+          <Route path="/room-reservation" element={<UserRoom />} />
           <Route path="/car-reservation" element={<Car />} />
           <Route path="/car-reservation/car-booking" element={<CarBooking />} />
           <Route path="/personal-profile" element={<UserProfileList />} />
-          <Route path="/*" element={<Error404 />} />
-
+          <Route path="*" element={<Error404 />} />
         </Routes>
       </AuthProvider>
     </div>

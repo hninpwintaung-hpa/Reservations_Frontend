@@ -11,7 +11,7 @@ import { DarkModeContext } from "../../context/darkModeContext";
 import axios from "axios";
 import { useAppSelector } from "../../redux/features/Hook";
 import DriveFileRenameOutlineTwoToneIcon from "@mui/icons-material/DriveFileRenameOutlineTwoTone";
-    import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { useTeamDataQuery } from "../api/api";
 import ReactLoading from "react-loading";
 interface DataRow {
@@ -29,27 +29,27 @@ function Team(): JSX.Element {
     id: 0,
     name: "",
   });
-  const [teamError,setTeamError]= useState("");
+  const [teamError, setTeamError] = useState("");
   const authRedux = useAppSelector((state) => state.auth);
   const { data: teamDataQuery, isFetching: isTeamFetching } =
     useTeamDataQuery();
-    useEffect(() => {
-      if (teamDataQuery && !isTeamFetching) {
-        setTeamData(teamDataQuery.data);
-        setIsUpdated(true);
-      }
-    }, [teamDataQuery,isTeamFetching]);
-  
-    const handleFormChange: React.ChangeEventHandler<HTMLInputElement> = (
-      event
-    ) => {
-      const { name, value } = event.target;
-    
-      setFormValues((prevValues) => ({
-        ...prevValues,
-        [name]: value,
-      }));
-    };
+  useEffect(() => {
+    if (teamDataQuery && !isTeamFetching) {
+      setTeamData(teamDataQuery.data);
+      setIsUpdated(true);
+    }
+  }, [teamDataQuery, isTeamFetching]);
+
+  const handleFormChange: React.ChangeEventHandler<HTMLInputElement> = (
+    event
+  ) => {
+    const { name, value } = event.target;
+
+    setFormValues((prevValues) => ({
+      ...prevValues,
+      [name]: value,
+    }));
+  };
   const handleCreate = () => {
     axios
       .post(
@@ -72,9 +72,9 @@ function Team(): JSX.Element {
       })
       .catch((error) => {
         console.log(error);
-          if(error.response.data.message.name){
-            setTeamError(error.response.data.message.name);
-          }
+        if (error.response.data.message.name) {
+          setTeamError(error.response.data.message.name);
+        }
       });
   };
 
@@ -96,7 +96,7 @@ function Team(): JSX.Element {
           `http://127.0.0.1:8000/api/teams/${formValues.id}`,
           {
             id: updatedUser.id,
-            name:updatedUser.name,
+            name: updatedUser.name,
           },
           {
             headers: {
@@ -128,7 +128,7 @@ function Team(): JSX.Element {
           },
         })
         .then(() => {
-          setTeamData((prevData)=>prevData.filter((item)=>item.id !==row));
+          setTeamData((prevData) => prevData.filter((item) => item.id !== row));
           setIsUpdated(true);
           resolve();
         })
@@ -161,9 +161,9 @@ function Team(): JSX.Element {
                 handleEdit(row);
               }}
             />
-            
+
             <DeleteForeverIcon
-            fontSize="large"
+              fontSize="large"
               color="error"
               sx={{ marginLeft: "5px" }}
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -179,127 +179,126 @@ function Team(): JSX.Element {
   ];
   return (
     <>
-    {isTeamFetching ? (
-      <div style={{ display: "flex", justifyContent: "center" }}>
-      <ReactLoading
-        color={"blue"}
-        type={"spin"}
-        height={"80px"}
-        width={"80px"}
-      />
-    </div>
-    ):(
-      <>
-        <form
-        id="teamForm"
-        style={{
-          display: "flex",
-          margin: "0 auto",
-          width: "60%",
-          marginBottom: "30px",
-        }}
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleCreate();
-        }}
-      >
-        <label
-          htmlFor="name"
-          style={{ marginTop: "20px", marginRight: "10px" }}
-        >
-          Create team Name:
-        </label>
-        <div>
-        <input
-          type="text"
-          name="name"
-          key={formValues.id}
-          onChange={handleFormChange}
-          style={{
-            width: "300px",
-            height: "50px",
-            marginTop: "5px",
-            marginRight:"5px",
-            border: "0.1px solid #000",
-            boxShadow: "2px 2px 2px #000",
-            borderRadius:"10px",
-          }}
-        />
-      {teamError && <div className="errorMessage" style={{ marginTop:"15px" }}>{teamError}</div>}
-        </div>
-
-        <div>
-        <Button
-        className={darkMode ? 'dark_btn' : ''}
-          variant="contained"
-          color="primary"
-          size="large"
-          sx={{ margin: " 10px 10px 0px 10px" }}
-          type="submit"
-        >
-          Create Team
-        </Button>
-        </div>
-
-      </form>
-
-      <TableContainer component={Paper} style={{ maxWidth: 1300 }}>
-      <DataTable
-        columns={columns}
-        className={darkMode ? "darkTable" : ""}
-        data={teamData}
-        theme="solarized"
-        pagination
-        customStyles={{
-          table: {
-            style: {
-              backgroundColor: "#000",
-            },
-          },
-          headRow: {
-              style: {
-                backgroundColor: "#e0e2e7",
-                color: "#000",
-              },
-            },
-        }}
-      />
-      </TableContainer>
-      <Dialog open={open} onClose={() => setOpen(false)}>
-        <DialogContent>
-          <div className="form">
-            <form>
-              <div className="elem-group">
-              <label htmlFor="status">Team Name:</label>
-          <input
-            key={formValues.id}
-            type="text"
-            name="name"
-            value={formValues.name}
-            onChange={handleFormChange}
-            style={{ marginTop:"20px", marginBottom:"20px" }}
+      {isTeamFetching ? (
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <ReactLoading
+            color={"blue"}
+            type={"spin"}
+            height={"80px"}
+            width={"80px"}
           />
-              </div>
-              <div className="btn-group">
-            
-            <Button
-              onClick={handleUpdate}
-              variant="contained"
-              color="primary"
-              size="small"
+        </div>
+      ) : (
+        <>
+          <form
+            id="teamForm"
+            style={{
+              display: "flex",
+              margin: "0 auto",
+              width: "60%",
+              marginBottom: "30px",
+            }}
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleCreate();
+            }}
+          >
+            <label
+              htmlFor="name"
+              style={{ marginTop: "20px", marginRight: "10px" }}
             >
-              Update
-            </Button>
-          </div>
-            </form>
-          </div>
+              Create team Name:
+            </label>
+            <div>
+              <input
+                type="text"
+                name="name"
+                key={formValues.id}
+                onChange={handleFormChange}
+                style={{
+                  width: "300px",
+                  height: "50px",
+                  marginTop: "5px",
+                  marginRight: "5px",
+                  border: "0.1px solid #000",
+                  boxShadow: "2px 2px 2px #000",
+                  borderRadius: "10px",
+                }}
+              />
+              {teamError && (
+                <div className="errorMessage" style={{ marginTop: "15px" }}>
+                  {teamError}
+                </div>
+              )}
+            </div>
 
+            <div>
+              <Button
+                className={darkMode ? "dark_btn" : ""}
+                variant="contained"
+                color="primary"
+                size="large"
+                sx={{ margin: " 10px 10px 0px 10px" }}
+                type="submit"
+              >
+                Create Team
+              </Button>
+            </div>
+          </form>
 
-        </DialogContent>
-      </Dialog>
-      </>
-    )}
-      
+          <TableContainer component={Paper} style={{ maxWidth: 1300 }}>
+            <DataTable
+              columns={columns}
+              className={darkMode ? "darkTable" : ""}
+              data={teamData}
+              theme="solarized"
+              pagination
+              customStyles={{
+                table: {
+                  style: {
+                    backgroundColor: "#000",
+                  },
+                },
+                headRow: {
+                  style: {
+                    backgroundColor: "#e0e2e7",
+                    color: "#000",
+                  },
+                },
+              }}
+            />
+          </TableContainer>
+          <Dialog open={open} onClose={() => setOpen(false)}>
+            <DialogContent>
+              <div className="form">
+                <form>
+                  <div className="elem-group">
+                    <label htmlFor="status">Team Name:</label>
+                    <input
+                      key={formValues.id}
+                      type="text"
+                      name="name"
+                      value={formValues.name}
+                      onChange={handleFormChange}
+                      style={{ marginTop: "20px", marginBottom: "20px" }}
+                    />
+                  </div>
+                  <div className="btn-group">
+                    <Button
+                      onClick={handleUpdate}
+                      variant="contained"
+                      color="primary"
+                      size="small"
+                    >
+                      Update
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </>
+      )}
     </>
   );
 }

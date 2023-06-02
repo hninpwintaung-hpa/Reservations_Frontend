@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useContext, useEffect, useState } from "react";
 import { Button, Switch, Dialog, DialogContent } from "@mui/material";
 import DataTable, { TableColumn } from "react-data-table-component";
@@ -8,9 +9,10 @@ import DriveFileRenameOutlineTwoToneIcon from "@mui/icons-material/DriveFileRena
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import ReactLoading from "react-loading";
 import {
-  useUserDataQuery,
   useTeamDataQuery,
   useRoleDataQuery,
+  useNormalQuery,
+  useUserDataQuery,
 } from "../api/api";
 
 export interface DataRow {
@@ -37,7 +39,7 @@ export interface FormInputValue {
   status: boolean;
   team_id: string;
 }
-function ProUser(): JSX.Element {
+function NormalUser(): JSX.Element {
   const { darkMode } = useContext(DarkModeContext);
   const [open, setOpen] = useState(false);
   const [role, setRole] = useState<string>("");
@@ -47,8 +49,9 @@ function ProUser(): JSX.Element {
   const [teamList, setTeamList] = useState<{ id: number; name: string }[]>([]);
   const [, setIsUpdated] = useState(false);
   const [, setInitialLoading] = useState(false);
+  const [permissionError, setPermissionError] = useState("");
   const [formValues, setFormValues] = useState<DataRow>({
-    team:{id:0,name:""},
+    team: { id: 0, name: "" },
     employee_id: "",
     name: "",
     email: "",
@@ -56,7 +59,7 @@ function ProUser(): JSX.Element {
     password: "",
     phone: "",
     status: true,
-    roles:[{id:0,name:""}],
+    roles: [{ id: 0, name: "" }],
     id: 0,
     team_id: "",
   });
@@ -73,21 +76,21 @@ function ProUser(): JSX.Element {
       setInitialLoading(true);
       setUser(userDataQuery.data);
     }
-  }, [userDataQuery]);
+  }, [userDataQuery, isUserFetching]);
 
   useEffect(() => {
-    if (teamDataQuery) {
+    if (teamDataQuery && !isTeamFetching) {
       setTeamList(teamDataQuery.data);
       setIsUpdated(true);
     }
-  }, [teamDataQuery]);
+  }, [teamDataQuery, isTeamFetching]);
 
   useEffect(() => {
-    if (roleDataQuery) {
+    if (roleDataQuery && !isRoleFetching) {
       setIsUpdated(true);
       setRoleList(roleDataQuery.data);
     }
-  }, [roleDataQuery]);
+  }, [roleDataQuery, isRoleFetching]);
 
   const handleUpdate = () => {
     const updatedUser: DataRow = {
@@ -97,7 +100,7 @@ function ProUser(): JSX.Element {
           id: parseInt(role, 10),
           name: roleList.find((r) => r.id === parseInt(role, 10))?.name || "",
         },
-     ],
+      ],
 
       team: {
         id: parseInt(teamName, 10),
@@ -108,7 +111,7 @@ function ProUser(): JSX.Element {
       item.id === formValues.id ? updatedUser : item
     );
     setUser(updatedUsers);
-    console.log(updatedUser.roles[0].id);
+    window.location.reload();
 
     return new Promise<void>((resolve, reject) => {
       axios
@@ -137,6 +140,10 @@ function ProUser(): JSX.Element {
         })
         .catch((error) => {
           reject(error);
+          console.log(error);
+          if (error.response.data.message) {
+            setPermissionError(error.response.data.message);
+          }
         });
     });
   };
@@ -180,7 +187,7 @@ function ProUser(): JSX.Element {
           team_id: updatedUser.team.id,
           phone: updatedUser.phone,
           employee_id: updatedUser.employee_id,
-          role_id: updatedUser.id,
+          role_id: updatedUser.roles[0].id,
         },
         {
           headers: {
@@ -208,12 +215,12 @@ function ProUser(): JSX.Element {
         roles: [
           {
             id: parseInt(value, 10),
-            name: roleList.find((r) => r.id === parseInt(value, 10))?.name || "",
+            name:
+              roleList.find((r) => r.id === parseInt(value, 10))?.name || "",
           },
         ],
       }));
       setRole(value);
-      
     }
 
     if (name === "team_id") {
@@ -316,7 +323,6 @@ function ProUser(): JSX.Element {
             columns={columns}
             className={darkMode ? "darkTable" : ""}
             data={user}
-            // theme="solarized"
             pagination
             customStyles={{
               table: {
@@ -337,63 +343,65 @@ function ProUser(): JSX.Element {
               <div className="form">
                 <form>
                   <div className="elem-group">
-                  <label htmlFor="team">RoleName::</label>
-              <div className="role">
-                <select
-                  style={{
-                    width: "100%",
-                    marginBottom: "10px",
-                    marginTop: "10px",
-                    padding: "6px 0px",
-                  }}
-                  className="option"
-                  name="role_id"
-                  value={formValues.roles[0].id}
-                  onChange={handleFormChange}
-                  // onChange={(e) => setRole(e.target.value)}
-                >
-                  {roleList.map((role) => (
-                    <option key={role.id} value={role.id}>
-                      {role.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                    <label htmlFor="team">RoleName::</label>
+                    <div className="role">
+                      <select
+                        style={{
+                          width: "100%",
+                          marginBottom: "10px",
+                          marginTop: "10px",
+                          padding: "6px 0px",
+                        }}
+                        className="option"
+                        name="role_id"
+                        value={formValues.roles[0].id}
+                        onChange={handleFormChange}
+                      >
+                        {roleList.map((role) => (
+                          <option key={role.id} value={role.id}>
+                            {role.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    {permissionError && (
+                      <div className="errorMessage">{permissionError}</div>
+                    )}
                   </div>
                   <div className="elem-group">
-                  <label htmlFor="team">TeamName::</label>
-              <div className="team">
-                <select
-                  style={{
-                    width: "100%",
-                    marginBottom: "10px",
-                    marginTop: "10px",
-                    padding: "6px 0px",
-                  }}
-                  name="team_id"
-                  className="option"
-                  value={formValues.team_id}
-                  onChange={handleFormChange}
-                  // onChange={(e) => setTeamName(e.target.value)}
-                >
-                  {teamList.map((team) => (
-                    <option key={team.id} value={team.id}>
-                      {team.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                    <label htmlFor="team">TeamName::</label>
+                    <div className="team">
+                      <select
+                        style={{
+                          width: "100%",
+                          marginBottom: "10px",
+                          marginTop: "10px",
+                          padding: "6px 0px",
+                        }}
+                        name="team_id"
+                        className="option"
+                        value={formValues.team_id}
+                        onChange={handleFormChange}
+                        // onChange={(e) => setTeamName(e.target.value)}
+                      >
+                        {teamList.map((team) => (
+                          <option key={team.id} value={team.id}>
+                            {team.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                   <div>
-                <Button
-                  onClick={handleUpdate}
-                  variant="contained"
-                  color="primary"
-                  size="small"
-                >
-                  Update
-                </Button>
-                <Button
+                    <Button
+                      onClick={handleUpdate}
+                      variant="contained"
+                      color="primary"
+                      size="small"
+                    >
+                      Update
+                    </Button>
+                    <Button
                       onClick={onBackDropClick}
                       variant="contained"
                       color="primary"
@@ -401,13 +409,9 @@ function ProUser(): JSX.Element {
                     >
                       Cancel
                     </Button>
-              </div>
+                  </div>
                 </form>
               </div>
-              
-
-
-
             </DialogContent>
           </Dialog>
         </>
@@ -416,4 +420,4 @@ function ProUser(): JSX.Element {
   );
 }
 
-export default ProUser;
+export default NormalUser;

@@ -82,10 +82,10 @@ const Login = () => {
   }
   React.useEffect(() => {
     if (authRedux.auth === true) {
-      if (authRedux.role === AuthRole.Admin) navigate("/Admin-dashboard");
-      if (authRedux.role === AuthRole.staff) navigate("/staff-dashboard");
+      if (authRedux.role === AuthRole.Admin) navigate("/Admin-dashboar/home");
+      if (authRedux.role === AuthRole.staff) navigate("/staff-dashboard/home");
       if (authRedux.role === AuthRole.Superadmin)
-        navigate("/SuperAdmin-dashboard");
+        navigate("/SuperAdmin-dashboard/home");
     }
   }, []);
 

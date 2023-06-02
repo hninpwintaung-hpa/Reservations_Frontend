@@ -53,11 +53,20 @@ const RoomChart: React.FC<ChartDataProp> = ({ chartData, monthLabels }) => {
             ],
           },
           options: {
+            plugins: {
+              title: {
+                display: true,
+                text: "Room Reservation Bar Chart",
+                position: "bottom",
+                font: { weight: "bold", size: 18 },
+                align: "center",
+                padding: 5,
+              },
+            },
             scales: {
               y: {
                 beginAtZero: true,
                 ticks: {
-                  // callback: (value) => `${value} units`, // Custom label format
                   stepSize: 3,
                 },
               },
@@ -66,7 +75,7 @@ const RoomChart: React.FC<ChartDataProp> = ({ chartData, monthLabels }) => {
         });
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chartData]);
 
   return <canvas ref={chartRef} />;

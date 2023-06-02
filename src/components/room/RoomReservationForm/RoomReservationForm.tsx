@@ -46,7 +46,6 @@ const RoomReservationForm: React.FC = () => {
     getRoomData().then((response: any) => {
       setRoomData(response.data);
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getRoomData = () => {
@@ -110,7 +109,7 @@ const RoomReservationForm: React.FC = () => {
         navigate(
           `/${
             authRedux.role
-          }-dashboard/home?success=${encodeURIComponent(
+          }-dashboard/room-reservation?success=${encodeURIComponent(
             successMessage
           )}`
         );
@@ -140,7 +139,7 @@ const RoomReservationForm: React.FC = () => {
       });
   };
   const handleCancel = () => {
-    navigate(`/${authRedux.role}-dashboard/home`);
+    navigate(`/${authRedux.role}-dashboard/room-reservation`);
   };
   return (
     <div className="room-reservation">

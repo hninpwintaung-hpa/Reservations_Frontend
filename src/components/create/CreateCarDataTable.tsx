@@ -12,7 +12,7 @@ import DataTable, { TableColumn } from "react-data-table-component";
 import { useAppSelector } from "../../redux/features/Hook";
 import { DarkModeContext } from "../../context/darkModeContext";
 import DriveFileRenameOutlineTwoToneIcon from "@mui/icons-material/DriveFileRenameOutlineTwoTone";
-    import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 interface CarData {
   id: number;
   brand: string;
@@ -25,9 +25,9 @@ const CarDataTable = () => {
   const [carData, setCarData] = useState<CarData[]>([]);
   const [refresh, setRefresh] = useState(false);
   const [open, setOpen] = useState(false);
-  const [bradError,setBrandError]= useState("");
-  const [licenceError,setLicenceError]= useState("");
-  const [capacityError,setCapacityError]= useState("");
+  const [bradError, setBrandError] = useState("");
+  const [licenceError, setLicenceError] = useState("");
+  const [capacityError, setCapacityError] = useState("");
   const authToken = authRedux.token;
   const [inputValue, setInputValue] = useState<CarData>({
     id: 0,
@@ -40,7 +40,7 @@ const CarDataTable = () => {
       setCarData(response.data);
       setRefresh(false);
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh]);
 
   const fetchCarList = () => {
@@ -88,7 +88,7 @@ const CarDataTable = () => {
               }}
             />
             <DeleteForeverIcon
-            fontSize="large"
+              fontSize="large"
               color="error"
               sx={{ marginLeft: "5px" }}
               onClick={(e: any) => {
@@ -117,7 +117,6 @@ const CarDataTable = () => {
 
   const handleUpdate = () => {
     sendDataToBackend();
-    setOpen(false);
     setRefresh(true);
     setBrandError("");
     setCapacityError("");
@@ -145,13 +144,13 @@ const CarDataTable = () => {
       })
       .catch((error) => {
         setOpen(true);
-        if(error.response.data.message.brand){
+        if (error.response.data.message.brand) {
           setBrandError(error.response.data.message.brand);
         }
-        if(error.response.data.message.licence_no){
+        if (error.response.data.message.licence_no) {
           setLicenceError(error.response.data.message.licence_no);
         }
-        if(error.response.data.message.capacity){
+        if (error.response.data.message.capacity) {
           setCapacityError(error.response.data.message.capacity);
         }
       });
@@ -163,7 +162,7 @@ const CarDataTable = () => {
   const handleDelete = (id: number) => {
     return new Promise<void>((resolve, reject) => {
       axios
-        .delete(`http://127.0.0.1:8000/api/cars/${id}`,{
+        .delete(`http://127.0.0.1:8000/api/cars/${id}`, {
           headers: {
             Authorization: `Bearer ${authToken}`,
           },
@@ -235,7 +234,9 @@ const CarDataTable = () => {
                 onChange={handleInputChange}
               />
             </div>
-            {capacityError && <div className="errorMessage">{capacityError}</div>}
+            {capacityError && (
+              <div className="errorMessage">{capacityError}</div>
+            )}
 
             <div className="button-group">
               <Button
