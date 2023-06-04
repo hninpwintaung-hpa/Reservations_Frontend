@@ -5,8 +5,10 @@ import React, { useEffect, useState } from "react";
 import DataTable, { TableColumn } from "react-data-table-component";
 import { useAppSelector } from "../../redux/features/Hook";
 import { useNavigate } from "react-router-dom";
+import { useCarListDataQuery } from "../api/api";
+import ReactLoading from "react-loading";
 
-interface CarData {
+export interface CarData {
   id: number;
   brand: string;
   licence_no: string;
@@ -30,7 +32,7 @@ const CarDataTable = () => {
     date: "",
     title: "",
     destination: "",
-    no_of_traveller: 0,
+    no_of_traveller: 1,
     start_time: "",
     end_time: "",
     car_id: 1,
@@ -39,29 +41,37 @@ const CarDataTable = () => {
     approved_by: "",
   };
   const [inputValue, setInputValue] = useState(initialInputValue);
+  const { data: userCarQuery, isFetching: isCarFetching } =
+    useCarListDataQuery();
   useEffect(() => {
-    fetchCarList().then((response: any) => {
-      setCarData(response.data);
+    if (userCarQuery && !isCarFetching) {
+      setCarData(userCarQuery.data);
       setRefresh(false);
-    });
-  }, []);
+    }
+  }, [userCarQuery, isCarFetching]);
+  // useEffect(() => {
+  //   fetchCarList().then((response: any) => {
+  //     setCarData(response.data);
+  //     setRefresh(false);
+  //   });
+  // }, []);
 
-  const fetchCarList = () => {
-    return new Promise((resolve, reject) => {
-      axios
-        .get("http://127.0.0.1:8000/api/cars", {
-          headers: {
-            Authorization: `Bearer ${authRedux.token}`,
-          },
-        })
-        .then((response) => {
-          resolve(response.data);
-        })
-        .catch((error) => {
-          reject(error);
-        });
-    });
-  };
+  // const fetchCarList = () => {
+  //   return new Promise((resolve, reject) => {
+  //     axios
+  //       .get("http://127.0.0.1:8000/api/cars", {
+  //         headers: {
+  //           Authorization: `Bearer ${authRedux.token}`,
+  //         },
+  //       })
+  //       .then((response) => {
+  //         resolve(response.data);
+  //       })
+  //       .catch((error) => {
+  //         reject(error);
+  //       });
+  //   });
+  // };
 
   const columns: TableColumn<CarData>[] = [
     {
@@ -103,8 +113,13 @@ const CarDataTable = () => {
     },
   ];
   const handleBookNow = (carId: number) => {
+    setInputValue(initialInputValue);
     setSelectedCarId(carId);
     setOpen(true);
+    setDateError("");
+    setTimeError("");
+    setDestinationError("");
+    setTitleError("");
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -126,17 +141,13 @@ const CarDataTable = () => {
     inputValue["car_id"] = selectedCarId;
     inputValue["user_id"] = authRedux.user.id;
     sendDataToBackend();
-    resetForm();
     setRefresh(true);
     setDateError("");
     setTimeError("");
     setDestinationError("");
     setTitleError("");
-    
   };
-  const resetForm = () => {
-    setInputValue(initialInputValue);
-  };
+
   const sendDataToBackend = () => {
     axios
       .post(
@@ -160,7 +171,6 @@ const CarDataTable = () => {
         }
       )
       .then(() => {
-        //setCarData(updatedCars);
         setRefresh(true);
         const successMessage = "Reservation created successfully.";
         navigate(
@@ -215,147 +225,164 @@ const CarDataTable = () => {
   };
 
   return (
-    <div className="car-reservation">
-      <DataTable
-        columns={columns}
-        // className={darkMode ? "darkTable" : ""}
-        data={carData}
-        theme="solarized"
-        pagination
-        customStyles={{
-          table: {
-            style: {
-              backgroundColor: "#000",
-            },
-          },
-        }}
-      />
-      <Dialog open={open} onClose={() => setOpen(false)}>
-        <DialogContent>
-          <h1>Car Reservation Form</h1>
-
-          <div className="form">
-            {message && (
-              <div
-                style={{
-                  marginLeft: "10px",
-                }}
-                className="errorMessage"
-              >
-                {message}
-              </div>
-            )}
-
-            <input
-              type="hidden"
-              name="id"
-              defaultValue={String(selectedCarId)}
+    <>
+      {isCarFetching ? (
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <ReactLoading
+            color={"blue"}
+            type={"spin"}
+            height={"80px"}
+            width={"80px"}
+          />
+        </div>
+      ) : (
+        <>
+          <div className="car-reservation">
+            <DataTable
+              columns={columns}
+              //className={darkMode ? "darkTable" : ""}
+              data={carData}
+              theme="solarized"
+              pagination
+              customStyles={{
+                table: {
+                  style: {
+                    backgroundColor: "#000",
+                  },
+                },
+              }}
             />
+            <Dialog open={open} onClose={() => setOpen(false)}>
+              <DialogContent>
+                <h1>Car Reservation Form</h1>
 
-            <div className="elem-group">
-              <label htmlFor="title">
-                Title <span style={{ color: "red" }}>*</span>
-              </label>
-              <input
-                type="text"
-                name="title"
-                value={inputValue.title}
-                onChange={handleInputChange}
-                placeholder="To meet with KBZ Bank client"
-              />
-            </div>
-            {titleError && <div className="errorMessage">{titleError}</div>}
-            <div className="elem-group">
-              <label htmlFor="destination">
-                Destination <span style={{ color: "red" }}>*</span>
-              </label>
-              <input
-                type="text"
-                name="destination"
-                value={inputValue.destination}
-                onChange={handleInputChange}
-                placeholder="KBZ Bahan"
-                required
-              />
-            </div>
-            {destinationError && (
-              <div className="errorMessage">{destinationError}</div>
-            )}
-            <div className="elem-group">
-              <label htmlFor="no_of_traveller">
-                Passenger <span style={{ color: "red" }}>*</span>
-              </label>
-              <input
-                type="number"
-                name="no_of_traveller"
-                value={inputValue.no_of_traveller}
-                onChange={handleInputChange}
-                placeholder="Enter traveller number"
-              />
-            </div>
-            {passengerError && (
-              <div className="errorMessage">{passengerError}</div>
-            )}
-            <div className="elem-group">
-              <label htmlFor="date">
-                Date <span style={{ color: "red" }}>*</span>
-              </label>
-              <input
-                type="date"
-                name="date"
-                value={inputValue.date}
-                onChange={handleInputChange}
-              />
-            </div>
-            {dateError && <div className="errorMessage">{dateError}</div>}
-            <div className="elem-group inlined">
-              <label htmlFor="time">
-                Time <span style={{ color: "red" }}>*</span>
-              </label>
-              <select
-                name="start_time"
-                value={inputValue.start_time}
-                id="teamname"
-                onChange={handleSelectChange}
-              >
-                <option>--- start time ---</option>
-                <option value="09:00:00">09:00am</option>
-                <option value="10:00:00">10:00am</option>
-                <option value="11:00:00">11:00am</option>
-                <option value="12:00:00">12:00pm</option>
-                <option value="13:00:00">01:00pm</option>
-                <option value="14:00:00">02:00pm</option>
-                <option value="15:00:00">03:00pm</option>
-                <option value="16:00:00">04:00pm</option>
-              </select>
-            </div>
-            <div className="elem-group inlined">
-              <select
-                name="end_time"
-                value={inputValue.end_time}
-                id="teamname"
-                onChange={handleSelectChange}
-              >
-                <option>--- end time ---</option>
-                <option value="10:00:00">10:00am</option>
-                <option value="11:00:00">11:00am</option>
-                <option value="12:00:00">12:00pm</option>
-                <option value="13:00:00">01:00pm</option>
-                <option value="14:00:00">02:00pm</option>
-                <option value="15:00:00">03:00pm</option>
-                <option value="16:00:00">04:00pm</option>
-                <option value="17:00:00">05:00pm</option>
-              </select>
-            </div>
-            {timeError && <div className="errorMessage">{timeError}</div>}
-            <div className="button-group">
-              <button onClick={handleFormSubmit}>Reserve</button>
-              <button onClick={onBackDropClick}>Cancel</button>
-            </div>
+                <div className="form">
+                  {message && (
+                    <div
+                      style={{
+                        marginLeft: "10px",
+                      }}
+                      className="errorMessage"
+                    >
+                      {message}
+                    </div>
+                  )}
+
+                  <input
+                    type="hidden"
+                    name="id"
+                    defaultValue={String(selectedCarId)}
+                  />
+
+                  <div className="elem-group">
+                    <label htmlFor="title">
+                      Title <span style={{ color: "red" }}>*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="title"
+                      value={inputValue.title}
+                      onChange={handleInputChange}
+                      placeholder="To meet with KBZ Bank client"
+                    />
+                  </div>
+                  {titleError && (
+                    <div className="errorMessage">{titleError}</div>
+                  )}
+                  <div className="elem-group">
+                    <label htmlFor="destination">
+                      Destination <span style={{ color: "red" }}>*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="destination"
+                      value={inputValue.destination}
+                      onChange={handleInputChange}
+                      placeholder="KBZ Bahan"
+                      required
+                    />
+                  </div>
+                  {destinationError && (
+                    <div className="errorMessage">{destinationError}</div>
+                  )}
+                  <div className="elem-group">
+                    <label htmlFor="no_of_traveller">
+                      Passenger <span style={{ color: "red" }}>*</span>
+                    </label>
+                    <input
+                      type="number"
+                      name="no_of_traveller"
+                      value={inputValue.no_of_traveller}
+                      onChange={handleInputChange}
+                      placeholder="Enter traveller number"
+                    />
+                  </div>
+                  {passengerError && (
+                    <div className="errorMessage">{passengerError}</div>
+                  )}
+                  <div className="elem-group">
+                    <label htmlFor="date">
+                      Date <span style={{ color: "red" }}>*</span>
+                    </label>
+                    <input
+                      type="date"
+                      name="date"
+                      value={inputValue.date}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  {dateError && <div className="errorMessage">{dateError}</div>}
+                  <div className="elem-group inlined">
+                    <label htmlFor="time">
+                      Time <span style={{ color: "red" }}>*</span>
+                    </label>
+                    <select
+                      name="start_time"
+                      value={inputValue.start_time}
+                      id="teamname"
+                      onChange={handleSelectChange}
+                    >
+                      <option>--- start time ---</option>
+                      <option value="09:00:00">09:00am</option>
+                      <option value="10:00:00">10:00am</option>
+                      <option value="11:00:00">11:00am</option>
+                      <option value="12:00:00">12:00pm</option>
+                      <option value="13:00:00">01:00pm</option>
+                      <option value="14:00:00">02:00pm</option>
+                      <option value="15:00:00">03:00pm</option>
+                      <option value="16:00:00">04:00pm</option>
+                    </select>
+                  </div>
+                  <div className="elem-group inlined">
+                    <select
+                      name="end_time"
+                      value={inputValue.end_time}
+                      id="teamname"
+                      onChange={handleSelectChange}
+                    >
+                      <option>--- end time ---</option>
+                      <option value="10:00:00">10:00am</option>
+                      <option value="11:00:00">11:00am</option>
+                      <option value="12:00:00">12:00pm</option>
+                      <option value="13:00:00">01:00pm</option>
+                      <option value="14:00:00">02:00pm</option>
+                      <option value="15:00:00">03:00pm</option>
+                      <option value="16:00:00">04:00pm</option>
+                      <option value="17:00:00">05:00pm</option>
+                    </select>
+                  </div>
+                  {timeError && <div className="errorMessage">{timeError}</div>}
+                  <div className="button-group">
+                    <button onClick={handleFormSubmit}>Reserve</button>
+                    <button onClick={onBackDropClick}>Cancel</button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
-        </DialogContent>
-      </Dialog>
-    </div>
+        </>
+      )}
+    </>
   );
 };
 

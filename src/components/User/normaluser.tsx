@@ -235,7 +235,7 @@ function NormalUser(): JSX.Element {
 
   const columns: TableColumn<DataRow>[] = [
     {
-      name: "Emp_id",
+      name: "Employee Id",
       selector: (row: DataRow) => row.employee_id,
     },
     {
@@ -254,11 +254,11 @@ function NormalUser(): JSX.Element {
       },
     },
     {
-      name: "Phone_no",
+      name: "Phone No",
       selector: (row: DataRow) => row.phone,
     },
     {
-      name: "Team_Name",
+      name: "Team Name",
       selector: (row: DataRow) => row.team.name,
     },
     {

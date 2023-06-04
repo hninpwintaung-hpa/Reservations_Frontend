@@ -14,7 +14,6 @@ import {
   DialogTitle,
 } from "@mui/material";
 import HowToRegIcon from "@mui/icons-material/HowToReg";
-// import { const } from '../../redux/features/auth/authSlice';
 
 interface Team {
   id: number;
@@ -67,8 +66,17 @@ const Register: React.FC = () => {
         password_confirmation: cfmPassword,
       })
       .then(function (response) {
-        console.log(response);
+        //console.log(response);
+
         if (response.status == 200) {
+          setUserName("");
+          setEmail("");
+          setConfirmPassword("");
+          setPassword("");
+          setTeamName("");
+          setMessage("");
+          setPhone("");
+          setEmployeeId("");
           setOpen(true);
         }
       })
@@ -99,14 +107,13 @@ const Register: React.FC = () => {
         }
         console.log(error);
       });
-    setUserName("");
-    setEmail("");
-    setConfirmPassword("");
-    setPassword("");
-    setTeamName("");
+    setNameError("");
+    setEmailError("");
+    setEmployeeError("");
+    setPasswordError("");
+    setcPasswordError("");
+    setPhoneError("");
     setMessage("");
-    setPhone("");
-    setEmployeeId("");
   };
   const handleClose = () => {
     setOpen(false);
@@ -258,8 +265,8 @@ const Register: React.FC = () => {
                     />
                   </div>
                 </div>
-                {`Please wait for admin approved to login and we will send mail to
-                your email when admin is approved.`}
+                {`Please wait for admin approved to login and we will send message to
+                your email address after admin has approved.`}
               </DialogContentText>
             </DialogContent>
             <div className="dialog__button-group">

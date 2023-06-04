@@ -87,7 +87,7 @@ const CarPieChart = () => {
   };
 
   return (
-    <div style={{ width: "300px", height: "300px" }}>
+    <div style={{ width: "350px", height: "350px" }}>
       <Pie data={chartData} options={config.options} />
     </div>
   );

@@ -198,7 +198,6 @@ function AdminRoomComponent(): JSX.Element {
           }
         )
         .then(() => {
-          setIsUpdated(true);
           setNameError("");
           setCapacityError("");
           setAddOpen(!addOpen);
@@ -209,12 +208,13 @@ function AdminRoomComponent(): JSX.Element {
             setNameError(error.response.data.message.name);
           }
           if (error.response.data.message.capacity) {
-            setCapacityError(error.response.data.message.capacity);
+            setCapacityError(error.response.data.message.capacity[0]);
           }
         });
     });
   }
   const onBackDropClick = () => {
+    setAddOpen(false);
     setOpenUpdate(false);
     setNameError("");
     setCapacityError("");
@@ -273,10 +273,12 @@ function AdminRoomComponent(): JSX.Element {
           <Dialog open={openUpdate} onClose={() => setOpenUpdate(false)}>
             <DialogContent>
               <div className="form">
-                <h2>Update Room Data</h2>
+                <h1>Update Room </h1>
                 <form>
                   <div className="elem-group">
-                    <label htmlFor="name">Name:</label>
+                    <label htmlFor="name">
+                      Name<span style={{ color: "red" }}>*</span>
+                    </label>
                     <input
                       type="text"
                       name="name"
@@ -286,7 +288,9 @@ function AdminRoomComponent(): JSX.Element {
                   </div>
                   {nameError && <div className="errorMessage">{nameError}</div>}
                   <div className="elem-group">
-                    <label htmlFor="capacity">Capacity</label>
+                    <label htmlFor="capacity">
+                      Capacity<span style={{ color: "red" }}>*</span>
+                    </label>
                     <input
                       type="number"
                       name="capacity"
@@ -333,10 +337,12 @@ function AdminRoomComponent(): JSX.Element {
           <Dialog open={addOpen} onClose={() => setAddOpen(!addOpen)}>
             <DialogContent>
               <div className="form">
-                <h2>Add New Car</h2>
+                <h1>Add New Car</h1>
                 <form>
                   <div className="elem-group">
-                    <label htmlFor="name">Name:</label>
+                    <label htmlFor="name">
+                      Name<span style={{ color: "red" }}>*</span> :
+                    </label>
                     <input
                       type="text"
                       name="name"
@@ -345,7 +351,9 @@ function AdminRoomComponent(): JSX.Element {
                   </div>
                   {nameError && <div className="errorMessage">{nameError}</div>}
                   <div className="elem-group">
-                    <label htmlFor="capacity">Capacity</label>
+                    <label htmlFor="capacity">
+                      Capacity<span style={{ color: "red" }}>*</span> :
+                    </label>
                     <input
                       type="number"
                       name="capacity"

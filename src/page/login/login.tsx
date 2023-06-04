@@ -62,8 +62,9 @@ const Login = () => {
         navigate(`/${res.role}-dashboard/home`);
       })
       .catch((error) => {
-        setStatus("Error");
+        setStatus("LOGIN");
         setAlert(true);
+        console.log(error);
         if (error.response.data.message.email) {
           setEmailError(error.response.data.message.email[0]);
         }

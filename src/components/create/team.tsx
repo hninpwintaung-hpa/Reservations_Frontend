@@ -39,6 +39,7 @@ function Team(): JSX.Element {
       setIsUpdated(true);
     }
   }, [teamDataQuery, isTeamFetching]);
+  const [teamUpdateError, setTeamUpdateError] = useState("");
 
   const handleFormChange: React.ChangeEventHandler<HTMLInputElement> = (
     event
@@ -71,9 +72,8 @@ function Team(): JSX.Element {
         window.location.reload();
       })
       .catch((error) => {
-        console.log(error);
         if (error.response.data.message.name) {
-          setTeamError(error.response.data.message.name);
+          setTeamError(error.response.data.message.name[0]);
         }
       });
   };
@@ -83,9 +83,7 @@ function Team(): JSX.Element {
     setOpen(true);
   };
   const handleUpdate = () => {
-    setOpen(false);
     setIsUpdated(true);
-    window.location.reload();
     const updatedUser: DataRow = {
       ...formValues,
     };
@@ -112,9 +110,14 @@ function Team(): JSX.Element {
           setOpen(false);
           setIsUpdated(true);
           resolve();
+          window.location.reload();
         })
         .catch((error) => {
           reject(error);
+          setOpen(true);
+          if (error.response.data.message.name) {
+            setTeamUpdateError(error.response.data.message.name[0]);
+          }
         });
     });
   };
@@ -155,7 +158,6 @@ function Team(): JSX.Element {
             <DriveFileRenameOutlineTwoToneIcon
               color="success"
               fontSize="large"
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               onClick={(e: any) => {
                 e.preventDefault();
                 handleEdit(row);
@@ -166,7 +168,6 @@ function Team(): JSX.Element {
               fontSize="large"
               color="error"
               sx={{ marginLeft: "5px" }}
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               onClick={(e: any) => {
                 e.preventDefault();
                 handleDelete(row.id);
@@ -283,6 +284,9 @@ function Team(): JSX.Element {
                       style={{ marginTop: "20px", marginBottom: "20px" }}
                     />
                   </div>
+                  {teamUpdateError && (
+                    <div className="errorMessage">{teamUpdateError}</div>
+                  )}
                   <div className="btn-group">
                     <Button
                       onClick={handleUpdate}

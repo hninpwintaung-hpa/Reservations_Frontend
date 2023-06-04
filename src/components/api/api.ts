@@ -64,7 +64,7 @@ export const useUserDataQuery = () => {
 export const useTeamDataQuery = () => {
     const authRedux = useAppSelector((state) => state.auth);
   
-    return useQuery<{ data: DataRow[] }, Error>(
+  return useQuery<{ data: DataRow[] }, Error>(
       "teamData",
       async () => {
         const axiosConfig = {
@@ -78,8 +78,9 @@ export const useTeamDataQuery = () => {
           "http://127.0.0.1:8000/api/teams",
           axiosConfig
         );
-  
-        return { data: response.data.data };
+        
+        return { data: response.data.data};
+
       },
       {
         onError: (reason) => {

@@ -859,10 +859,9 @@ export const RoomReservation: React.FC = () => {
           },
         }
       )
-      .then((response) => {
-        console.log(response.data);
+      .then(() => {
         setOpen(false);
-        setRefresh(true);
+        window.location.reload();
       })
       .catch((error) => {
         setOpen(true);
@@ -998,9 +997,9 @@ export const RoomReservation: React.FC = () => {
   };
 
   const [openDelete, setOpenDelete] = useState(false);
-  const handleOpen = () => {
-    setOpenDelete(true);
-  };
+  //   const handleOpen = () => {
+  //     setOpenDelete(true);
+  //   };
   const handleClose = () => {
     setOpenDelete(false);
   };
@@ -1076,8 +1075,8 @@ export const RoomReservation: React.FC = () => {
                 },
                 headRow: {
                   style: {
-                    backgroundColor: "#e0e2e7", // Set your desired header color here
-                    color: "#000", // Set the text color for the header
+                    backgroundColor: "#e0e2e7",
+                    color: "#000",
                   },
                 },
               }}
@@ -1123,9 +1122,7 @@ export const RoomReservation: React.FC = () => {
                       )}
 
                       <div className="elem-group">
-                        <label htmlFor="description">
-                          Description <span style={{ color: "red" }}>*</span>
-                        </label>
+                        <label htmlFor="description">Description</label>
                         <input
                           type="text"
                           name="description"

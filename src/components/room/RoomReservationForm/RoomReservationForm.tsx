@@ -115,6 +115,7 @@ const RoomReservationForm: React.FC = () => {
         );
       })
       .catch((error) => {
+        console.log(error);
         if (error.response.data.message.endTimeError) {
           setMessage(error.response.data.message.endTimeError);
         }
@@ -129,6 +130,12 @@ const RoomReservationForm: React.FC = () => {
         }
         if (error.response.data.message.date) {
           setDateError(error.response.data.message.date[0]);
+        }
+        if (error.response.data.message.start_time) {
+          setTimeError(error.response.data.message.start_time[0]);
+        }
+        if (error.response.data.message.end_time) {
+          setTimeError(error.response.data.message.end_time[0]);
         }
         if (
           error.response.data.message.start_time &&
@@ -192,7 +199,19 @@ const RoomReservationForm: React.FC = () => {
                   placeholder="Agenda"
                 />
               </div>
-
+              <div className="elem-group">
+                <label htmlFor="date">
+                  Date <span style={{ color: "red" }}>*</span>
+                </label>
+                <input
+                  type="date"
+                  name="date"
+                  min={minDate}
+                  value={inputValue.date}
+                  onChange={handleInputChange}
+                />
+              </div>
+              {dateError && <div className="errorMessage">{dateError}</div>}
               <div className="elem-group inlined">
                 <label htmlFor="time">
                   Time <span style={{ color: "red" }}>*</span>
@@ -235,19 +254,7 @@ const RoomReservationForm: React.FC = () => {
                   {timeError}
                 </div>
               )}
-              <div className="elem-group">
-                <label htmlFor="date">
-                  Date <span style={{ color: "red" }}>*</span>
-                </label>
-                <input
-                  type="date"
-                  name="date"
-                  min={minDate}
-                  value={inputValue.date}
-                  onChange={handleInputChange}
-                />
-              </div>
-              {dateError && <div className="errorMessage">{dateError}</div>}
+
               <div className="button-group">
                 <button type="submit">Book Now</button>
                 <button type="button" onClick={handleCancel}>
