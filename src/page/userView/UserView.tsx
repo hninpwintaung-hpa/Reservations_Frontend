@@ -6,7 +6,7 @@ import AuthProvider from "../../redux/authProvider";
 import { UserRoom } from "../room/UserRoom";
 import { CarBooking } from "../car/booking/CarBooking";
 import { UserRoomReservationForm } from "../../components/room/RoomReservationForm/UserRoomReservationForm";
-import { UserProfileList } from "../../page/profile/userprofile";
+import { UserProfileList } from "../profile/userprofile";
 import Error404 from "../error/Error404";
 
 function UserView() {

@@ -1,6 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useContext, useEffect, useState } from "react";
-import { Button, Switch, Dialog, DialogContent } from "@mui/material";
+import {
+  Button,
+  Switch,
+  Dialog,
+  DialogContent,
+  DialogContentText,
+} from "@mui/material";
 import DataTable, { TableColumn } from "react-data-table-component";
 import { DarkModeContext } from "../../context/darkModeContext";
 import axios from "axios";
@@ -45,6 +51,7 @@ function NormalUser(): JSX.Element {
   const [, setIsUpdated] = useState(false);
   const [, setInitialLoading] = useState(false);
   const [permissionError, setPermissionError] = useState("");
+  const [openError, setOpenError] = useState(false);
   const [formValues, setFormValues] = useState<DataRow>({
     team: { id: 0, name: "" },
     employee_id: "",
@@ -65,6 +72,7 @@ function NormalUser(): JSX.Element {
     useTeamDataQuery();
   const { data: roleDataQuery, isFetching: isRoleFetching } =
     useRoleDataQuery();
+  const [connectionError, setConnectionError] = useState("");
   useEffect(() => {
     if (userDataQuery && !isUserFetching) {
       setInitialLoading(true);
@@ -89,24 +97,11 @@ function NormalUser(): JSX.Element {
   const handleUpdate = () => {
     const updatedUser: DataRow = {
       ...formValues,
-      roles: [
-        {
-          id: parseInt(role, 10),
-          name: roleList.find((r) => r.id === parseInt(role, 10))?.name || "",
-        },
-      ],
-
-      team: {
-        id: parseInt(teamName, 10),
-        name: teamList.find((t) => t.id === parseInt(teamName, 10))?.name || "",
-      },
     };
     const updatedUsers = user.map((item) =>
       item.id === formValues.id ? updatedUser : item
     );
     setUser(updatedUsers);
-    window.location.reload();
-    // console.log(updatedUser.roles[0].id);
 
     return new Promise<void>((resolve, reject) => {
       axios
@@ -117,7 +112,7 @@ function NormalUser(): JSX.Element {
             email: updatedUser.email,
             password: updatedUser.password,
             status: updatedUser.status,
-            team_id: updatedUser.team.id,
+            team_id: updatedUser.team_id,
             phone: updatedUser.phone,
             employee_id: updatedUser.employee_id,
             role_id: updatedUser.roles[0].id,
@@ -132,10 +127,10 @@ function NormalUser(): JSX.Element {
           setOpen(false);
           setIsUpdated(true);
           resolve();
+          window.location.reload();
         })
         .catch((error) => {
           reject(error);
-          console.log(error);
           if (error.response.data.message) {
             setPermissionError(error.response.data.message);
           }
@@ -198,9 +193,15 @@ function NormalUser(): JSX.Element {
       })
       .catch((error) => {
         console.error("Error updating user status:", error);
+        if (error.response.data.message) {
+          setOpenError(true);
+          setConnectionError("No internet connection!");
+        }
       });
   };
-
+  const handleCloseError = () => {
+    setOpenError(false);
+  };
   const handleFormChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = event.target;
 
@@ -408,6 +409,22 @@ function NormalUser(): JSX.Element {
                 </form>
               </div>
             </DialogContent>
+          </Dialog>
+          <Dialog
+            open={openError}
+            onClose={handleCloseError}
+            className="dialog"
+          >
+            <DialogContent>
+              <DialogContentText>{connectionError}</DialogContentText>
+            </DialogContent>
+
+            <Button
+              onClick={handleCloseError}
+              style={{ textAlign: "center", fontSize: "13px" }}
+            >
+              Close
+            </Button>
           </Dialog>
         </>
       )}

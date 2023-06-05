@@ -19,6 +19,7 @@
     "@syncfusion/ej2-react-schedule": "^21.2.4",
     "axios": "^1.4.0",
     "chart.js": "^4.3.0",
+    "date-fns": "^2.30.0",
     "js-cookie": "^3.0.5",
     "mui-datatables": "^4.3.0",
     "react": "^18.2.0",

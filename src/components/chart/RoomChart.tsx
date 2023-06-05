@@ -7,7 +7,6 @@ export interface ReservationCountData {
 }
 interface ChartDataProp {
   chartData: ReservationCountData[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   monthLabels: any;
 }
 Chart.register(...registerables);
@@ -21,7 +20,7 @@ const RoomChart: React.FC<ChartDataProp> = ({ chartData, monthLabels }) => {
 
       if (ctx) {
         if (chartInstance.current) {
-          chartInstance.current.destroy(); // Destroy the previous chart instance
+          chartInstance.current.destroy();
         }
 
         chartInstance.current = new Chart(ctx, {

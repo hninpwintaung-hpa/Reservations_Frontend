@@ -6,8 +6,8 @@ import { useAppSelector } from "./redux/features/Hook";
 import { AuthRole } from "./redux/features/type/authType";
 import Register from "./page/register/register";
 import Error404 from "./page/error/Error404";
-import AdminView from "./page/admin/AdminView";
-import UserView from "./page/user/UserView";
+import AdminView from "./page/adminView/AdminView";
+import UserView from "./page/userView/UserView";
 import Login from "./page/login/login";
 import CarStatusUpdate from "./components/car/AdminCar";
 

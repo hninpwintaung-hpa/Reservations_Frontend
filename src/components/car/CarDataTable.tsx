@@ -49,29 +49,6 @@ const CarDataTable = () => {
       setRefresh(false);
     }
   }, [userCarQuery, isCarFetching]);
-  // useEffect(() => {
-  //   fetchCarList().then((response: any) => {
-  //     setCarData(response.data);
-  //     setRefresh(false);
-  //   });
-  // }, []);
-
-  // const fetchCarList = () => {
-  //   return new Promise((resolve, reject) => {
-  //     axios
-  //       .get("http://127.0.0.1:8000/api/cars", {
-  //         headers: {
-  //           Authorization: `Bearer ${authRedux.token}`,
-  //         },
-  //       })
-  //       .then((response) => {
-  //         resolve(response.data);
-  //       })
-  //       .catch((error) => {
-  //         reject(error);
-  //       });
-  //   });
-  // };
 
   const columns: TableColumn<CarData>[] = [
     {
@@ -146,6 +123,7 @@ const CarDataTable = () => {
     setTimeError("");
     setDestinationError("");
     setTitleError("");
+    setMessage("");
   };
 
   const sendDataToBackend = () => {
@@ -170,7 +148,9 @@ const CarDataTable = () => {
           },
         }
       )
-      .then(() => {
+      .then((response) => {
+        console.log(authRedux.user.id);
+
         setRefresh(true);
         const successMessage = "Reservation created successfully.";
         navigate(
@@ -221,6 +201,11 @@ const CarDataTable = () => {
   };
 
   const onBackDropClick = () => {
+    setDateError("");
+    setTimeError("");
+    setDestinationError("");
+    setTitleError("");
+    setMessage("");
     setOpen(false);
   };
 

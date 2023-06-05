@@ -12,7 +12,7 @@ import { ReportTeam } from "../report/teamReport";
 import { ReservationCarReport } from "../report/carReservationReport";
 import { ReservationRoomReport } from "../report/roomReservationReport";
 import { AdminViewReservationForm } from "../../components/room/RoomReservationForm/AdminViewReservationForm";
-import CreateCar from "../../page/creation/CarCRUD";
+import CreateCar from "../creation/CarCRUD";
 import { Profile } from "../profile/profile";
 import Error404 from "../error/Error404";
 
