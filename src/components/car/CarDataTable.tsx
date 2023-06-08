@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Button, Dialog, DialogContent } from "@mui/material";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
@@ -21,6 +20,7 @@ const CarDataTable = () => {
   const [open, setOpen] = useState(false);
   const [selectedCarId, setSelectedCarId] = useState<any>();
   const [titleError, setTitleError] = useState("");
+  const [minDate] = useState(() => new Date().toISOString().split("T")[0]);
   const [destinationError, setDestinationError] = useState("");
   const [passengerError, setPassengerError] = useState("");
   const [dateError, setDateError] = useState("");
@@ -299,7 +299,6 @@ const CarDataTable = () => {
                       name="no_of_traveller"
                       value={inputValue.no_of_traveller}
                       onChange={handleInputChange}
-                      placeholder="Enter traveller number"
                     />
                   </div>
                   {passengerError && (
@@ -312,6 +311,7 @@ const CarDataTable = () => {
                     <input
                       type="date"
                       name="date"
+                      min={minDate}
                       value={inputValue.date}
                       onChange={handleInputChange}
                     />

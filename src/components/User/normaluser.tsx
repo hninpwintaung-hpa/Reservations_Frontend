@@ -52,6 +52,8 @@ function NormalUser(): JSX.Element {
   const [, setInitialLoading] = useState(false);
   const [permissionError, setPermissionError] = useState("");
   const [openError, setOpenError] = useState(false);
+  const [openUserDeleteDialog, setUserDeleteDialog] = useState(false);
+  const [deleteItem, setDeleteItem] = useState(Number);
   const [formValues, setFormValues] = useState<DataRow>({
     team: { id: 0, name: "" },
     employee_id: "",
@@ -134,24 +136,6 @@ function NormalUser(): JSX.Element {
           if (error.response.data.message) {
             setPermissionError(error.response.data.message);
           }
-        });
-    });
-  };
-
-  const handleDelete = (row: number) => {
-    return new Promise<void>((resolve, reject) => {
-      axios
-        .delete(`http://127.0.0.1:8000/api/users/${row}`, {
-          headers: {
-            Authorization: `Bearer ${authRedux.token}`,
-          },
-        })
-        .then(() => {
-          setUser((prevUser) => prevUser.filter((item) => item.id !== row));
-          resolve();
-        })
-        .catch((error) => {
-          reject(error);
         });
     });
   };
@@ -299,9 +283,34 @@ function NormalUser(): JSX.Element {
       ),
     },
   ];
+  const handleDelete = (row: number) => {
+    setUserDeleteDialog(true);
+    setDeleteItem(row);
+  };
+  const handleDeleteUser = () => {
+    return new Promise<void>((resolve, reject) => {
+      axios
+        .delete(`http://127.0.0.1:8000/api/users/${deleteItem}`, {
+          headers: {
+            Authorization: `Bearer ${authRedux.token}`,
+          },
+        })
+        .then(() => {
+          setUserDeleteDialog(false);
+          setUser((prevUser) =>
+            prevUser.filter((item) => item.id !== deleteItem)
+          );
+          resolve();
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
+  };
   const onBackDropClick = () => {
     setOpen(false);
   };
+
   return (
     <>
       {isUserFetching || isRoleFetching || isTeamFetching ? (
@@ -378,7 +387,6 @@ function NormalUser(): JSX.Element {
                         className="option"
                         value={formValues.team_id}
                         onChange={handleFormChange}
-                        // onChange={(e) => setTeamName(e.target.value)}
                       >
                         {teamList.map((team) => (
                           <option key={team.id} value={team.id}>
@@ -425,6 +433,35 @@ function NormalUser(): JSX.Element {
             >
               Close
             </Button>
+          </Dialog>
+          <Dialog
+            open={openUserDeleteDialog}
+            onClose={() => setUserDeleteDialog(false)}
+            className="dialog"
+          >
+            <DialogContent>
+              <DialogContentText>
+                Are you sure you want to delete this user?
+              </DialogContentText>
+            </DialogContent>
+
+            <div style={{ marginBottom: "10px" }}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleDeleteUser}
+                style={{ textAlign: "center", fontSize: "13px" }}
+              >
+                Confirm
+              </Button>
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={() => setUserDeleteDialog(false)}
+              >
+                Cancel
+              </Button>
+            </div>
           </Dialog>
         </>
       )}

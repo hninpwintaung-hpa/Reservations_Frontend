@@ -103,6 +103,7 @@ export const RoomReservation: React.FC = () => {
   const [timeError, setTimeError] = useState("");
   const [dateError, setDateError] = useState("");
   const [message, setMessage] = useState("");
+  const [minDate] = useState(() => new Date().toISOString().split("T")[0]);
   const queryParams = new URLSearchParams(location.search);
   const { darkMode } = useContext(DarkModeContext);
   const successMessage = queryParams.get("success");
@@ -265,6 +266,7 @@ export const RoomReservation: React.FC = () => {
         window.location.reload();
       })
       .catch((error) => {
+        console.log(error);
         setOpen(true);
         if (error.response.data.message.end_time) {
           setMessage(error.response.data.message.end_time[0]);
@@ -274,8 +276,8 @@ export const RoomReservation: React.FC = () => {
           setMessage(error.response.data.message.overlap);
         }
 
-        if (error.response.data.message.dateError) {
-          setMessage(error.response.data.message.dateError);
+        if (error.response.data.message.errorDate) {
+          setMessage(error.response.data.message.errorDate);
         }
         if (error.response.data.message.title) {
           setTitleError(error.response.data.message.title[0]);
@@ -329,6 +331,8 @@ export const RoomReservation: React.FC = () => {
         <>
           <div style={{ display: "flex" }}>
             <Button
+              variant="contained"
+              color="success"
               onClick={(e: any) => {
                 e.preventDefault();
                 handleEdit(row);
@@ -340,12 +344,13 @@ export const RoomReservation: React.FC = () => {
               }
             >
               <DriveFileRenameOutlineTwoToneIcon
-                color="success"
                 sx={{ cursor: "pointer" }}
                 fontSize="large"
               />
             </Button>
             <Button
+              variant="contained"
+              color="error"
               onClick={(e: any) => {
                 e.preventDefault();
                 handleDelete(row.id);
@@ -357,7 +362,6 @@ export const RoomReservation: React.FC = () => {
               }
             >
               <DeleteForeverIcon
-                color="error"
                 fontSize="large"
                 sx={{ marginLeft: "5px", cursor: "pointer" }}
               />
@@ -397,9 +401,7 @@ export const RoomReservation: React.FC = () => {
   };
 
   const [openDelete, setOpenDelete] = useState(false);
-  //   const handleOpen = () => {
-  //     setOpenDelete(true);
-  //   };
+
   const handleClose = () => {
     setOpenDelete(false);
   };
@@ -434,7 +436,7 @@ export const RoomReservation: React.FC = () => {
           <div className="date__reservationBtn">
             <Link
               to={`/${authRedux.role}-dashboard/room-reservation/reserve`}
-              className={darkMode ? "dark_reserve_btn" : "link_style"}
+              className={darkMode ? "dark_reserve_btn" : "link-style"}
             >
               Reserve Room
             </Link>
@@ -540,6 +542,7 @@ export const RoomReservation: React.FC = () => {
                         <input
                           type="date"
                           name="date"
+                          min={minDate}
                           value={inputValues.date}
                           onChange={handleInputChange}
                         />
@@ -557,7 +560,7 @@ export const RoomReservation: React.FC = () => {
                           value={inputValues.start_time}
                           onChange={handleSelectChange}
                         >
-                          <option value="9:00:00">09:00am</option>
+                          <option value="09:00:00">09:00am</option>
                           <option value="10:00:00">10:00am</option>
                           <option value="11:00:00">11:00am</option>
                           <option value="12:00:00">12:00pm</option>

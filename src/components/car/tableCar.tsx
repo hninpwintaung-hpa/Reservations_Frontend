@@ -1,5 +1,5 @@
 import Button from "@mui/material/Button/Button";
-import DataTable, { TableColumn } from "react-data-table-component";
+import DataTable from "react-data-table-component";
 import React, { useContext, useEffect, useState } from "react";
 import { DarkModeContext } from "../../context/darkModeContext";
 import { useAppSelector } from "../../redux/features/Hook";
