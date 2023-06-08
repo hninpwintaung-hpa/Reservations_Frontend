@@ -4,6 +4,7 @@ import {
   Button,
   Dialog,
   DialogContent,
+  DialogContentText,
   Paper,
   TableContainer,
 } from "@mui/material";
@@ -33,7 +34,8 @@ function AdminRoomComponent(): JSX.Element {
   const [, setIsUpdated] = useState(false);
   const [nameError, setNameError] = useState("");
   const [capacityError, setCapacityError] = useState("");
-
+  const [openDeleteDialog, setDeleteDialog] = useState(false);
+  const [deleteItem, setDeleteItem] = useState(Number);
   const [formValues, setFormValues] = useState<RoomData>({
     name: "",
     capacity: 1,
@@ -103,23 +105,23 @@ function AdminRoomComponent(): JSX.Element {
     });
   };
 
-  const handleDelete = (row: number) => {
-    return new Promise<void>((resolve, reject) => {
-      axios
-        .delete(`http://127.0.0.1:8000/api/rooms/${row}`, {
-          headers: {
-            Authorization: `Bearer ${authRedux.token}`,
-          },
-        })
-        .then(() => {
-          setRoom((prev) => prev.filter((item) => item.id !== row));
-          resolve();
-        })
-        .catch((error) => {
-          reject(error);
-        });
-    });
-  };
+  // const handleDelete = (row: number) => {
+  //   return new Promise<void>((resolve, reject) => {
+  //     axios
+  //       .delete(`http://127.0.0.1:8000/api/rooms/${row}`, {
+  //         headers: {
+  //           Authorization: `Bearer ${authRedux.token}`,
+  //         },
+  //       })
+  //       .then(() => {
+  //         setRoom((prev) => prev.filter((item) => item.id !== row));
+  //         resolve();
+  //       })
+  //       .catch((error) => {
+  //         reject(error);
+  //       });
+  //   });
+  // };
 
   const handleFormChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -130,7 +132,7 @@ function AdminRoomComponent(): JSX.Element {
       [name]: newValue,
     }));
 
-    console.log(formValues);
+    //console.log(formValues);
   };
 
   const columns: TableColumn<RoomData>[] = [
@@ -174,7 +176,28 @@ function AdminRoomComponent(): JSX.Element {
       ),
     },
   ];
-
+  const handleDelete = (row: number) => {
+    setDeleteDialog(true);
+    setDeleteItem(row);
+  };
+  const handleDeleteRoom = () => {
+    return new Promise<void>((resolve, reject) => {
+      axios
+        .delete(`http://127.0.0.1:8000/api/rooms/${deleteItem}`, {
+          headers: {
+            Authorization: `Bearer ${authRedux.token}`,
+          },
+        })
+        .then(() => {
+          setDeleteDialog(false);
+          setRoom((prev) => prev.filter((item) => item.id !== deleteItem));
+          resolve();
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
+  };
   function handleAdd() {
     setAddOpen(!addOpen);
     setNameError("");
@@ -201,6 +224,7 @@ function AdminRoomComponent(): JSX.Element {
           setNameError("");
           setCapacityError("");
           setAddOpen(!addOpen);
+          window.location.reload();
         })
         .catch((error) => {
           setOpen(true);
@@ -391,6 +415,35 @@ function AdminRoomComponent(): JSX.Element {
                 </form>
               </div>
             </DialogContent>
+          </Dialog>
+          <Dialog
+            open={openDeleteDialog}
+            onClose={() => setDeleteDialog(false)}
+            className="dialog"
+          >
+            <DialogContent>
+              <DialogContentText>
+                Are you sure you want to delete?
+              </DialogContentText>
+            </DialogContent>
+
+            <div style={{ marginBottom: "10px" }}>
+              <Button
+                variant="contained"
+                color="info"
+                onClick={handleDeleteRoom}
+                style={{ textAlign: "center", fontSize: "13px" }}
+              >
+                Confirm
+              </Button>
+              <Button
+                variant="contained"
+                sx={{ backgroundColor: "gray", marginLeft: "10px" }}
+                onClick={() => setDeleteDialog(false)}
+              >
+                Cancel
+              </Button>
+            </div>
           </Dialog>
         </>
       )}

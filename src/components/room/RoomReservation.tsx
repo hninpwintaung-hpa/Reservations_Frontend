@@ -409,7 +409,7 @@ export const RoomReservation: React.FC = () => {
     <div className="home">
       <div className="reservation-container">
         <h1 className={darkMode ? "dark_title" : "page_title"}>
-          Meeting Rooms Schedule
+          Meeting Rooms Reservations Schedule
         </h1>
         {successMessage && (
           <Collapse in={alert}>
@@ -438,7 +438,7 @@ export const RoomReservation: React.FC = () => {
               to={`/${authRedux.role}-dashboard/room-reservation/reserve`}
               className={darkMode ? "dark_reserve_btn" : "link-style"}
             >
-              Reserve Room
+              BOOK ROOM
             </Link>
           </div>
 

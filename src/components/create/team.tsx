@@ -3,6 +3,7 @@ import {
   Button,
   Dialog,
   DialogContent,
+  DialogContentText,
   Paper,
   TableContainer,
 } from "@mui/material";
@@ -25,6 +26,8 @@ function Team(): JSX.Element {
   const [user, setUser] = useState<DataRow[]>([]);
   const [teamData, setTeamData] = useState<DataRow[]>([]);
   const [, setIsUpdated] = useState(false);
+  const [openDeleteDialog, setDeleteDialog] = useState(false);
+  const [deleteItem, setDeleteItem] = useState(Number);
   const [formValues, setFormValues] = useState<DataRow>({
     id: 0,
     name: "",
@@ -122,32 +125,28 @@ function Team(): JSX.Element {
     });
   };
 
-  const handleDelete = (row: number) => {
-    return new Promise<void>((resolve, reject) => {
-      axios
-        .delete(`http://127.0.0.1:8000/api/teams/${row}`, {
-          headers: {
-            Authorization: `Bearer ${authRedux.token}`,
-          },
-        })
-        .then(() => {
-          setTeamData((prevData) => prevData.filter((item) => item.id !== row));
-          setIsUpdated(true);
-          resolve();
-        })
-        .catch((error) => {
-          reject(error);
-        });
-    });
-  };
+  // const handleDelete = (row: number) => {
+  //   return new Promise<void>((resolve, reject) => {
+  //     axios
+  //       .delete(`http://127.0.0.1:8000/api/teams/${row}`, {
+  //         headers: {
+  //           Authorization: `Bearer ${authRedux.token}`,
+  //         },
+  //       })
+  //       .then(() => {
+  //         setTeamData((prevData) => prevData.filter((item) => item.id !== row));
+  //         setIsUpdated(true);
+  //         resolve();
+  //       })
+  //       .catch((error) => {
+  //         reject(error);
+  //       });
+  //   });
+  // };
 
   const columns: TableColumn<DataRow>[] = [
     {
-      name: "Team_id",
-      selector: (row: DataRow) => row.id,
-    },
-    {
-      name: "Team_Name",
+      name: "Team Name",
       selector: (row: DataRow) => row.name,
     },
     {
@@ -178,6 +177,31 @@ function Team(): JSX.Element {
       ),
     },
   ];
+
+  const handleDelete = (row: number) => {
+    setDeleteDialog(true);
+    setDeleteItem(row);
+  };
+  const handleDeleteCar = () => {
+    return new Promise<void>((resolve, reject) => {
+      axios
+        .delete(`http://127.0.0.1:8000/api/teams/${deleteItem}`, {
+          headers: {
+            Authorization: `Bearer ${authRedux.token}`,
+          },
+        })
+        .then(() => {
+          setDeleteDialog(false);
+          setTeamData((prevData) =>
+            prevData.filter((item) => item.id !== deleteItem)
+          );
+          resolve();
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
+  };
   return (
     <>
       {isTeamFetching ? (
@@ -208,7 +232,7 @@ function Team(): JSX.Element {
               htmlFor="name"
               style={{ marginTop: "20px", marginRight: "10px" }}
             >
-              Create team Name:
+              Team Name:
             </label>
             <div>
               <input
@@ -300,6 +324,35 @@ function Team(): JSX.Element {
                 </form>
               </div>
             </DialogContent>
+          </Dialog>
+          <Dialog
+            open={openDeleteDialog}
+            onClose={() => setDeleteDialog(false)}
+            className="dialog"
+          >
+            <DialogContent>
+              <DialogContentText>
+                Are you sure you want to delete?
+              </DialogContentText>
+            </DialogContent>
+
+            <div style={{ marginBottom: "10px" }}>
+              <Button
+                variant="contained"
+                color="info"
+                onClick={handleDeleteCar}
+                style={{ textAlign: "center", fontSize: "13px" }}
+              >
+                Confirm
+              </Button>
+              <Button
+                variant="contained"
+                sx={{ backgroundColor: "gray", marginLeft: "10px" }}
+                onClick={() => setDeleteDialog(false)}
+              >
+                Cancel
+              </Button>
+            </div>
           </Dialog>
         </>
       )}

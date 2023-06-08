@@ -1,8 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Button,
   Dialog,
   DialogContent,
+  DialogContentText,
   Paper,
   TableContainer,
 } from "@mui/material";
@@ -28,6 +28,8 @@ const CarDataTable = () => {
   const [bradError, setBrandError] = useState("");
   const [licenceError, setLicenceError] = useState("");
   const [capacityError, setCapacityError] = useState("");
+  const [openDeleteDialog, setDeleteDialog] = useState(false);
+  const [deleteItem, setDeleteItem] = useState(Number);
   const authToken = authRedux.token;
   const [inputValue, setInputValue] = useState<CarData>({
     id: 0,
@@ -40,7 +42,6 @@ const CarDataTable = () => {
       setCarData(response.data);
       setRefresh(false);
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh]);
 
   const fetchCarList = () => {
@@ -101,7 +102,30 @@ const CarDataTable = () => {
       ),
     },
   ];
-
+  const handleDelete = (row: number) => {
+    setDeleteDialog(true);
+    setDeleteItem(row);
+  };
+  const handleDeleteCar = () => {
+    return new Promise<void>((resolve, reject) => {
+      axios
+        .delete(`http://127.0.0.1:8000/api/cars/${deleteItem}`, {
+          headers: {
+            Authorization: `Bearer ${authRedux.token}`,
+          },
+        })
+        .then(() => {
+          setDeleteDialog(false);
+          setCarData((prevData) =>
+            prevData.filter((item) => item.id !== deleteItem)
+          );
+          resolve();
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
+  };
   const handleEdit = (data: CarData) => {
     setInputValue({ ...data });
     setOpen(true);
@@ -159,23 +183,23 @@ const CarDataTable = () => {
   const onBackDropClick = () => {
     setOpen(false);
   };
-  const handleDelete = (id: number) => {
-    return new Promise<void>((resolve, reject) => {
-      axios
-        .delete(`http://127.0.0.1:8000/api/cars/${id}`, {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        })
-        .then(() => {
-          setCarData((prevData) => prevData.filter((item) => item.id !== id));
-          resolve();
-        })
-        .catch((error) => {
-          reject(error);
-        });
-    });
-  };
+  // const handleDelete = (id: number) => {
+  //   return new Promise<void>((resolve, reject) => {
+  //     axios
+  //       .delete(`http://127.0.0.1:8000/api/cars/${id}`, {
+  //         headers: {
+  //           Authorization: `Bearer ${authToken}`,
+  //         },
+  //       })
+  //       .then(() => {
+  //         setCarData((prevData) => prevData.filter((item) => item.id !== id));
+  //         resolve();
+  //       })
+  //       .catch((error) => {
+  //         reject(error);
+  //       });
+  //   });
+  // };
   return (
     <>
       <TableContainer component={Paper} style={{ maxWidth: 1300 }}>
@@ -258,6 +282,35 @@ const CarDataTable = () => {
             </div>
           </div>
         </DialogContent>
+      </Dialog>
+      <Dialog
+        open={openDeleteDialog}
+        onClose={() => setDeleteDialog(false)}
+        className="dialog"
+      >
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete?
+          </DialogContentText>
+        </DialogContent>
+
+        <div style={{ marginBottom: "10px" }}>
+          <Button
+            variant="contained"
+            color="info"
+            onClick={handleDeleteCar}
+            style={{ textAlign: "center", fontSize: "13px" }}
+          >
+            Confirm
+          </Button>
+          <Button
+            variant="contained"
+            sx={{ backgroundColor: "gray", marginLeft: "10px" }}
+            onClick={() => setDeleteDialog(false)}
+          >
+            Cancel
+          </Button>
+        </div>
       </Dialog>
     </>
   );

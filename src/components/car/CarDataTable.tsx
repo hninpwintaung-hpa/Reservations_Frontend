@@ -52,10 +52,6 @@ const CarDataTable = () => {
 
   const columns: TableColumn<CarData>[] = [
     {
-      name: "ID",
-      selector: (row: CarData) => row.id,
-    },
-    {
       name: "Brand/Model",
       selector: (row: CarData) => row.brand,
     },
@@ -75,7 +71,7 @@ const CarDataTable = () => {
           <div style={{ display: "flex" }}>
             <Button
               variant="contained"
-              color="success"
+              sx={{ backgroundColor: "#" }}
               size="small"
               onClick={(e: any) => {
                 e.preventDefault();
@@ -190,6 +186,9 @@ const CarDataTable = () => {
         }
         if (error.response.data.message.date) {
           setDateError(error.response.data.message.date[0]);
+        }
+        if (error.response.data.message.end_time) {
+          setMessage(error.response.data.message.end_time[0]);
         }
         if (
           error.response.data.message.start_time &&

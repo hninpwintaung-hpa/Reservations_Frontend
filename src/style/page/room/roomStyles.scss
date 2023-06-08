@@ -30,8 +30,8 @@
   }
   &__dateFilter input {
     border: 1px solid gray;
-    width: 150px;
-    height: 35px;
+    width: 160px;
+    height: 40px;
     font-size: 16px;
     border-radius: 5px;
   }
@@ -39,16 +39,17 @@
     margin: 0;
     text-decoration: none;
     border: 1px solid rgb(202, 199, 199);
-    background-color: rgb(237, 234, 234);
+    background-color: #e0e2e7;
     box-shadow: 3px 3px 3px rgb(224, 224, 221);
     border-radius: 2px;
     font-weight: bold;
 
     .link-style {
-      padding: 10px 20px;
+      padding: 15px 20px;
       display: block;
       width: 100%;
       height: 100%;
+      font-size: 14px;
       text-decoration: none;
       font-weight: normal;
       color: #204453;

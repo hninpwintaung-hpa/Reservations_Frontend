@@ -17,28 +17,34 @@ export const Car = () => {
   const queryParams = new URLSearchParams(location.search);
   const successMessage = queryParams.get("success");
   const [alert, setAlert] = useState(true);
-  const {darkMode}= useContext(DarkModeContext);
+  const { darkMode } = useContext(DarkModeContext);
   return (
     <div className="home">
       <Sidebar />
       <div className="homeContainer">
         <Navbar />
-        <div className="reservation-container">
-          <h1 className={darkMode?"dark_title":"page_title"}>Car Reservations Schedules</h1>
+        <div>
+          <h1 className={darkMode ? "dark_title" : "page_title"}>
+            Car Reservations Schedules
+          </h1>
           <div style={{ textAlign: "center", color: "green" }}></div>
           <div className="date">
             <Link
               to="/staff-dashboard/car-reservation/car-booking"
               style={{
-                textDecoration:"none",
+                textDecoration: "none",
                 display: "block",
                 textAlign: "left",
-                marginTop: "10px",
-                marginLeft: "10px",
+                padding: "10px 0px",
                 cursor: "default",
               }}
             >
-              <Button size="medium" variant="contained" disableRipple className={darkMode?"dark_reserve_btn":"dark_btn"}>
+              <Button
+                size="medium"
+                variant="contained"
+                disableRipple
+                className={darkMode ? "dark_btn" : ""}
+              >
                 Book Car
               </Button>
             </Link>

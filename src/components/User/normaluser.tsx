@@ -448,7 +448,7 @@ function NormalUser(): JSX.Element {
             <div style={{ marginBottom: "10px" }}>
               <Button
                 variant="contained"
-                color="primary"
+                color="info"
                 onClick={handleDeleteUser}
                 style={{ textAlign: "center", fontSize: "13px" }}
               >
@@ -456,7 +456,7 @@ function NormalUser(): JSX.Element {
               </Button>
               <Button
                 variant="contained"
-                color="secondary"
+                sx={{ backgroundColor: "gray", marginLeft: "10px" }}
                 onClick={() => setUserDeleteDialog(false)}
               >
                 Cancel

@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button, Dialog, DialogContent } from "@mui/material";
 import { useAppSelector } from "../../redux/features/Hook";
 import { useContext, useEffect, useState } from "react";
@@ -17,7 +15,7 @@ export interface CarData {
 const CarCRUD = () => {
   const authRedux = useAppSelector((state) => state.auth);
   const [open, setOpen] = useState(false);
-  const [, setCarData] = useState<CarData[]>([]);
+  const [carData, setCarData] = useState<CarData[]>([]);
   const [refresh, setRefresh] = useState(false);
   const { darkMode } = useContext(DarkModeContext);
   const [brandError, setBrandError] = useState("");
@@ -38,12 +36,12 @@ const CarCRUD = () => {
       setRefresh(false);
     }
   }, [userCarQuery, isCarFetching]);
+
   // useEffect(() => {
   //   fetchCarList().then((response: any) => {
   //     setCarData(response.data);
   //     setRefresh(false);
   //   });
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
   // }, [refresh]);
 
   // const fetchCarList = () => {

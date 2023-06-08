@@ -19,7 +19,7 @@ export const CarBooking = () => {
       <Sidebar />
       <div className="homeContainer">
         <Navbar />
-        <div className="reservation-container">
+        <div className="reserve-container">
           <h1 className={darkMode ? "dark_title" : "page_title"}>
             {" "}
             Car Booking{" "}
@@ -28,7 +28,7 @@ export const CarBooking = () => {
           <div className="padding">
             <Button
               onClick={goBack}
-              style={{ marginBottom: "15px" }}
+              style={{ marginBottom: "15px", marginLeft: "10px" }}
               size="medium"
               variant="contained"
               disableRipple

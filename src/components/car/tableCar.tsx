@@ -193,9 +193,9 @@ const TableCar: React.FC<TableProps> = ({ date }) => {
             },
             headRow: {
               style: {
-                backgroundColor: "#e0e2e7", // Set your desired header color here
+                backgroundColor: "#e0e2e7",
                 color: "#000",
-                fontSize: "30 px", // Set the text color for the header
+                fontSize: "30 px",
               },
             },
           }}
